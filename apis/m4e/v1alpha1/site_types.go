@@ -28,14 +28,20 @@ type SiteSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of Site. Edit site_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Flavor defines what M4e flavor to use
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=255
+	Flavor string `json:"flavor"`
 }
 
 // SiteStatus defines the observed state of Site
 type SiteStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// Whether site is ready
+	// +optional
+	Ready bool `json:"ready,omitempty"`
 }
 
 //+kubebuilder:object:root=true

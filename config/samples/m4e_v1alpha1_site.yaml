@@ -4,4 +4,4 @@ metadata:
   name: site-sample
 spec:
   # Add fields here
-  foo: bar
+  flavor: small
