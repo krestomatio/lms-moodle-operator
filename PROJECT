@@ -16,4 +16,13 @@ resources:
   kind: Site
   path: github.com/krestomatio/kio-operator/apis/m4e/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: app.krestomat.io
+  group: m4e
+  kind: Flavor
+  path: github.com/krestomatio/kio-operator/apis/m4e/v1alpha1
+  version: v1alpha1
 version: "3"
