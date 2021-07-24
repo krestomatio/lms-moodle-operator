@@ -40,6 +40,7 @@ type SiteStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:scope=Cluster
 
 // Site is the Schema for the sites API
 type Site struct {
