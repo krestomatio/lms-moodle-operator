@@ -3,5 +3,13 @@ kind: Flavor
 metadata:
   name: flavor-sample
 spec:
-  # Add fields here
-  foo: bar
+  ## Moodle new instance
+  # moodleNewInstance: true
+  moodleNewInstanceFullname: Demo site
+  moodleNewInstanceShortname: demo
+  moodleNewInstanceSummary: A demo site
+  moodleNewInstanceAdminuser: admin
+  ## Admin credentials. MUST CHANGED
+  moodleNewInstanceAdminpass: secret
+  moodleNewInstanceAdminmail: admin@example.com
+  moodleNewInstanceAgreeLicense: true

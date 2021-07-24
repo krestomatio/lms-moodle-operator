@@ -14,7 +14,7 @@ spec:
     listKind: SiteList
     plural: sites
     singular: site
-  scope: Namespaced
+  scope: Cluster
   versions:
   - name: v1alpha1
     schema:
@@ -41,8 +41,14 @@ spec:
                 maxLength: 255
                 minLength: 1
                 type: string
+              namespace:
+                description: Namespace defines the namespace for the site
+                maxLength: 255
+                minLength: 1
+                type: string
             required:
             - flavor
+            - namespace
             type: object
           status:
             description: SiteStatus defines the observed state of Site

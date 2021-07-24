@@ -24,11 +24,16 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
+)
+
+const (
+	siteControllerName string = "site_controller"
 )
 
 // SiteReconciler reconciles a Site object
@@ -72,27 +77,40 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		return ctrl.Result{}, err
 	}
 
+	flavor := &m4ev1alpha1.Flavor{}
+	err = r.Get(ctx, types.NamespacedName{Name: site.Spec.Flavor}, flavor)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// Request object not found, could have been deleted after reconcile request.
+			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
+			// Return and don't requeue
+			log.Info("Flavor resource not found. Ignoring since object must be deleted", "site.Spec.Flavor", site.Spec.Flavor)
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object - requeue the request.
+		log.Error(err, "Failed to get Flavor")
+		return ctrl.Result{}, err
+	}
+
 	// M4e kind from ansible operator
 	m4e := r.newM4eObject()
-	m4e.SetName(req.NamespacedName.Name)
-	m4e.SetNamespace(req.NamespacedName.Namespace)
-	err = r.Get(ctx, req.NamespacedName, m4e)
-	if err != nil && errors.IsNotFound(err) {
-		// Define a new M4e
-		log.Info("Creating a new M4e", "M4e.Namespace", m4e.GetNamespace(), "M4e.Name", m4e.GetName())
-		// Set Site resource as the owner and controller of M4e CR
-		ctrl.SetControllerReference(site, m4e, r.Scheme)
-		// Create M4e
-		err = r.Create(ctx, m4e)
-		if err != nil {
-			log.Error(err, "Failed to create new M4e", "M4e.Namespace", m4e.GetNamespace(), "M4e.Name", m4e.GetName())
-			return ctrl.Result{}, err
-		}
-		// M4e created successfully - return and requeue
-		return ctrl.Result{Requeue: true}, nil
-	} else if err != nil {
-		log.Error(err, "Failed to get M4e")
+	m4e.SetName(req.Name)
+	m4e.SetNamespace(site.Spec.Namespace)
+	m4e.Object["spec"] = flavor.Spec
+	log.V(1).Info("Setting M4e owner", "Owner", site.GetUID(), "M4e.Namespace", m4e.GetNamespace(), "M4e.Name", m4e.GetName())
+	err = ctrl.SetControllerReference(site, m4e, r.Scheme)
+	if err != nil {
+		log.Error(err, "Failed to set owner reference")
 		return ctrl.Result{}, err
+	}
+	// Patch M4e
+	log.V(1).Info("Applying M4e changes", "M4e.Namespace", m4e.GetNamespace(), "M4e.Name", m4e.GetName())
+	force := true
+	err = r.Patch(ctx, m4e, client.Apply, &client.PatchOptions{Force: &force, FieldManager: siteControllerName})
+	if err != nil {
+		log.Error(err, "Failed to apply M4e changes", "M4e.Namespace", m4e.GetNamespace(), "M4e.Name", m4e.GetName())
+		return ctrl.Result{}, err
+
 	}
 
 	return ctrl.Result{}, nil

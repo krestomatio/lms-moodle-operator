@@ -28,14 +28,48 @@ type FlavorSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of Flavor. Edit flavor_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// MoodleNewInstance whether new instance job runs
+	// +optional
+	MoodleNewInstance bool `json:"moodleNewInstance,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodleNewInstanceFullname string `json:"moodleNewInstanceFullname,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodleNewInstanceShortname string `json:"moodleNewInstanceShortname,omitempty"`
+
+	// +kubebuilder:validation:MaxLength=300
+	// +optional
+	MoodleNewInstanceSummary string `json:"moodleNewInstanceSummary,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodleNewInstanceAdminuser string `json:"moodleNewInstanceAdminuser,omitempty"`
+
+	// +kubebuilder:validation:MinLength=3
+	// +kubebuilder:validation:MaxLength=100
+	// MoodleNewInstanceAdminPass is the admin password to set in new instance. Required
+	MoodleNewInstanceAdminpass string `json:"moodleNewInstanceAdminpass"`
+
+	// +kubebuilder:validation:MinLength=3
+	// +kubebuilder:validation:MaxLength=100
+	// MoodleNewInstanceAdminMail is the admin email to set in new instance. Required
+	MoodleNewInstanceAdminmail string `json:"moodleNewInstanceAdminmail"`
+
+	// MoodleNewInstanceAgreeLicense whether agree to Moodle license. Required
+	MoodleNewInstanceAgreeLicense bool `json:"moodleNewInstanceAgreeLicense"`
 }
 
 // FlavorStatus defines the observed state of Flavor
 type FlavorStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// Sites store the name of the sites which are using this flavor
+	Sites []string `json:"nodes,omitempty"`
 }
 
 //+kubebuilder:object:root=true

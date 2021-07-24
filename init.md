@@ -31,7 +31,8 @@ operator-sdk create api \
   --version=v1alpha1 \
   --kind=Site \
   --resource \
-  --controller
+  --controller \
+  --namespaced=false
 
 # Add Flavor api in M4e group
 operator-sdk create api \
@@ -39,5 +40,6 @@ operator-sdk create api \
   --version=v1alpha1 \
   --kind=Flavor \
   --resource \
-  --controller
+  --controller \
+  --namespaced=false
 ```

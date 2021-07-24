@@ -28,6 +28,11 @@ type SiteSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
+	// Namespace defines the namespace for the site
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=255
+	Namespace string `json:"namespace"`
+
 	// Flavor defines what M4e flavor to use
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=255
