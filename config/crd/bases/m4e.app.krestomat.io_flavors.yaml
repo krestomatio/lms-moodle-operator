@@ -36,42 +36,76 @@ spec:
           spec:
             description: FlavorSpec defines the desired state of Flavor
             properties:
-              moodleNewInstance:
-                description: MoodleNewInstance whether new instance job runs
-                type: boolean
-              moodleNewInstanceAdminmail:
-                description: MoodleNewInstanceAdminMail is the admin email to set
-                  in new instance. Required
-                maxLength: 100
-                minLength: 3
-                type: string
-              moodleNewInstanceAdminpass:
-                description: MoodleNewInstanceAdminPass is the admin password to set
-                  in new instance. Required
-                maxLength: 100
-                minLength: 3
-                type: string
-              moodleNewInstanceAdminuser:
-                maxLength: 100
-                minLength: 1
-                type: string
-              moodleNewInstanceAgreeLicense:
-                description: MoodleNewInstanceAgreeLicense whether agree to Moodle
-                  license. Required
-                type: boolean
-              moodleNewInstanceFullname:
-                maxLength: 100
-                type: string
-              moodleNewInstanceShortname:
-                maxLength: 100
-                type: string
-              moodleNewInstanceSummary:
-                maxLength: 300
-                type: string
+              m4eSpec:
+                description: M4eSpec defines M4e spec
+                properties:
+                  moodleNewInstance:
+                    description: MoodleNewInstance whether new instance job runs
+                    type: boolean
+                  moodleNewInstanceAdminmail:
+                    description: MoodleNewInstanceAdminMail is the admin email to
+                      set in new instance. Required
+                    maxLength: 100
+                    minLength: 3
+                    type: string
+                  moodleNewInstanceAdminpass:
+                    description: MoodleNewInstanceAdminPass is the admin password
+                      to set in new instance. Required
+                    maxLength: 100
+                    minLength: 3
+                    type: string
+                  moodleNewInstanceAdminuser:
+                    maxLength: 100
+                    minLength: 1
+                    type: string
+                  moodleNewInstanceAgreeLicense:
+                    description: MoodleNewInstanceAgreeLicense whether agree to Moodle
+                      license. Required
+                    type: boolean
+                  moodleNewInstanceFullname:
+                    maxLength: 100
+                    type: string
+                  moodleNewInstanceShortname:
+                    maxLength: 100
+                    type: string
+                  moodleNewInstanceSummary:
+                    maxLength: 300
+                    type: string
+                required:
+                - moodleNewInstanceAdminmail
+                - moodleNewInstanceAdminpass
+                - moodleNewInstanceAgreeLicense
+                type: object
+              nfsSpec:
+                description: NfsSpec defines NFS Server spec to deploy optionally
+                properties:
+                  serverExportGroupid:
+                    format: int32
+                    type: integer
+                  serverExportPermissions:
+                    pattern: '[0-7]{4}'
+                    type: string
+                  serverExportUserid:
+                    format: int32
+                    type: integer
+                  serverPvcAutoexpansion:
+                    type: boolean
+                  serverPvcAutoexpansionCapGib:
+                    format: int32
+                    type: integer
+                  serverPvcAutoexpansionGib:
+                    format: int32
+                    type: integer
+                  serverPvcInitSizeGib:
+                    format: int32
+                    type: integer
+                  serverPvcStorageClassName:
+                    maxLength: 255
+                    minLength: 1
+                    type: string
+                type: object
             required:
-            - moodleNewInstanceAdminmail
-            - moodleNewInstanceAdminpass
-            - moodleNewInstanceAgreeLicense
+            - m4eSpec
             type: object
           status:
             description: FlavorStatus defines the observed state of Flavor

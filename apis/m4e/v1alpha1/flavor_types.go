@@ -28,6 +28,16 @@ type FlavorSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
+	// M4eSpec defines M4e spec
+	M4eSpec FlavorM4eSpec `json:"m4eSpec"`
+
+	// NfsSpec defines NFS Server spec to deploy optionally
+	// +optional
+	NfsSpec FlavorNfsSpec `json:"nfsSpec"`
+}
+
+// FlavorM4eSpec defines the desired state of M4e
+type FlavorM4eSpec struct {
 	// MoodleNewInstance whether new instance job runs
 	// +optional
 	MoodleNewInstance bool `json:"moodleNewInstance,omitempty"`
@@ -61,6 +71,38 @@ type FlavorSpec struct {
 
 	// MoodleNewInstanceAgreeLicense whether agree to Moodle license. Required
 	MoodleNewInstanceAgreeLicense bool `json:"moodleNewInstanceAgreeLicense"`
+}
+
+// FlavorNfsSpec defines the desired state of Nfs
+// +optional
+type FlavorNfsSpec struct {
+
+	// +optional
+	ServerExportUserid int32 `json:"serverExportUserid,omitempty"`
+
+	// +optional
+	ServerExportGroupid int32 `json:"serverExportGroupid,omitempty"`
+
+	// +kubebuilder:validation:Pattern="[0-7]{4}"
+	// +optional
+	ServerExportPermissions string `json:"serverExportPermissions,omitempty"`
+
+	// +optional
+	ServerPvcAutoexpansion bool `json:"serverPvcAutoexpansion,omitempty"`
+
+	// +optional
+	ServerPvcAutoexpansionGib int32 `json:"serverPvcAutoexpansionGib,omitempty"`
+
+	// +optional
+	ServerPvcAutoexpansionCapGib int32 `json:"serverPvcAutoexpansionCapGib,omitempty"`
+
+	// +optional
+	ServerPvcInitSizeGib int32 `json:"serverPvcInitSizeGib,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	ServerPvcStorageClassName string `json:"serverPvcStorageClassName,omitempty"`
 }
 
 // FlavorStatus defines the observed state of Flavor

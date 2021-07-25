@@ -6,3 +6,11 @@ spec:
   # Add fields here
   namespace: default
   flavor: flavor-sample
+  ## Override flavor m4e spec, if any
+  # m4eSpec:
+  #   moodleNewInstanceAdminpass: secret
+  #   moodleNewInstanceAdminmail: admin@otherexample.com
+  #   moodleNewInstanceAgreeLicense: true
+  ## Override flavor nfs spec, if any
+  # nfsSpec:
+  #   serverPvcAutoexpansion: false

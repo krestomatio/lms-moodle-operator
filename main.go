@@ -47,6 +47,11 @@ var (
 		Version: "v1alpha1",
 		Kind:    "M4e",
 	}
+	nfsGvk = schema.GroupVersionKind{
+		Group:   "nfs.krestomat.io",
+		Version: "v1alpha1",
+		Kind:    "Server",
+	}
 )
 
 func init() {
@@ -90,6 +95,7 @@ func main() {
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 		M4eGVK: m4eGvk,
+		NfsGVK: nfsGvk,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Site")
 		os.Exit(1)

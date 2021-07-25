@@ -29,18 +29,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/imdario/mergo"
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
-)
-
-const (
-	siteControllerName string = "site_controller"
 )
 
 // SiteReconciler reconciles a Site object
 type SiteReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
-	M4eGVK schema.GroupVersionKind
+	Scheme         *runtime.Scheme
+	M4eGVK, NfsGVK schema.GroupVersionKind
 }
 
 //+kubebuilder:rbac:groups=m4e.app.krestomat.io,resources=sites,verbs=get;list;watch;create;update;patch;delete
@@ -61,56 +58,60 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	log := log.FromContext(ctx)
 
 	// your logic here
-	// Fetch the Memcached instance
-	site := &m4ev1alpha1.Site{}
-	err := r.Get(ctx, req.NamespacedName, site)
-	if err != nil {
+
+	// Fetch the Site instance
+	site := newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Site"))
+	if err := r.Get(ctx, req.NamespacedName, site); err != nil {
+		log.V(1).Info(err.Error(), "name", req.NamespacedName.Name)
+		return ctrl.Result{}, ignoreNotFound(err)
+	}
+	siteSpec, _, _ := unstructured.NestedMap(site.UnstructuredContent(), "spec")
+	siteNamespace, _, _ := unstructured.NestedString(siteSpec, "namespace")
+	siteFlavor, _, _ := unstructured.NestedString(siteSpec, "flavor")
+	siteM4eSpec, siteM4eSpecFound, _ := unstructured.NestedMap(siteSpec, "m4eSpec")
+	siteNfsSpec, siteNfsSpecFound, _ := unstructured.NestedMap(siteSpec, "nfsSpec")
+
+	// Fetch flavor spec
+	flavor := newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
+	if err := r.Get(ctx, types.NamespacedName{Name: siteFlavor}, flavor); err != nil {
 		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			log.Info("Site resource not found. Ignoring since object must be deleted")
-			return ctrl.Result{}, nil
+			log.Info("Flavor resource not found", "site.Spec.Flavor", siteFlavor)
+			return ctrl.Result{Requeue: false}, nil
 		}
-		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get Site")
-		return ctrl.Result{}, err
+		log.Error(err, "Failed to get Flavor", "site.Spec.Flavor", siteFlavor)
+		return ctrl.Result{Requeue: true}, err
 	}
 
-	flavor := &m4ev1alpha1.Flavor{}
-	err = r.Get(ctx, types.NamespacedName{Name: site.Spec.Flavor}, flavor)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			log.Info("Flavor resource not found. Ignoring since object must be deleted", "site.Spec.Flavor", site.Spec.Flavor)
-			return ctrl.Result{}, nil
+	flavorSpec, _, _ := unstructured.NestedMap(flavor.UnstructuredContent(), "spec")
+	flavorM4eSpec, _, _ := unstructured.NestedMap(flavorSpec, "m4eSpec")
+	flavorNfsSpec, flavorNfsSpecFound, _ := unstructured.NestedMap(flavorSpec, "nfsSpec")
+
+	// Server kind from NFS ansible operator
+	if siteNfsSpecFound || flavorNfsSpecFound {
+		nfs := newUnstructuredObject(r.NfsGVK)
+		nfs.SetName(req.Name)
+		nfs.SetNamespace(getEnv("NFSNAMESPACE", NFSNAMESPACE))
+		if siteNfsSpecFound {
+			mergo.MapWithOverwrite(&flavorNfsSpec, siteNfsSpec)
 		}
-		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get Flavor")
-		return ctrl.Result{}, err
+		nfs.Object["spec"] = flavorNfsSpec
+
+		if _, err := r.reconcileApply(ctx, site, nfs); err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 
-	// M4e kind from ansible operator
-	m4e := r.newM4eObject()
+	// M4e kind from M4e ansible operator
+	m4e := newUnstructuredObject(r.M4eGVK)
 	m4e.SetName(req.Name)
-	m4e.SetNamespace(site.Spec.Namespace)
-	m4e.Object["spec"] = flavor.Spec
-	log.V(1).Info("Setting M4e owner", "Owner", site.GetUID(), "M4e.Namespace", m4e.GetNamespace(), "M4e.Name", m4e.GetName())
-	err = ctrl.SetControllerReference(site, m4e, r.Scheme)
-	if err != nil {
-		log.Error(err, "Failed to set owner reference")
-		return ctrl.Result{}, err
+	m4e.SetNamespace(siteNamespace)
+	if siteM4eSpecFound {
+		mergo.MapWithOverwrite(&flavorM4eSpec, siteM4eSpec)
 	}
-	// Patch M4e
-	log.V(1).Info("Applying M4e changes", "M4e.Namespace", m4e.GetNamespace(), "M4e.Name", m4e.GetName())
-	force := true
-	err = r.Patch(ctx, m4e, client.Apply, &client.PatchOptions{Force: &force, FieldManager: siteControllerName})
-	if err != nil {
-		log.Error(err, "Failed to apply M4e changes", "M4e.Namespace", m4e.GetNamespace(), "M4e.Name", m4e.GetName())
-		return ctrl.Result{}, err
+	m4e.Object["spec"] = flavorM4eSpec
 
+	if _, err := r.reconcileApply(ctx, site, m4e); err != nil {
+		return ctrl.Result{}, err
 	}
 
 	return ctrl.Result{}, nil
@@ -123,12 +124,7 @@ func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&m4ev1alpha1.Site{}).
-		Owns(r.newM4eObject()).
+		Owns(newUnstructuredObject(r.M4eGVK)).
+		Owns(newUnstructuredObject(r.NfsGVK)).
 		Complete(r)
-}
-
-func (r *SiteReconciler) newM4eObject() *unstructured.Unstructured {
-	obj := &unstructured.Unstructured{}
-	obj.SetGroupVersionKind(r.M4eGVK)
-	return obj
 }

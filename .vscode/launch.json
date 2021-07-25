@@ -10,8 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "preLaunchTask": "install",
-            "postDebugTask": "uninstall"
+            "preLaunchTask": "install"
         },
         {
             "name": "Launch Package",
