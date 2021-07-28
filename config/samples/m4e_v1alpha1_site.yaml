@@ -4,7 +4,6 @@ metadata:
   name: site-sample
 spec:
   # Add fields here
-  namespace: default
   flavor: flavor-sample
   ## Override flavor m4e spec, if any
   # m4eSpec:

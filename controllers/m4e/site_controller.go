@@ -19,6 +19,7 @@ package m4e
 import (
 	"context"
 
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -66,7 +67,6 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		return ctrl.Result{}, ignoreNotFound(err)
 	}
 	siteSpec, _, _ := unstructured.NestedMap(site.UnstructuredContent(), "spec")
-	siteNamespace, _, _ := unstructured.NestedString(siteSpec, "namespace")
 	siteFlavor, _, _ := unstructured.NestedString(siteSpec, "flavor")
 	siteM4eSpec, siteM4eSpecFound, _ := unstructured.NestedMap(siteSpec, "m4eSpec")
 	siteNfsSpec, siteNfsSpecFound, _ := unstructured.NestedMap(siteSpec, "nfsSpec")
@@ -86,17 +86,39 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	flavorM4eSpec, _, _ := unstructured.NestedMap(flavorSpec, "m4eSpec")
 	flavorNfsSpec, flavorNfsSpecFound, _ := unstructured.NestedMap(flavorSpec, "nfsSpec")
 
+	// Site namespace
+	ns := &corev1.Namespace{}
+	// Set namespace name. It must start with an alphabetic character
+	nsName := "site-" + string(site.GetUID())
+	ns.SetName(nsName)
+	// Create namespace
+	if err := r.reconcileCreate(ctx, site, ns); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	// Server kind from NFS ansible operator
 	if siteNfsSpecFound || flavorNfsSpecFound {
 		nfs := newUnstructuredObject(r.NfsGVK)
-		nfs.SetName(req.Name)
+		// Set NFS Server name. It must start with an alphabetic character
+		nfsName := nsName
+		nfs.SetName(nfsName)
 		nfs.SetNamespace(getEnv("NFSNAMESPACE", NFSNAMESPACE))
+		// Set NFS storage class name and access modes when using NFS operator
+		_, flavorM4eSpecStorageClassNameFound, _ := unstructured.NestedString(flavorM4eSpec, "moodlePvcMoodledataStorageClassName")
+		_, flavorM4eSpecStorageAccessModeFound, _ := unstructured.NestedString(flavorM4eSpec, "moodlePvcMoodledataStorageAccessMode")
+		if !flavorM4eSpecStorageClassNameFound {
+			flavorM4eSpec["moodlePvcMoodledataStorageClassName"] = nfsName + "-nfs-sc"
+		}
+		if !flavorM4eSpecStorageAccessModeFound {
+			flavorM4eSpec["moodlePvcMoodledataStorageAccessMode"] = m4ev1alpha1.ReadWriteMany
+		}
+		// Merge NFS spec if set on site Spec
 		if siteNfsSpecFound {
 			mergo.MapWithOverwrite(&flavorNfsSpec, siteNfsSpec)
 		}
 		nfs.Object["spec"] = flavorNfsSpec
-
-		if _, err := r.reconcileApply(ctx, site, nfs); err != nil {
+		// Apply Server resource
+		if err := r.reconcileApply(ctx, site, nfs); err != nil {
 			return ctrl.Result{}, err
 		}
 	}
@@ -104,13 +126,13 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	// M4e kind from M4e ansible operator
 	m4e := newUnstructuredObject(r.M4eGVK)
 	m4e.SetName(req.Name)
-	m4e.SetNamespace(siteNamespace)
+	m4e.SetNamespace(ns.GetName())
 	if siteM4eSpecFound {
 		mergo.MapWithOverwrite(&flavorM4eSpec, siteM4eSpec)
 	}
 	m4e.Object["spec"] = flavorM4eSpec
-
-	if _, err := r.reconcileApply(ctx, site, m4e); err != nil {
+	// Apply M4e resource
+	if err := r.reconcileApply(ctx, site, m4e); err != nil {
 		return ctrl.Result{}, err
 	}
 

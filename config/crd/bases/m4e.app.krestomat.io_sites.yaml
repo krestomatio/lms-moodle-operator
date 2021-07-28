@@ -76,16 +76,31 @@ spec:
                   moodleNewInstanceSummary:
                     maxLength: 300
                     type: string
+                  moodlePvcMoodledataSize:
+                    description: MoodlePvcMoodledataSize defines moodledata storage
+                      size
+                    maxLength: 100
+                    minLength: 2
+                    type: string
+                  moodlePvcMoodledataStorageAccessMode:
+                    description: MoodlePvcMoodledataStorageAccessMode defines moodledata
+                      storage access modes
+                    enum:
+                    - ReadWriteOnce
+                    - ReadOnlyMany
+                    - ReadWriteMany
+                    type: string
+                  moodlePvcMoodledataStorageClassName:
+                    description: MoodlePvcMoodledataStorageClassName defines moodledata
+                      storage class
+                    maxLength: 63
+                    minLength: 2
+                    type: string
                 required:
                 - moodleNewInstanceAdminmail
                 - moodleNewInstanceAdminpass
                 - moodleNewInstanceAgreeLicense
                 type: object
-              namespace:
-                description: Namespace defines the namespace for the site
-                maxLength: 255
-                minLength: 1
-                type: string
               nfsSpec:
                 description: NfsSpec defines NFS Server spec to override Flavor
                 properties:
@@ -116,7 +131,6 @@ spec:
                 type: object
             required:
             - flavor
-            - namespace
             type: object
           status:
             description: SiteStatus defines the observed state of Site

@@ -59,19 +59,50 @@ type FlavorM4eSpec struct {
 	// +optional
 	MoodleNewInstanceAdminuser string `json:"moodleNewInstanceAdminuser,omitempty"`
 
+	// MoodleNewInstanceAdminPass is the admin password to set in new instance. Required
 	// +kubebuilder:validation:MinLength=3
 	// +kubebuilder:validation:MaxLength=100
-	// MoodleNewInstanceAdminPass is the admin password to set in new instance. Required
 	MoodleNewInstanceAdminpass string `json:"moodleNewInstanceAdminpass"`
 
+	// MoodleNewInstanceAdminMail is the admin email to set in new instance. Required
 	// +kubebuilder:validation:MinLength=3
 	// +kubebuilder:validation:MaxLength=100
-	// MoodleNewInstanceAdminMail is the admin email to set in new instance. Required
 	MoodleNewInstanceAdminmail string `json:"moodleNewInstanceAdminmail"`
 
 	// MoodleNewInstanceAgreeLicense whether agree to Moodle license. Required
 	MoodleNewInstanceAgreeLicense bool `json:"moodleNewInstanceAgreeLicense"`
+
+	// MoodlePvcMoodledataSize defines moodledata storage size
+	// +kubebuilder:validation:MinLength=2
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodlePvcMoodledataSize string `json:"moodlePvcMoodledataSize,omitempty"`
+
+	// MoodlePvcMoodledataStorageAccessMode defines moodledata storage access modes
+	// +optional
+	MoodlePvcMoodledataStorageAccessMode StorageAccessMode `json:"moodlePvcMoodledataStorageAccessMode,omitempty"`
+
+	// MoodlePvcMoodledataStorageClassName defines moodledata storage class
+	// +kubebuilder:validation:MinLength=2
+	// +kubebuilder:validation:MaxLength=63
+	// +optional
+	MoodlePvcMoodledataStorageClassName string `json:"moodlePvcMoodledataStorageClassName,omitempty"`
 }
+
+// StorageAccessMode describes storage access modes
+// +kubebuilder:validation:Enum=ReadWriteOnce;ReadOnlyMany;ReadWriteMany
+type StorageAccessMode string
+
+const (
+	// ReadWriteOnce can be mounted as read-write by a single node
+	ReadWriteOnce StorageAccessMode = "ReadWriteOnce"
+
+	// ReadOnlyMany can be mounted read-only by many nodes
+	ReadOnlyMany StorageAccessMode = "ReadOnlyMany"
+
+	// ReadWriteMany the volume can be mounted as read-write by many nodes
+	ReadWriteMany StorageAccessMode = "ReadWriteMany"
+)
 
 // FlavorNfsSpec defines the desired state of Nfs
 // +optional
