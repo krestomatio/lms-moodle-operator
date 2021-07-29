@@ -64,7 +64,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	site := newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Site"))
 	if err := r.Get(ctx, req.NamespacedName, site); err != nil {
 		log.V(1).Info(err.Error(), "name", req.NamespacedName.Name)
-		return ctrl.Result{}, ignoreNotFound(err)
+		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 	siteSpec, _, _ := unstructured.NestedMap(site.UnstructuredContent(), "spec")
 	siteFlavor, _, _ := unstructured.NestedString(siteSpec, "flavor")
