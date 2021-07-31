@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -36,7 +36,7 @@ func getEnv(envVar string, defaultVal string) string {
 func (r *SiteReconciler) reconcileCreate(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
 
-	if err := r.Get(ctx, types.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()}, obj); err != nil && errors.IsNotFound(err) {
+	if err := r.Get(ctx, types.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()}, obj); err != nil && apierrors.IsNotFound(err) {
 		log.V(1).Info("Create resource", "Resource.Kind", obj.GetObjectKind(), "Resource.Name", obj.GetName())
 
 		// Set resource ownership

@@ -57,6 +57,8 @@ type SiteReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.9.2/pkg/reconcile
 func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
+	nfsReady := true
+	m4eReady := true
 
 	// your logic here
 
@@ -121,6 +123,8 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		if err := r.reconcileApply(ctx, site, nfs); err != nil {
 			return ctrl.Result{}, err
 		}
+		// Update Site status about NFS server
+		nfsReady = r.SetNfsReadyCondition(ctx, site, nfs)
 	}
 
 	// M4e kind from M4e ansible operator
@@ -134,6 +138,13 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	// Apply M4e resource
 	if err := r.reconcileApply(ctx, site, m4e); err != nil {
 		return ctrl.Result{}, err
+	}
+	// Update Site status about NFS server
+	m4eReady = r.SetM4eReadyCondition(ctx, site, m4e)
+
+	// set site ready contidion status
+	if nfsReady && m4eReady {
+		r.SetReadyCondition(ctx, site)
 	}
 
 	return ctrl.Result{}, nil
