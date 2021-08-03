@@ -86,3 +86,17 @@ func (r *SiteReconciler) reconcileSetOwner(ctx context.Context, parentObj client
 
 	return nil
 }
+
+// truncate a string
+func truncate(str string, length int) (truncated string) {
+	if length <= 0 {
+		return
+	}
+	for i, char := range str {
+		if i >= length {
+			break
+		}
+		truncated += string(char)
+	}
+	return
+}

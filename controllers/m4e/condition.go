@@ -151,13 +151,9 @@ func SetCondition(unstructuredObj *unstructured.Unstructured, condition map[stri
 	}
 
 	// get resource conditions
-	conditions, conditionsFound, err := unstructured.NestedSlice(unstructuredObj.Object, "status", "conditions")
+	conditions, _, err := unstructured.NestedSlice(unstructuredObj.Object, "status", "conditions")
 	if err != nil {
 		return false, err
-	}
-
-	if !conditionsFound {
-		return false, errors.New("conditions not found")
 	}
 
 	// update or append, depending if condition is present or not

@@ -57,10 +57,10 @@ type SiteReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.9.2/pkg/reconcile
 func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
+
+	// Vars
 	nfsReady := true
 	m4eReady := true
-
-	// your logic here
 
 	// Fetch the Site instance
 	site := newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Site"))
@@ -72,6 +72,8 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	siteFlavor, _, _ := unstructured.NestedString(siteSpec, "flavor")
 	siteM4eSpec, siteM4eSpecFound, _ := unstructured.NestedMap(siteSpec, "m4eSpec")
 	siteNfsSpec, siteNfsSpecFound, _ := unstructured.NestedMap(siteSpec, "nfsSpec")
+
+	siteCommonLabels := m4ev1alpha1.GroupVersion.Group + "/site_name: " + req.Name
 
 	// Fetch flavor spec
 	flavor := newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
@@ -91,7 +93,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	// Site namespace
 	ns := &corev1.Namespace{}
 	// Set namespace name. It must start with an alphabetic character
-	nsName := "site-" + string(site.GetUID())
+	nsName := req.Name + "-ns"
 	ns.SetName(nsName)
 	// Create namespace
 	if err := r.reconcileCreate(ctx, site, ns); err != nil {
@@ -102,7 +104,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	if siteNfsSpecFound || flavorNfsSpecFound {
 		nfs := newUnstructuredObject(r.NfsGVK)
 		// Set NFS Server name. It must start with an alphabetic character
-		nfsName := nsName
+		nfsName := req.Name
 		nfs.SetName(nfsName)
 		nfs.SetNamespace(getEnv("NFSNAMESPACE", NFSNAMESPACE))
 		// Set NFS storage class name and access modes when using NFS operator
@@ -118,6 +120,13 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		if siteNfsSpecFound {
 			mergo.MapWithOverwrite(&flavorNfsSpec, siteNfsSpec)
 		}
+		// Set site labels to nfs
+		flavorNfsSpecCommonLabelsString, flavorNfsSpecCommonLabelsFound, _ := unstructured.NestedString(flavorNfsSpec, "commonLabels")
+		if flavorNfsSpecCommonLabelsFound {
+			flavorNfsSpec["commonLabels"] = siteCommonLabels + "\n" + flavorNfsSpecCommonLabelsString
+		} else {
+			flavorNfsSpec["commonLabels"] = siteCommonLabels
+		}
 		nfs.Object["spec"] = flavorNfsSpec
 		// Apply Server resource
 		if err := r.reconcileApply(ctx, site, nfs); err != nil {
@@ -129,10 +138,19 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 
 	// M4e kind from M4e ansible operator
 	m4e := newUnstructuredObject(r.M4eGVK)
-	m4e.SetName(req.Name)
+	m4eName := truncate(req.Name, 18)
+	m4e.SetName(m4eName)
 	m4e.SetNamespace(ns.GetName())
+	// Merge M4e spec if set on site Spec
 	if siteM4eSpecFound {
 		mergo.MapWithOverwrite(&flavorM4eSpec, siteM4eSpec)
+	}
+	// Set site labels to M4e
+	flavorM4eSpecCommonLabelsString, flavorM4eSpecCommonLabelsFound, _ := unstructured.NestedString(flavorM4eSpec, "commonLabels")
+	if flavorM4eSpecCommonLabelsFound {
+		flavorM4eSpec["commonLabels"] = siteCommonLabels + "\n" + flavorM4eSpecCommonLabelsString
+	} else {
+		flavorM4eSpec["commonLabels"] = siteCommonLabels
 	}
 	m4e.Object["spec"] = flavorM4eSpec
 	// Apply M4e resource
@@ -142,7 +160,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	// Update Site status about NFS server
 	m4eReady = r.SetM4eReadyCondition(ctx, site, m4e)
 
-	// set site ready contidion status
+	// Set site ready contidion status
 	if nfsReady && m4eReady {
 		r.SetReadyCondition(ctx, site)
 	}
