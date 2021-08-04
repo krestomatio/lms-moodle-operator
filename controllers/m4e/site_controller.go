@@ -28,7 +28,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	"github.com/imdario/mergo"
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
@@ -127,6 +129,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		} else {
 			flavorNfsSpec["commonLabels"] = siteCommonLabels
 		}
+		// Save NFS server spec
 		nfs.Object["spec"] = flavorNfsSpec
 		// Apply Server resource
 		if err := r.reconcileApply(ctx, site, nfs); err != nil {
@@ -152,12 +155,13 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	} else {
 		flavorM4eSpec["commonLabels"] = siteCommonLabels
 	}
+	// Save M4e server spec
 	m4e.Object["spec"] = flavorM4eSpec
 	// Apply M4e resource
 	if err := r.reconcileApply(ctx, site, m4e); err != nil {
 		return ctrl.Result{}, err
 	}
-	// Update Site status about NFS server
+	// Update Site status about M4e
 	m4eReady = r.SetM4eReadyCondition(ctx, site, m4e)
 
 	// Set site ready contidion status
@@ -168,6 +172,16 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	return ctrl.Result{}, nil
 }
 
+// ignoreDeletionPredicate filters Delete events on resources that have been confirmed deleted
+func ignoreDeletionPredicate() predicate.Predicate {
+	return predicate.Funcs{
+		DeleteFunc: func(e event.DeleteEvent) bool {
+			// Evaluates to false if the object has been confirmed deleted.
+			return !e.DeleteStateUnknown
+		},
+	}
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	mgr.GetScheme().AddKnownTypeWithName(r.M4eGVK, &unstructured.Unstructured{})
@@ -175,6 +189,7 @@ func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&m4ev1alpha1.Site{}).
+		WithEventFilter(ignoreDeletionPredicate()).
 		Owns(newUnstructuredObject(r.M4eGVK)).
 		Owns(newUnstructuredObject(r.NfsGVK)).
 		Complete(r)

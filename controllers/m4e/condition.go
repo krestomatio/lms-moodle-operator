@@ -2,7 +2,6 @@ package m4e
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -129,7 +128,7 @@ func getConditionFromDependantByType(dependant *unstructured.Unstructured, condi
 	}
 
 	if !conditionsFound {
-		return make(map[string]interface{}), false, errors.New("dependant conditions not found")
+		return make(map[string]interface{}), false, nil
 	}
 
 	// look for ready condition type
