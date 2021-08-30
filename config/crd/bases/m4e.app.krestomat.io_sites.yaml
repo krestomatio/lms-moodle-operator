@@ -44,18 +44,19 @@ spec:
               m4eSpec:
                 description: M4eSpec defines M4e spec to override Flavor
                 properties:
+                  moodleNewAdminpassHash:
+                    description: MoodleNewAdminPassHash is the bcrypt compatible admin
+                      password to set in new instance. Required
+                    maxLength: 60
+                    minLength: 60
+                    pattern: ^$2[ayb]$.{56}$
+                    type: string
                   moodleNewInstance:
                     description: MoodleNewInstance whether new instance job runs
                     type: boolean
                   moodleNewInstanceAdminmail:
                     description: MoodleNewInstanceAdminMail is the admin email to
                       set in new instance. Required
-                    maxLength: 100
-                    minLength: 3
-                    type: string
-                  moodleNewInstanceAdminpass:
-                    description: MoodleNewInstanceAdminPass is the admin password
-                      to set in new instance. Required
                     maxLength: 100
                     minLength: 3
                     type: string
@@ -97,8 +98,8 @@ spec:
                     minLength: 2
                     type: string
                 required:
+                - moodleNewAdminpassHash
                 - moodleNewInstanceAdminmail
-                - moodleNewInstanceAdminpass
                 - moodleNewInstanceAgreeLicense
                 type: object
               nfsSpec:

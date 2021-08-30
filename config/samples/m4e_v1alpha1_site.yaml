@@ -6,10 +6,13 @@ spec:
   # Add fields here
   flavor: flavor-sample
   ## Override flavor m4e spec, if any
-  # m4eSpec:
-  #   moodleNewInstanceAdminpass: secret
-  #   moodleNewInstanceAdminmail: admin@otherexample.com
-  #   moodleNewInstanceAgreeLicense: true
+  m4eSpec:
+    moodleNewInstanceAgreeLicense: true
+    moodleNewInstanceFullname: Demo site
+    moodleNewInstanceShortname: demo
+    moodleNewInstanceSummary: A demo site
+    moodleNewInstanceAdminmail: admin@otherexample.com
+    moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
   ## Override flavor nfs spec, if any
   # nfsSpec:
-  #   serverPvcAutoexpansion: false
+    # serverPvcAutoexpansion: false

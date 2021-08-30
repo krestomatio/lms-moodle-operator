@@ -42,6 +42,9 @@ type FlavorM4eSpec struct {
 	// +optional
 	MoodleNewInstance bool `json:"moodleNewInstance,omitempty"`
 
+	// MoodleNewInstanceAgreeLicense whether agree to Moodle license. Required
+	MoodleNewInstanceAgreeLicense bool `json:"moodleNewInstanceAgreeLicense"`
+
 	// +kubebuilder:validation:MaxLength=100
 	// +optional
 	MoodleNewInstanceFullname string `json:"moodleNewInstanceFullname,omitempty"`
@@ -59,18 +62,16 @@ type FlavorM4eSpec struct {
 	// +optional
 	MoodleNewInstanceAdminuser string `json:"moodleNewInstanceAdminuser,omitempty"`
 
-	// MoodleNewInstanceAdminPass is the admin password to set in new instance. Required
-	// +kubebuilder:validation:MinLength=3
-	// +kubebuilder:validation:MaxLength=100
-	MoodleNewInstanceAdminpass string `json:"moodleNewInstanceAdminpass"`
-
 	// MoodleNewInstanceAdminMail is the admin email to set in new instance. Required
 	// +kubebuilder:validation:MinLength=3
 	// +kubebuilder:validation:MaxLength=100
 	MoodleNewInstanceAdminmail string `json:"moodleNewInstanceAdminmail"`
 
-	// MoodleNewInstanceAgreeLicense whether agree to Moodle license. Required
-	MoodleNewInstanceAgreeLicense bool `json:"moodleNewInstanceAgreeLicense"`
+	// MoodleNewAdminPassHash is the bcrypt compatible admin password to set in new instance. Required
+	// +kubebuilder:validation:MinLength=60
+	// +kubebuilder:validation:MaxLength=60
+	// +kubebuilder:validation:Pattern="^$2[ayb]$.{56}$"
+	MoodleNewAdminpassHash string `json:"moodleNewAdminpassHash"`
 
 	// MoodlePvcMoodledataSize defines moodledata storage size
 	// +kubebuilder:validation:MinLength=2
