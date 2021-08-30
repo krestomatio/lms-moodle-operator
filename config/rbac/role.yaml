@@ -7,7 +7,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - m4e.app.krestomat.io
+  - m4e.krestomat.io
   resources:
   - flavors
   verbs:
@@ -19,13 +19,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - m4e.app.krestomat.io
+  - m4e.krestomat.io
   resources:
   - flavors/finalizers
   verbs:
   - update
 - apiGroups:
-  - m4e.app.krestomat.io
+  - m4e.krestomat.io
   resources:
   - flavors/status
   verbs:
@@ -33,7 +33,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - m4e.app.krestomat.io
+  - m4e.krestomat.io
   resources:
   - sites
   verbs:
@@ -45,13 +45,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - m4e.app.krestomat.io
+  - m4e.krestomat.io
   resources:
   - sites/finalizers
   verbs:
   - update
 - apiGroups:
-  - m4e.app.krestomat.io
+  - m4e.krestomat.io
   resources:
   - sites/status
   verbs:

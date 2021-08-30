@@ -5,7 +5,7 @@ metadata:
   name: site-editor-role
 rules:
 - apiGroups:
-  - m4e.app.krestomat.io
+  - m4e.krestomat.io
   resources:
   - sites
   verbs:
@@ -17,7 +17,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - m4e.app.krestomat.io
+  - m4e.krestomat.io
   resources:
   - sites/status
   verbs:

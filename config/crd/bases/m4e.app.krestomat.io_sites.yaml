@@ -6,9 +6,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: sites.m4e.app.krestomat.io
+  name: sites.m4e.krestomat.io
 spec:
-  group: m4e.app.krestomat.io
+  group: m4e.krestomat.io
   names:
     kind: Site
     listKind: SiteList

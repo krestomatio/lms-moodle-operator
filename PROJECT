@@ -1,4 +1,4 @@
-domain: app.krestomat.io
+domain: krestomat.io
 layout:
 - go.kubebuilder.io/v3
 multigroup: true
@@ -11,7 +11,7 @@ resources:
 - api:
     crdVersion: v1
   controller: true
-  domain: app.krestomat.io
+  domain: krestomat.io
   group: m4e
   kind: Site
   path: github.com/krestomatio/kio-operator/apis/m4e/v1alpha1
@@ -19,7 +19,7 @@ resources:
 - api:
     crdVersion: v1
   controller: true
-  domain: app.krestomat.io
+  domain: krestomat.io
   group: m4e
   kind: Flavor
   path: github.com/krestomatio/kio-operator/apis/m4e/v1alpha1

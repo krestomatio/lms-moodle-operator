@@ -43,9 +43,9 @@ type SiteReconciler struct {
 	M4eGVK, NfsGVK schema.GroupVersionKind
 }
 
-//+kubebuilder:rbac:groups=m4e.app.krestomat.io,resources=sites,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=m4e.app.krestomat.io,resources=sites/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=m4e.app.krestomat.io,resources=sites/finalizers,verbs=update
+//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=sites,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=sites/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=sites/finalizers,verbs=update
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=m4e,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to

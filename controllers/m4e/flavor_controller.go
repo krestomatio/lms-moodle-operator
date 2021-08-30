@@ -34,9 +34,9 @@ type FlavorReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=m4e.app.krestomat.io,resources=flavors,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=m4e.app.krestomat.io,resources=flavors/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=m4e.app.krestomat.io,resources=flavors/finalizers,verbs=update
+//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=flavors,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=flavors/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=flavors/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

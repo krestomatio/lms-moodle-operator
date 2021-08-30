@@ -17,7 +17,7 @@
 mkdir kio-operator
 cd kio-operator
 operator-sdk init \
-    --domain=app.krestomat.io \
+    --domain=krestomat.io \
     --project-name "kio-operator" \
     --repo github.com/krestomatio/kio-operator
 

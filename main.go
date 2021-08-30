@@ -84,7 +84,7 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "2388325d.app.krestomat.io",
+		LeaderElectionID:       "2388325d.krestomat.io",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
