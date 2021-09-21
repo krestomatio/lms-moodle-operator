@@ -1,7 +1,5 @@
-OPERATOR_NAME ?= kio-operator
-REPO_NAME ?= kio-operator
+OPERATOR_SHORTNAME ?= kio
 VERSION ?= 0.0.1
-
-MK_PIPELINES_PR_FILE ?= $(MK_INCLUDE_DIR)/pipelines-pr-go.mk
+OPERATOR_TYPE ?= go
 
 include hack/mk/main.mk
