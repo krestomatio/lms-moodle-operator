@@ -35,6 +35,18 @@ rules:
 - apiGroups:
   - m4e.krestomat.io
   resources:
+  - m4e
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - m4e.krestomat.io
+  resources:
   - sites
   verbs:
   - create
@@ -58,15 +70,3 @@ rules:
   - get
   - patch
   - update
-- apiGroups:
-  - m4e.krestomat.io
-  resources:
-  - m4e
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch

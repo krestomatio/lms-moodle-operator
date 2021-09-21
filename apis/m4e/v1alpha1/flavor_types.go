@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -38,6 +39,12 @@ type FlavorSpec struct {
 
 // FlavorM4eSpec defines the desired state of M4e
 type FlavorM4eSpec struct {
+	// MoodleSize defines moodle number of replicas between 0 and 255
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=255
+	// +optional
+	MoodleSize int32 `json:"moodleSize,omitempty"`
+
 	// MoodleNewInstance whether new instance job runs
 	// +optional
 	MoodleNewInstance bool `json:"moodleNewInstance,omitempty"`
@@ -70,7 +77,7 @@ type FlavorM4eSpec struct {
 	// MoodleNewAdminPassHash is the bcrypt compatible admin password to set in new instance. Required
 	// +kubebuilder:validation:MinLength=60
 	// +kubebuilder:validation:MaxLength=60
-	// +kubebuilder:validation:Pattern="^$2[ayb]$.{56}$"
+	// +kubebuilder:validation:Pattern="^\\$2[ayb]\\$.{56}$"
 	MoodleNewAdminpassHash string `json:"moodleNewAdminpassHash"`
 
 	// MoodlePvcMoodledataSize defines moodledata storage size
@@ -88,11 +95,72 @@ type FlavorM4eSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +optional
 	MoodlePvcMoodledataStorageClassName string `json:"moodlePvcMoodledataStorageClassName,omitempty"`
+
+	// MoodleHost defines Moodle host for url
+	// +kubebuilder:validation:MinLength=2
+	// +kubebuilder:validation:MaxLength=100
+	MoodleHost string `json:"moodleHost,omitempty"`
+
+	// MoodleProtocol whether to use http or https
+	// +optional
+	MoodleProtocol MoodleProtocol `json:"moodleProtocol,omitempty"`
+
+	// MoodleTolerations defines any tolerations for Moodle pods.
+	// +optional
+	MoodleTolerations []corev1.Toleration `json:"moodleTolerations,omitempty"`
+
+	// MoodleCronjobTolerations defines any tolerations for Moodle cronjob pods.
+	// +optional
+	MoodleCronjobTolerations []corev1.Toleration `json:"moodleCronjobTolerations,omitempty"`
+
+	// NginxSize defines nginx number of replicas between 0 and 255
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=255
+	// +optional
+	NginxSize int32 `json:"nginxSize,omitempty"`
+
+	// NginxIngressAnnotations defines nginx annotations
+	// +optional
+	NginxIngressAnnotations string `json:"nginxIngressAnnotations,omitempty"`
+
+	// NginxTolerations defines any tolerations for Nginx pods.
+	// +optional
+	NginxTolerations []corev1.Toleration `json:"nginxTolerations,omitempty"`
+
+	// PostgresSize defines postgres number of replicas between 0 and 1
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// +optional
+	PostgresSize int32 `json:"postgresSize,omitempty"`
+
+	// PostgresPvcDataSize defines postgres storage size
+	// +kubebuilder:validation:MinLength=2
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	PostgresPvcDataSize string `json:"postgresPvcDataSize,omitempty"`
+
+	// PostgresPvcDataStorageAccessMode defines postgres storage access modes
+	// +optional
+	PostgresPvcDataStorageAccessMode StorageAccessMode `json:"postgresPvcDataStorageAccessMode,omitempty"`
+
+	// PostgresPvcDataStorageClassName defines postgres storage class
+	// +kubebuilder:validation:MinLength=2
+	// +kubebuilder:validation:MaxLength=63
+	// +optional
+	PostgresPvcDataStorageClassName string `json:"postgresPvcDataStorageClassName,omitempty"`
+
+	// PostgresTolerations defines any tolerations for Postgres pods.
+	// +optional
+	PostgresTolerations []corev1.Toleration `json:"postgresTolerations,omitempty"`
 }
 
 // StorageAccessMode describes storage access modes
 // +kubebuilder:validation:Enum=ReadWriteOnce;ReadOnlyMany;ReadWriteMany
 type StorageAccessMode string
+
+// MoodleProtocol describes Moodle access protocol
+// +kubebuilder:validation:Enum=http;https
+type MoodleProtocol string
 
 const (
 	// ReadWriteOnce can be mounted as read-write by a single node
