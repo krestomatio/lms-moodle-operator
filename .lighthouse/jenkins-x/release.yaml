@@ -28,10 +28,9 @@ spec:
             - image: uses:krestomatio/jx3-pipeline-catalog/tasks/git-clone/git-clone.yaml@9ae86d98b3fc7a74e20148a39f269adc88f96933
             - image: ghcr.io/jenkins-x/jx-changelog:0.0.47
               name: changelog
-              args:
-              - changelog
-              command:
-              - make
+              script: |
+                apk add bash
+                make changelog
             - image: quay.io/krestomatio/ansible-operator-ci
               name: release
               args:
