@@ -28,18 +28,37 @@ type SiteSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of Site. Edit site_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// Flavor defines what M4e flavor to use
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=255
+	Flavor string `json:"flavor"`
+
+	// M4eSpec defines M4e spec to override Flavor
+	// +optional
+	M4eSpec FlavorM4eSpec `json:"m4eSpec,omitempty"`
+
+	// NfsSpec defines NFS Server spec to override Flavor
+	// +optional
+	NfsSpec FlavorNfsSpec `json:"nfsSpec,omitempty"`
 }
 
 // SiteStatus defines the observed state of Site
 type SiteStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// Conditions represent the latest available observations of the resource state
+	// +patchMergeKey=type
+	// +patchStrategy=merge
+	// +listType=map
+	// +listMapKey=type
+	// +optional
+	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:scope=Cluster
 
 // Site is the Schema for the sites API
 type Site struct {

@@ -1,4 +1,5 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
 - m4e_v1alpha1_site.yaml
+- m4e_v1alpha1_flavor.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

@@ -1,7 +1,18 @@
-apiVersion: m4e.app.krestomat.io/v1alpha1
+apiVersion: m4e.krestomat.io/v1alpha1
 kind: Site
 metadata:
   name: site-sample
 spec:
   # Add fields here
-  foo: bar
+  flavor: flavor-sample
+  ## Override flavor m4e spec, if any
+  m4eSpec:
+    moodleNewInstanceAgreeLicense: true
+    moodleNewInstanceFullname: Demo site
+    moodleNewInstanceShortname: demo
+    moodleNewInstanceSummary: A demo site
+    moodleNewInstanceAdminmail: admin@otherexample.com
+    moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
+  ## Override flavor nfs spec, if any
+  # nfsSpec:
+    # serverPvcAutoexpansion: false

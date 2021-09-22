@@ -1,13 +1,13 @@
-# permissions for end users to view sites.
+# permissions for end users to view flavors.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: site-viewer-role
+  name: flavor-viewer-role
 rules:
 - apiGroups:
   - m4e.krestomat.io
   resources:
-  - sites
+  - flavors
   verbs:
   - get
   - list
@@ -15,6 +15,6 @@ rules:
 - apiGroups:
   - m4e.krestomat.io
   resources:
-  - sites/status
+  - flavors/status
   verbs:
   - get

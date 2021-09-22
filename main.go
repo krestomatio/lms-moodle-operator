@@ -25,6 +25,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -39,6 +40,18 @@ import (
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
+
+	// types from ansible operators
+	m4eGvk = schema.GroupVersionKind{
+		Group:   "m4e.krestomat.io",
+		Version: "v1alpha1",
+		Kind:    "M4e",
+	}
+	nfsGvk = schema.GroupVersionKind{
+		Group:   "nfs.krestomat.io",
+		Version: "v1alpha1",
+		Kind:    "Server",
+	}
 )
 
 func init() {
@@ -71,7 +84,7 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "2388325d.app.krestomat.io",
+		LeaderElectionID:       "2388325d.krestomat.io",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
@@ -81,8 +94,17 @@ func main() {
 	if err = (&m4econtrollers.SiteReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
+		M4eGVK: m4eGvk,
+		NfsGVK: nfsGvk,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Site")
+		os.Exit(1)
+	}
+	if err = (&m4econtrollers.FlavorReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Flavor")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

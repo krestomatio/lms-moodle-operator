@@ -1,0 +1,72 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - m4e.krestomat.io
+  resources:
+  - flavors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - m4e.krestomat.io
+  resources:
+  - flavors/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - m4e.krestomat.io
+  resources:
+  - flavors/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - m4e.krestomat.io
+  resources:
+  - m4e
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - m4e.krestomat.io
+  resources:
+  - sites
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - m4e.krestomat.io
+  resources:
+  - sites/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - m4e.krestomat.io
+  resources:
+  - sites/status
+  verbs:
+  - get
+  - patch
+  - update
