@@ -45,7 +45,6 @@ spec:
               name: pr
               args:
                 - pr
-                - undeploy
               command:
                 - make
               securityContext:
