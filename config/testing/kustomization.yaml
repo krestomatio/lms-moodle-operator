@@ -1,0 +1,17 @@
+# Install depandant operators
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kio-test
+namePrefix: kio-
+resources:
+- ../crd
+- ../rbac
+- ../manager
+patchesStrategicMerge:
+- ../default/manager_auth_proxy_patch.yaml
+- manager_image.yaml
+- debug_logs_patch.yaml
+- nfs_namespace.yaml
+images:
+- name: testing
+  newName: testing-operator
