@@ -61,8 +61,8 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	log := log.FromContext(ctx)
 
 	// Vars
-	nfsReady := true
-	m4eReady := true
+	var nfsReady bool
+	var m4eReady bool
 
 	// Fetch the Site instance
 	site := newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Site"))
@@ -120,7 +120,10 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		}
 		// Merge NFS spec if set on site Spec
 		if siteNfsSpecFound {
-			mergo.MapWithOverwrite(&flavorNfsSpec, siteNfsSpec)
+			if err := mergo.MapWithOverwrite(&flavorNfsSpec, siteNfsSpec); err != nil {
+				log.V(1).Info(err.Error(), "name", nfs.GetName())
+				return ctrl.Result{}, client.IgnoreNotFound(err)
+			}
 		}
 		// Set site labels to nfs
 		flavorNfsSpecCommonLabelsString, flavorNfsSpecCommonLabelsFound, _ := unstructured.NestedString(flavorNfsSpec, "commonLabels")
@@ -146,7 +149,10 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	m4e.SetNamespace(ns.GetName())
 	// Merge M4e spec if set on site Spec
 	if siteM4eSpecFound {
-		mergo.MapWithOverwrite(&flavorM4eSpec, siteM4eSpec)
+		if err := mergo.MapWithOverwrite(&flavorM4eSpec, siteM4eSpec); err != nil {
+			log.V(1).Info(err.Error(), "name", m4e.GetName())
+			return ctrl.Result{}, client.IgnoreNotFound(err)
+		}
 	}
 	// Set site labels to M4e
 	flavorM4eSpecCommonLabelsString, flavorM4eSpecCommonLabelsFound, _ := unstructured.NestedString(flavorM4eSpec, "commonLabels")
