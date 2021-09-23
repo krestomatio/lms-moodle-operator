@@ -14,7 +14,7 @@ spec:
     moodleNewInstanceAdminuser: admin
     moodleNewInstanceAdminmail: admin@example.com
     ### 'changeme' as admin password:
-    # moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
+    moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
     # MoodlePvcMoodledataSize: 1Gi
     # moodlePvcMoodledataStorageAccessMode: ReadWriteOnce
     # moodlePvcMoodledataStorageClassName: standard

@@ -7,6 +7,15 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - create
+  - get
+  - list
+  - watch
+- apiGroups:
   - m4e.krestomat.io
   resources:
   - flavors
@@ -35,7 +44,7 @@ rules:
 - apiGroups:
   - m4e.krestomat.io
   resources:
-  - m4e
+  - m4es
   verbs:
   - create
   - delete
@@ -70,3 +79,15 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+  - nfs.krestomat.io
+  resources:
+  - servers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
