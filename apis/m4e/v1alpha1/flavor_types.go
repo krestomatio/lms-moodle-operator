@@ -45,6 +45,11 @@ type FlavorM4eSpec struct {
 	// +optional
 	MoodleSize int32 `json:"moodleSize,omitempty"`
 
+	// MoodleImage defines image for moodle container
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	MoodleImage string `json:"moodleImage,omitempty"`
+
 	// MoodleNewInstance whether new instance job runs
 	// +optional
 	MoodleNewInstance bool `json:"moodleNewInstance,omitempty"`
@@ -113,11 +118,32 @@ type FlavorM4eSpec struct {
 	// +optional
 	MoodleCronjobTolerations []corev1.Toleration `json:"moodleCronjobTolerations,omitempty"`
 
+	// MoodleConfigAdditionalCfg defines moodle extra config properties in config.php
+	// +optional
+	MoodleConfigAdditionalCfg MoodleConfigProperty `json:"moodleConfigAdditionalCfg,omitempty"`
+
+	// MoodleConfigAdditionalBlock defines moodle extra block in config.php
+	// +optional
+	MoodleConfigAdditionalBlock string `json:"moodleConfigAdditionalBlock,omitempty"`
+
+	// MoodleUpdateMinor whether minor updates are automatically applied. Default: true
+	// +optional
+	MoodleUpdateMinor bool `json:"moodleUpdateMinor,omitempty"`
+
+	// MoodleUpdateMajor whether major updates are automatically applied. Default: false
+	// +optional
+	MoodleUpdateMajor bool `json:"moodleUpdateMajor,omitempty"`
+
 	// NginxSize defines nginx number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=255
 	// +optional
 	NginxSize int32 `json:"nginxSize,omitempty"`
+
+	// NginxImage defines image for nginx container
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	NginxImage string `json:"nginxImage,omitempty"`
 
 	// NginxIngressAnnotations defines nginx annotations
 	// +optional
@@ -132,6 +158,11 @@ type FlavorM4eSpec struct {
 	// +kubebuilder:validation:Maximum=1
 	// +optional
 	PostgresSize int32 `json:"postgresSize,omitempty"`
+
+	// PostgresImage defines image for postgres container
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	PostgresImage string `json:"postgresImage,omitempty"`
 
 	// PostgresPvcDataSize defines postgres storage size
 	// +kubebuilder:validation:MinLength=2
@@ -161,6 +192,9 @@ type StorageAccessMode string
 // MoodleProtocol describes Moodle access protocol
 // +kubebuilder:validation:Enum=http;https
 type MoodleProtocol string
+
+// MoodleConfigAdditionalCfg defines moodle extra config properties in config.php
+type MoodleConfigProperty struct{}
 
 const (
 	// ReadWriteOnce can be mounted as read-write by a single node
