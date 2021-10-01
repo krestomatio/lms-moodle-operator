@@ -44,6 +44,14 @@ spec:
               m4eSpec:
                 description: M4eSpec defines M4e spec to override Flavor
                 properties:
+                  moodleConfigAdditionalBlock:
+                    description: MoodleConfigAdditionalBlock defines moodle extra
+                      block in config.php
+                    type: string
+                  moodleConfigAdditionalCfg:
+                    description: MoodleConfigAdditionalCfg defines moodle extra config
+                      properties in config.php
+                    type: object
                   moodleCronjobTolerations:
                     description: MoodleCronjobTolerations defines any tolerations
                       for Moodle cronjob pods.
@@ -90,6 +98,10 @@ spec:
                     description: MoodleHost defines Moodle host for url
                     maxLength: 100
                     minLength: 2
+                    type: string
+                  moodleImage:
+                    description: MoodleImage defines image for moodle container
+                    maxLength: 255
                     type: string
                   moodleNewAdminpassHash:
                     description: MoodleNewAdminPassHash is the bcrypt compatible admin
@@ -199,6 +211,18 @@ spec:
                           type: string
                       type: object
                     type: array
+                  moodleUpdateMajor:
+                    description: 'MoodleUpdateMajor whether major updates are automatically
+                      applied. Default: false'
+                    type: boolean
+                  moodleUpdateMinor:
+                    description: 'MoodleUpdateMinor whether minor updates are automatically
+                      applied. Default: true'
+                    type: boolean
+                  nginxImage:
+                    description: NginxImage defines image for nginx container
+                    maxLength: 255
+                    type: string
                   nginxIngressAnnotations:
                     description: NginxIngressAnnotations defines nginx annotations
                     type: string
@@ -251,6 +275,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  postgresImage:
+                    description: PostgresImage defines image for postgres container
+                    maxLength: 255
+                    type: string
                   postgresPvcDataSize:
                     description: PostgresPvcDataSize defines postgres storage size
                     maxLength: 100
