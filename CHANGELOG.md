@@ -1,5 +1,5 @@
 ## Changes
 
-### New Features
+### Chores
 
-* site: add api fields (Job Céspedes Ortiz)
+* operators: bump versions (Job Céspedes Ortiz)
