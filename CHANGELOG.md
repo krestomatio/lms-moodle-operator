@@ -1,7 +1,5 @@
 ## Changes
 
-### Chores
+### Code Refactoring
 
-* bump nfs version (Job Céspedes Ortiz)
-* bump m4e version (Job Céspedes Ortiz)
-* bump operator version (Job Céspedes Ortiz)
+* add info msg when reconcile starts (Job Céspedes Ortiz)
