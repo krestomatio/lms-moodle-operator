@@ -98,7 +98,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	// Site namespace
 	ns := &corev1.Namespace{}
 	// Set namespace name. It must start with an alphabetic character
-	nsName := req.Name + "-ns"
+	nsName := "ns-" + req.Name
 	ns.SetName(nsName)
 	// Create namespace
 	if err := r.reconcileCreate(ctx, site, ns); err != nil {
@@ -109,7 +109,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	if siteNfsSpecFound || flavorNfsSpecFound {
 		nfs := newUnstructuredObject(r.NfsGVK)
 		// Set NFS Server name. It must start with an alphabetic character
-		nfsName := req.Name
+		nfsName := "nfs-" + req.Name
 		nfs.SetName(nfsName)
 		nfs.SetNamespace(getEnv("NFSNAMESPACE", NFSNAMESPACE))
 		// Set NFS storage class name and access modes when using NFS operator
@@ -147,7 +147,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 
 	// M4e kind from M4e ansible operator
 	m4e := newUnstructuredObject(r.M4eGVK)
-	m4eName := truncate(req.Name, 18)
+	m4eName := "site-" + truncate(req.Name, 13)
 	m4e.SetName(m4eName)
 	m4e.SetNamespace(ns.GetName())
 	// Merge M4e spec if set on site Spec
