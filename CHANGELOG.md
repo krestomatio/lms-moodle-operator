@@ -1,5 +1,6 @@
 ## Changes
 
-### New Features
+### Chores
 
-* flavor: add paramater to show moodle status (Job Céspedes Ortiz)
+* bump m4e operator version (Job Céspedes Ortiz)
+* bump nfs operator version (Job Céspedes Ortiz)
