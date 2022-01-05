@@ -1,5 +1,5 @@
 ## Changes
 
-### Code Refactoring
+### New Features
 
-* add info msg when reconcile starts (Job Céspedes Ortiz)
+* flavor: add paramater to show moodle status (Job Céspedes Ortiz)
