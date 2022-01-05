@@ -134,6 +134,10 @@ type FlavorM4eSpec struct {
 	// +optional
 	MoodleUpdateMajor bool `json:"moodleUpdateMajor,omitempty"`
 
+	// MoodleStatusUsage whether moodle usage is shown. Default: false
+	// +optional
+	MoodleStatusUsage bool `json:"moodleStatusUsage,omitempty"`
+
 	// NginxSize defines nginx number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=255
