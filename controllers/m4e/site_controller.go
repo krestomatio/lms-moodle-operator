@@ -98,7 +98,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	// Site namespace
 	ns := &corev1.Namespace{}
 	// Set namespace name. It must start with an alphabetic character
-	nsName := "ns-" + req.Name
+	nsName := "site-" + req.Name
 	ns.SetName(nsName)
 	// Create namespace
 	if err := r.reconcileCreate(ctx, site, ns); err != nil {
@@ -109,7 +109,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	if siteNfsSpecFound || flavorNfsSpecFound {
 		nfs := newUnstructuredObject(r.NfsGVK)
 		// Set NFS Server name. It must start with an alphabetic character
-		nfsName := "nfs-" + req.Name
+		nfsName := "site-" + req.Name
 		nfs.SetName(nfsName)
 		nfs.SetNamespace(getEnv("NFSNAMESPACE", NFSNAMESPACE))
 		// Set NFS storage class name and access modes when using NFS operator
