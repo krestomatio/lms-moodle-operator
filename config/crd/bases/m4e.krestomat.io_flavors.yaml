@@ -155,6 +155,23 @@ spec:
                     description: MoodleConfigAdditionalCfg defines moodle extra config
                       properties in config.php
                     type: object
+                  moodleConfigSessionRedisCompressor:
+                    description: MoodleConfigSessionRedisCompressor defines redis
+                      session compresor
+                    enum:
+                    - none
+                    - gzip
+                    - zstd
+                    type: string
+                  moodleConfigSessionRedisPrefix:
+                    description: 'MoodleConfigSessionRedisPrefix defines prefix for
+                      redis session. Default: '''''
+                    maxLength: 100
+                    type: string
+                  moodleConfigSessionRedisSerializer_use_igbinary:
+                    description: 'MoodleConfigSessionRedisSerializer_use_igbinary
+                      whether igbinary is used for redis session. Default: false'
+                    type: boolean
                   moodleCronjobTolerations:
                     description: MoodleCronjobTolerations defines any tolerations
                       for Moodle cronjob pods.
@@ -265,6 +282,49 @@ spec:
                     maxLength: 63
                     minLength: 2
                     type: string
+                  moodleRedisHost:
+                    description: 'MoodleRedisHost defines redis host. Default: ''127.0.0.1'''
+                    maxLength: 100
+                    type: string
+                  moodleRedisMucStore:
+                    description: 'MoodleRedisMucStore whether redis is configured
+                      as MUC store. Default: false'
+                    type: boolean
+                  moodleRedisMucStoreCompressor:
+                    description: 'MoodleRedisMucStoreCompressor defines compressor
+                      for redis MUC store. Default: 0'
+                    maximum: 1
+                    minimum: 0
+                    type: integer
+                  moodleRedisMucStorePrefix:
+                    description: 'MoodleRedisMucStorePrefix defines prefix for redis
+                      MUC store. Default: '''''
+                    maxLength: 100
+                    type: string
+                  moodleRedisMucStoreRoutine:
+                    description: 'MoodleRedisMucStoreRoutine whether redis MUC store
+                      config is enforce during Routine. Default: false'
+                    type: boolean
+                  moodleRedisMucStoreSerializer:
+                    description: 'MoodleRedisMucStoreSerializer defines serializer
+                      for redis MUC store. Default: 1'
+                    maximum: 2
+                    minimum: 1
+                    type: integer
+                  moodleRedisSecretAuthKey:
+                    description: 'MoodleRedisSecretAuthKey defines key inside auth
+                      secret name. Default: ''keydb_password'''
+                    maxLength: 100
+                    type: string
+                  moodleRedisSecretAuthSecret:
+                    description: 'MoodleRedisSecretAuthSecret defines redis auth secret
+                      name. Default: '''''
+                    maxLength: 255
+                    type: string
+                  moodleRedisSessionStore:
+                    description: 'MoodleRedisSessionStore whether redis is configured
+                      as session store. Default: false'
+                    type: boolean
                   moodleSize:
                     description: MoodleSize defines moodle number of replicas between
                       0 and 255

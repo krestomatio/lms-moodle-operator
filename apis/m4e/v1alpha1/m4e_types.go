@@ -170,6 +170,63 @@ type M4eSpec struct {
 	// PostgresTolerations defines any tolerations for Postgres pods.
 	// +optional
 	PostgresTolerations []corev1.Toleration `json:"postgresTolerations,omitempty"`
+
+	// MoodleRedisSessionStore whether redis is configured as session store. Default: false
+	// +optional
+	MoodleRedisSessionStore bool `json:"moodleRedisSessionStore,omitempty"`
+
+	// MoodleRedisMucStore whether redis is configured as MUC store. Default: false
+	// +optional
+	MoodleRedisMucStore bool `json:"moodleRedisMucStore,omitempty"`
+
+	// MoodleRedisMucStoreRoutine whether redis MUC store config is enforce during Routine. Default: false
+	// +optional
+	MoodleRedisMucStoreRoutine bool `json:"moodleRedisMucStoreRoutine,omitempty"`
+
+	// MoodleRedisHost defines redis host. Default: '127.0.0.1'
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodleRedisHost string `json:"moodleRedisHost,omitempty"`
+
+	// MoodleRedisSecretAuthSecret defines redis auth secret name. Default: ''
+	// +kubebuilder:validation:MaxLength=255
+	// +optional
+	MoodleRedisSecretAuthSecret string `json:"moodleRedisSecretAuthSecret,omitempty"`
+
+	// MoodleRedisSecretAuthKey defines key inside auth secret name. Default: 'keydb_password'
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodleRedisSecretAuthKey string `json:"moodleRedisSecretAuthKey,omitempty"`
+
+	// MoodleConfigSessionRedisPrefix defines prefix for redis session. Default: ''
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodleConfigSessionRedisPrefix string `json:"moodleConfigSessionRedisPrefix,omitempty"`
+
+	// MoodleConfigSessionRedisSerializer_use_igbinary whether igbinary is used for redis session. Default: false
+	// +optional
+	MoodleConfigSessionRedisSerializer_use_igbinary bool `json:"moodleConfigSessionRedisSerializer_use_igbinary,omitempty"`
+
+	// MoodleConfigSessionRedisCompressor defines redis session compresor
+	// +optional
+	MoodleConfigSessionRedisCompressor SessionRedisCompressor `json:"moodleConfigSessionRedisCompressor,omitempty"`
+
+	// MoodleRedisMucStorePrefix defines prefix for redis MUC store. Default: ''
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodleRedisMucStorePrefix string `json:"moodleRedisMucStorePrefix,omitempty"`
+
+	// MoodleRedisMucStoreSerializer defines serializer for redis MUC store. Default: 1
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=2
+	// +optional
+	MoodleRedisMucStoreSerializer int8 `json:"moodleRedisMucStoreSerializer,omitempty"`
+
+	// MoodleRedisMucStoreCompressor defines compressor for redis MUC store. Default: 0
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1
+	// +optional
+	MoodleRedisMucStoreCompressor int8 `json:"moodleRedisMucStoreCompressor,omitempty"`
 }
 
 // StorageAccessMode describes storage access modes
@@ -182,6 +239,10 @@ type MoodleProtocol string
 
 // MoodleConfigAdditionalCfg defines moodle extra config properties in config.php
 type MoodleConfigProperty struct{}
+
+// SessionRedisCompressor describes Moodle redis session compresor
+// +kubebuilder:validation:Enum=none;gzip;zstd
+type SessionRedisCompressor string
 
 const (
 	// ReadWriteOnce can be mounted as read-write by a single node

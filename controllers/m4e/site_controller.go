@@ -117,13 +117,13 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		nfs.SetName(nfsName)
 		nfs.SetNamespace(getEnv("NFSNAMESPACE", NFSNAMESPACE))
 		// Set NFS storage class name and access modes when using NFS operator
-		_, flavorM4eSpecStorageClassNameFound, _ := unstructured.NestedString(flavorM4eSpec, "moodlePvcMoodledataStorageClassName")
-		_, flavorM4eSpecStorageAccessModeFound, _ := unstructured.NestedString(flavorM4eSpec, "moodlePvcMoodledataStorageAccessMode")
-		if !flavorM4eSpecStorageClassNameFound {
-			flavorM4eSpec["moodlePvcMoodledataStorageClassName"] = nfsName + "-nfs-sc"
+		nfsRelatedM4eSpec := map[string]interface{}{
+			"moodlePvcMoodledataStorageClassName":  nfsName + "-nfs-sc",
+			"moodlePvcMoodledataStorageAccessMode": m4ev1alpha1.ReadWriteMany,
 		}
-		if !flavorM4eSpecStorageAccessModeFound {
-			flavorM4eSpec["moodlePvcMoodledataStorageAccessMode"] = m4ev1alpha1.ReadWriteMany
+		if err := mergo.MapWithOverwrite(&flavorM4eSpec, nfsRelatedM4eSpec); err != nil {
+			log.V(1).Info(err.Error(), "name", nfs.GetName())
+			return ctrl.Result{}, client.IgnoreNotFound(err)
 		}
 		// Merge NFS spec if set on site Spec
 		if siteNfsSpecFound {
@@ -156,6 +156,17 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		keydbName := "site-" + req.Name
 		keydb.SetName(keydbName)
 		keydb.SetNamespace(ns.GetName())
+		// Set Keydb host and secret, if not already present in M4e spec
+		keydbRelatedM4eSpec := map[string]interface{}{
+			"moodleRedisHost":             keydbName + "-keydb-service",
+			"moodleRedisSecretAuthSecret": keydbName + "-keydb-secret",
+			"moodleRedisSecretAuthKey":    "keydb_password",
+		}
+		// Merge M4e related keydb spec with flavor M4e spec
+		if err := mergo.MapWithOverwrite(&flavorM4eSpec, keydbRelatedM4eSpec); err != nil {
+			log.V(1).Info(err.Error(), "name", keydb.GetName())
+			return ctrl.Result{}, client.IgnoreNotFound(err)
+		}
 		// Merge Keydb spec if set on site Spec
 		if siteKeydbSpecFound {
 			if err := mergo.MapWithOverwrite(&flavorKeydbSpec, siteKeydbSpec); err != nil {
