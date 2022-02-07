@@ -35,11 +35,15 @@ type SiteSpec struct {
 
 	// M4eSpec defines M4e spec to override Flavor
 	// +optional
-	M4eSpec FlavorM4eSpec `json:"m4eSpec,omitempty"`
+	M4eSpec M4eSpec `json:"m4eSpec,omitempty"`
 
 	// NfsSpec defines NFS Server spec to override Flavor
 	// +optional
-	NfsSpec FlavorNfsSpec `json:"nfsSpec,omitempty"`
+	NfsSpec NfsSpec `json:"nfsSpec,omitempty"`
+
+	// KeydbSpec defines Keydb spec to deploy optionally
+	// +optional
+	KeydbSpec KeydbSpec `json:"keydbSpec"`
 }
 
 // SiteStatus defines the observed state of Site

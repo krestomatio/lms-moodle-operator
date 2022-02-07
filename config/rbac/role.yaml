@@ -16,6 +16,18 @@ rules:
   - list
   - watch
 - apiGroups:
+  - keydb.krestomat.io
+  resources:
+  - keydbs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - m4e.krestomat.io
   resources:
   - flavors

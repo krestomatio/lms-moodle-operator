@@ -44,3 +44,20 @@ spec:
 
     ## Storage class name to be used by this (NFS) Server
     # serverPvcStorageClassName: standard
+  keydbSpec:
+    # keydbMode: one of 'standalone', 'multimaster', 'custom'
+    # By default 'standalone' is 1 replica and 'multimaster' 3
+    keydbMode: 'standalone'
+
+    # Enable and assign a limit of 1Gi memory
+    keydbResourceLimits: true
+    keydbResourceLimitsCpu: "1"
+    keydbResourceLimitsMemory: 1Gi
+
+    # Assign 1Gi for each replica persistent volume
+    keydbPvcDataSize: 1Gi
+
+    # Add extra keydb config
+    keydbExtraConfig: |
+      maxmemory 900mb
+      maxmemory-policy allkeys-lru

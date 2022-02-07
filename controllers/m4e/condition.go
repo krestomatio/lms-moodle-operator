@@ -60,6 +60,13 @@ func (r *SiteReconciler) SetNfsReadyCondition(ctx context.Context, parentObj *un
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, "NfsReady", "Ready", "True")
 }
 
+// SetKeydbReadyCondition set ready condition depending on ready status of Keydb
+// and returns bool flag which indicates ready condition status of that dependant object
+// along with any error setting the condition
+func (r *SiteReconciler) SetKeydbReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
+	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, "KeydbReady", "Ready", "True")
+}
+
 // SetConditionFromDependantByType set ready condition depending on ready status of dependant object filter by type
 // and returns bool flag which indicates ready condition status of that dependant object
 // along with any error setting the condition

@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
 - rook-nfs
 - nfs
+- keydb
 - m4e
 - ../default

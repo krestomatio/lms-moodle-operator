@@ -36,6 +36,114 @@ spec:
           spec:
             description: FlavorSpec defines the desired state of Flavor
             properties:
+              keydbSpec:
+                description: KeydbSpec defines Keydb spec to deploy optionally
+                properties:
+                  keydbExtraConfig:
+                    description: KeydbExtraConfig contains extra keydb config
+                    type: string
+                  keydbImage:
+                    description: KeydbImage defines image for keydb container
+                    maxLength: 255
+                    type: string
+                  keydbMode:
+                    description: KeydbMode describes mode keydb runs
+                    enum:
+                    - standalone
+                    - multimaster
+                    - custom
+                    type: string
+                  keydbPvcDataSize:
+                    description: KeydbPvcDataSize defines keydb storage size
+                    maxLength: 20
+                    minLength: 2
+                    type: string
+                  keydbPvcDataStorageAccessMode:
+                    description: KeydbPvcDataStorageAccessMode defines keydb storage
+                      access modes
+                    enum:
+                    - ReadWriteOnce
+                    - ReadOnlyMany
+                    - ReadWriteMany
+                    type: string
+                  keydbPvcDataStorageClassName:
+                    description: KeydbPvcDataStorageClassName defines keydb storage
+                      class
+                    maxLength: 63
+                    minLength: 2
+                    type: string
+                  keydbResourceLimits:
+                    description: KeydbResourceLimits whether resource limits are set
+                    type: boolean
+                  keydbResourceLimitsCpu:
+                    description: KeydbResourceLimitsCpu set cpu for resource limits
+                    maxLength: 20
+                    type: string
+                  keydbResourceLimitsMemory:
+                    description: KeydbResourceLimitsMemory set memory for resource
+                      limits
+                    maxLength: 20
+                    type: string
+                  keydbResourceRequests:
+                    description: KeydbResourceRequests whether resource requests are
+                      set
+                    type: boolean
+                  keydbResourceRequestsCpu:
+                    description: KeydbResourceRequestsCpu set cpu for resource requests
+                    maxLength: 20
+                    type: string
+                  keydbResourceRequestsMemory:
+                    description: KeydbResourceRequestsMemory set memory for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  keydbSize:
+                    description: KeydbSize defines keydb number of replicas
+                    format: int32
+                    type: integer
+                  keydbTolerations:
+                    description: KeydbTolerations defines any tolerations for Keydb
+                      pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                type: object
               m4eSpec:
                 description: M4eSpec defines M4e spec
                 properties:
@@ -47,6 +155,23 @@ spec:
                     description: MoodleConfigAdditionalCfg defines moodle extra config
                       properties in config.php
                     type: object
+                  moodleConfigSessionRedisCompressor:
+                    description: MoodleConfigSessionRedisCompressor defines redis
+                      session compresor
+                    enum:
+                    - none
+                    - gzip
+                    - zstd
+                    type: string
+                  moodleConfigSessionRedisPrefix:
+                    description: 'MoodleConfigSessionRedisPrefix defines prefix for
+                      redis session. Default: '''''
+                    maxLength: 100
+                    type: string
+                  moodleConfigSessionRedisSerializer_use_igbinary:
+                    description: 'MoodleConfigSessionRedisSerializer_use_igbinary
+                      whether igbinary is used for redis session. Default: false'
+                    type: boolean
                   moodleCronjobTolerations:
                     description: MoodleCronjobTolerations defines any tolerations
                       for Moodle cronjob pods.
@@ -157,6 +282,49 @@ spec:
                     maxLength: 63
                     minLength: 2
                     type: string
+                  moodleRedisHost:
+                    description: 'MoodleRedisHost defines redis host. Default: ''127.0.0.1'''
+                    maxLength: 100
+                    type: string
+                  moodleRedisMucStore:
+                    description: 'MoodleRedisMucStore whether redis is configured
+                      as MUC store. Default: false'
+                    type: boolean
+                  moodleRedisMucStoreCompressor:
+                    description: 'MoodleRedisMucStoreCompressor defines compressor
+                      for redis MUC store. Default: 0'
+                    maximum: 1
+                    minimum: 0
+                    type: integer
+                  moodleRedisMucStorePrefix:
+                    description: 'MoodleRedisMucStorePrefix defines prefix for redis
+                      MUC store. Default: '''''
+                    maxLength: 100
+                    type: string
+                  moodleRedisMucStoreRoutine:
+                    description: 'MoodleRedisMucStoreRoutine whether redis MUC store
+                      config is enforce during Routine. Default: false'
+                    type: boolean
+                  moodleRedisMucStoreSerializer:
+                    description: 'MoodleRedisMucStoreSerializer defines serializer
+                      for redis MUC store. Default: 1'
+                    maximum: 2
+                    minimum: 1
+                    type: integer
+                  moodleRedisSecretAuthKey:
+                    description: 'MoodleRedisSecretAuthKey defines key inside auth
+                      secret name. Default: ''keydb_password'''
+                    maxLength: 100
+                    type: string
+                  moodleRedisSecretAuthSecret:
+                    description: 'MoodleRedisSecretAuthSecret defines redis auth secret
+                      name. Default: '''''
+                    maxLength: 255
+                    type: string
+                  moodleRedisSessionStore:
+                    description: 'MoodleRedisSessionStore whether redis is configured
+                      as session store. Default: false'
+                    type: boolean
                   moodleSize:
                     description: MoodleSize defines moodle number of replicas between
                       0 and 255
