@@ -81,7 +81,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	siteNfsSpec, siteNfsSpecFound, _ := unstructured.NestedMap(siteSpec, "nfsSpec")
 	siteKeydbSpec, siteKeydbSpecFound, _ := unstructured.NestedMap(siteSpec, "keydbSpec")
 
-	siteCommonLabels := m4ev1alpha1.GroupVersion.Group + "/site_name: " + req.Name
+	siteCommonLabels := m4ev1alpha1.GroupVersion.Group + "/site_name: " + req.Name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor_name: " + siteFlavor
 
 	// Fetch flavor spec
 	flavor := newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))

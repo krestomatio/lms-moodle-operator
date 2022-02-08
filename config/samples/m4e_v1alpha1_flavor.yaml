@@ -18,6 +18,16 @@ spec:
     # MoodlePvcMoodledataSize: 1Gi
     # moodlePvcMoodledataStorageAccessMode: ReadWriteOnce
     # moodlePvcMoodledataStorageClassName: standard
+    ## Redis
+    moodleRedisSessionStore: true
+    moodleRedisMucStore: true
+    moodleRedisMucStoreRoutine: true
+    moodleConfigSessionRedisPrefix: 'sess_'
+    moodleConfigSessionRedisSerializer_use_igbinary: true
+    moodleConfigSessionRedisCompressor: gzip
+    moodleRedisMucStorePrefix: muc_
+    moodleRedisMucStoreSerializer: 2
+    moodleRedisMucStoreCompressor: 1
   nfsSpec:
     # Ownership/permissions
     ## Set export folder userid to 48
