@@ -2,8 +2,4 @@
 
 ### New Features
 
-* controller: include flavor name in common labels (Job Céspedes Ortiz)
-
-### Chores
-
-* bump dependant operators version (Job Céspedes Ortiz)
+* m4e: add finalizer (Job Céspedes Ortiz)
