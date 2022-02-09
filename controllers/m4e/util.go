@@ -34,24 +34,28 @@ func getEnv(envVar string, defaultVal string) string {
 	}
 }
 
+// ReconcileCreate create resource if it does not exists. Otherwise it does nothing
 func (r *SiteReconciler) ReconcileCreate(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
 
 	log.V(1).Info("Creating resource", "Resource", obj.GetObjectKind())
 
-	if err := r.Get(ctx, types.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()}, obj); errors.IsNotFound(err) {
-		// Set resource ownership
-		if err := r.ReconcileSetOwner(ctx, parentObj, obj); err != nil {
-			log.Error(err, "Failed to create resource", "Resource", obj.GetObjectKind())
-			return err
-		}
-
-		if err := r.Create(ctx, obj); err != nil {
-			log.Error(err, "Failed to create resource", "Resource", obj.GetObjectKind())
-			return err
-		}
+	if err := r.Get(ctx, types.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()}, obj); !errors.IsNotFound(err) {
+		log.V(1).Info("Resource already exists", "Resource", obj.GetObjectKind())
+		return nil
 	} else if err != nil {
 		log.Error(err, "Failed to get resource", "Resource", obj.GetObjectKind())
+		return err
+	}
+
+	// Set resource ownership
+	if err := r.ReconcileSetOwner(ctx, parentObj, obj); err != nil {
+		log.Error(err, "Failed to set owner", "Resource", obj.GetObjectKind())
+		return err
+	}
+
+	if err := r.Create(ctx, obj); err != nil {
+		log.Error(err, "Failed to create resource", "Resource", obj.GetObjectKind())
 		return err
 	}
 
@@ -140,13 +144,37 @@ func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err er
 	// Delete m4e and requeue in order to wait for it to be completely be removed.
 	// By doing so, any NFS Server or Keydb removal will be done after, and removal
 	// conflicts will be avoided
-	log.Info("Deleting M4e", "M4e.Namespace", siteM4e.GetNamespace(), "M4e.Name", siteM4e.GetName())
-	if err := r.ReconcileDeleteDependant(ctx, site, siteM4e); err == nil {
-		log.V(1).Info("Requeueing after M4e deletion", "M4e.Namespace", siteM4e.GetNamespace(), "M4e.Name", siteM4e.GetName())
+	log.Info("Deleting M4e", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
+	if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.m4e); err == nil {
+		log.V(1).Info("Requeueing after M4e deletion", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
 		return true, nil
 	} else if !errors.IsNotFound(err) {
-		log.Error(err, "M4e not deleted", "M4e.Namespace", siteM4e.GetNamespace(), "M4e.Name", siteM4e.GetName())
+		log.Error(err, "M4e not deleted", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
 		return false, err
+	}
+
+	// Delete nfs server and requeue in order to wait for it to be completely be removed.
+	if r.siteCtx.hasNfs {
+		log.Info("Deleting NFS Server", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
+		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.nfs); err == nil {
+			log.V(1).Info("Requeueing after NFS Server deletion", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
+			return true, nil
+		} else if !errors.IsNotFound(err) {
+			log.Error(err, "NFS Server not deleted", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
+			return false, err
+		}
+	}
+
+	// Delete Keydb and requeue in order to wait for it to be completely be removed.
+	if r.siteCtx.hasKeydb {
+		log.Info("Deleting Keydb", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.keydb); err == nil {
+			log.V(1).Info("Requeueing after Keydb deletion", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+			return true, nil
+		} else if !errors.IsNotFound(err) {
+			log.Error(err, "Keydb not deleted", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+			return false, err
+		}
 	}
 
 	log.Info("Successfully finalized site")
