@@ -20,7 +20,6 @@ import (
 	"context"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -28,12 +27,38 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	"github.com/imdario/mergo"
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
+)
+
+const (
+	SiteNamePrefix string = "site-"
+	SiteFinalizer  string = "m4e.krestomat.io/finalizer"
+)
+
+var (
+	siteHasNfs            bool
+	siteHasKeydb          bool
+	siteName              string
+	siteFlavor            string
+	siteNamespaceName     string
+	siteM4eName           string
+	siteNfsName           string
+	siteNfsNamespace      string = getEnv("NFSNAMESPACE", NFSNAMESPACE)
+	siteKeydbName         string
+	site                  *unstructured.Unstructured
+	siteM4e               *unstructured.Unstructured
+	siteNfs               *unstructured.Unstructured
+	siteKeydb             *unstructured.Unstructured
+	sitePreparedM4eSpec   map[string]interface{}
+	sitePreparedNfsSpec   map[string]interface{}
+	sitePreparedKeydbSpec map[string]interface{}
+	siteNamespace         *corev1.Namespace
 )
 
 // SiteReconciler reconciles a Site object
@@ -65,33 +90,68 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	log.Info("Starting reconcile")
 
 	// Vars
-	var m4eReady bool
-	var nfsReady bool
-	var keydbReady bool
+	siteName = req.Name
 
-	// Fetch the Site instance
-	site := newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Site"))
-	if err := r.Get(ctx, req.NamespacedName, site); err != nil {
-		log.V(1).Info(err.Error(), "name", req.NamespacedName.Name)
+	// prepare resources
+	if err := r.reconcilePrepare(ctx); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
+
+	// set finalizer
+	if finalized, requeue, err := r.reconcileFinalize(ctx); err != nil {
+		return ctrl.Result{}, err
+	} else if requeue {
+		return ctrl.Result{Requeue: true}, nil
+	} else if finalized {
+		return ctrl.Result{}, nil
+	}
+
+	// apply resources
+	if err := r.reconcilePersist(ctx); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	return ctrl.Result{}, nil
+}
+
+// reconcilePrepare takes care of initial step during reconcile
+func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
+	log := log.FromContext(ctx)
+	log.Info("Reconcile preparation")
+
+	// Set namespace name. It must start with an alphabetic character
+	siteNamespaceName = SiteNamePrefix + siteName
+	// Set M4e name. It must start with an alphabetic character
+	siteM4eName = SiteNamePrefix + truncate(siteName, 13)
+	// Set NFS Server name and namespace. It must start with an alphabetic character
+	siteNfsName = SiteNamePrefix + siteName
+	siteNfsNamespace = getEnv("NFSNAMESPACE", NFSNAMESPACE)
+	// Set Keydb name. It must start with an alphabetic character
+	siteKeydbName = SiteNamePrefix + truncate(siteName, 13)
+	// Site namespace
+	siteNamespace = &corev1.Namespace{}
+	siteNamespace.SetName(siteNamespaceName)
+
+	// Fetch the Site instance
+	site = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Site"))
+	if err := r.Get(ctx, types.NamespacedName{Name: siteName}, site); err != nil {
+		log.V(1).Info(err.Error())
+		return err
+	}
 	siteSpec, _, _ := unstructured.NestedMap(site.UnstructuredContent(), "spec")
-	siteFlavor, _, _ := unstructured.NestedString(siteSpec, "flavor")
 	siteM4eSpec, siteM4eSpecFound, _ := unstructured.NestedMap(siteSpec, "m4eSpec")
 	siteNfsSpec, siteNfsSpecFound, _ := unstructured.NestedMap(siteSpec, "nfsSpec")
 	siteKeydbSpec, siteKeydbSpecFound, _ := unstructured.NestedMap(siteSpec, "keydbSpec")
 
-	siteCommonLabels := m4ev1alpha1.GroupVersion.Group + "/site_name: " + req.Name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor_name: " + siteFlavor
+	siteFlavor, _, _ = unstructured.NestedString(siteSpec, "flavor")
+
+	siteCommonLabels := m4ev1alpha1.GroupVersion.Group + "/site_name: " + siteName + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor_name: " + siteFlavor
 
 	// Fetch flavor spec
 	flavor := newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
 	if err := r.Get(ctx, types.NamespacedName{Name: siteFlavor}, flavor); err != nil {
-		if errors.IsNotFound(err) {
-			log.Info("Flavor resource not found", "site.Spec.Flavor", siteFlavor)
-			return ctrl.Result{Requeue: false}, nil
-		}
-		log.Error(err, "Failed to get Flavor", "site.Spec.Flavor", siteFlavor)
-		return ctrl.Result{Requeue: true}, err
+		log.Info(err.Error())
+		return err
 	}
 
 	flavorSpec, _, _ := unstructured.NestedMap(flavor.UnstructuredContent(), "spec")
@@ -99,37 +159,40 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	flavorNfsSpec, flavorNfsSpecFound, _ := unstructured.NestedMap(flavorSpec, "nfsSpec")
 	flavorKeydbSpec, flavorKeydbSpecFound, _ := unstructured.NestedMap(flavorSpec, "keydbSpec")
 
-	// Site namespace
-	ns := &corev1.Namespace{}
-	// Set namespace name. It must start with an alphabetic character
-	nsName := "site-" + req.Name
-	ns.SetName(nsName)
-	// Create namespace
-	if err := r.reconcileCreate(ctx, site, ns); err != nil {
-		return ctrl.Result{}, err
+	// dependant components
+	siteM4e = newUnstructuredObject(r.M4eGVK)
+	siteNfs = newUnstructuredObject(r.NfsGVK)
+	siteKeydb = newUnstructuredObject(r.KeydbGVK)
+	siteHasNfs = siteNfsSpecFound || flavorNfsSpecFound
+	siteHasKeydb = siteKeydbSpecFound || flavorKeydbSpecFound
+	// namespaces and names
+	siteM4e.SetName(siteM4eName)
+	siteM4e.SetNamespace(siteNamespaceName)
+	if siteHasNfs {
+		siteNfs.SetName(siteNfsName)
+		siteNfs.SetNamespace(siteNfsNamespace)
+	}
+	if siteHasKeydb {
+		siteKeydb.SetName(siteKeydbName)
+		siteKeydb.SetNamespace(siteNamespaceName)
 	}
 
 	// Server kind from NFS ansible operator
-	if siteNfsSpecFound || flavorNfsSpecFound {
-		nfs := newUnstructuredObject(r.NfsGVK)
-		// Set NFS Server name. It must start with an alphabetic character
-		nfsName := "site-" + req.Name
-		nfs.SetName(nfsName)
-		nfs.SetNamespace(getEnv("NFSNAMESPACE", NFSNAMESPACE))
+	if siteHasNfs {
 		// Set NFS storage class name and access modes when using NFS operator
 		nfsRelatedM4eSpec := map[string]interface{}{
-			"moodlePvcMoodledataStorageClassName":  nfsName + "-nfs-sc",
+			"moodlePvcMoodledataStorageClassName":  siteNfsName + "-nfs-sc",
 			"moodlePvcMoodledataStorageAccessMode": m4ev1alpha1.ReadWriteMany,
 		}
 		if err := mergo.MapWithOverwrite(&flavorM4eSpec, nfsRelatedM4eSpec); err != nil {
-			log.V(1).Info(err.Error(), "name", nfs.GetName())
-			return ctrl.Result{}, client.IgnoreNotFound(err)
+			log.Error(err, "Couldn't merge spec")
+			return err
 		}
 		// Merge NFS spec if set on site Spec
 		if siteNfsSpecFound {
 			if err := mergo.MapWithOverwrite(&flavorNfsSpec, siteNfsSpec); err != nil {
-				log.V(1).Info(err.Error(), "name", nfs.GetName())
-				return ctrl.Result{}, client.IgnoreNotFound(err)
+				log.Error(err, "Couldn't merge spec")
+				return err
 			}
 		}
 		// Set site labels to nfs
@@ -139,39 +202,29 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		} else {
 			flavorNfsSpec["commonLabels"] = siteCommonLabels
 		}
-		// Save NFS server spec
-		nfs.Object["spec"] = flavorNfsSpec
-		// Apply Server resource
-		if err := r.reconcileApply(ctx, site, nfs); err != nil {
-			return ctrl.Result{}, err
-		}
-		// Update Site status about NFS server
-		nfsReady = r.SetNfsReadyCondition(ctx, site, nfs)
+		// save nfs spec
+		sitePreparedNfsSpec = make(map[string]interface{})
+		sitePreparedNfsSpec = flavorNfsSpec
 	}
 
 	// Keydb kind from Keydb ansible operator
-	if siteKeydbSpecFound || flavorKeydbSpecFound {
-		keydb := newUnstructuredObject(r.KeydbGVK)
-		// Set Keydb name. It must start with an alphabetic character
-		keydbName := "site-" + req.Name
-		keydb.SetName(keydbName)
-		keydb.SetNamespace(ns.GetName())
+	if siteHasKeydb {
 		// Set Keydb host and secret, if not already present in M4e spec
 		keydbRelatedM4eSpec := map[string]interface{}{
-			"moodleRedisHost":             keydbName + "-keydb-service",
-			"moodleRedisSecretAuthSecret": keydbName + "-keydb-secret",
+			"moodleRedisHost":             siteKeydbName + "-keydb-service",
+			"moodleRedisSecretAuthSecret": siteKeydbName + "-keydb-secret",
 			"moodleRedisSecretAuthKey":    "keydb_password",
 		}
 		// Merge M4e related keydb spec with flavor M4e spec
 		if err := mergo.MapWithOverwrite(&flavorM4eSpec, keydbRelatedM4eSpec); err != nil {
-			log.V(1).Info(err.Error(), "name", keydb.GetName())
-			return ctrl.Result{}, client.IgnoreNotFound(err)
+			log.Error(err, "Couldn't merge spec")
+			return err
 		}
 		// Merge Keydb spec if set on site Spec
 		if siteKeydbSpecFound {
 			if err := mergo.MapWithOverwrite(&flavorKeydbSpec, siteKeydbSpec); err != nil {
-				log.V(1).Info(err.Error(), "name", keydb.GetName())
-				return ctrl.Result{}, client.IgnoreNotFound(err)
+				log.Error(err, "Couldn't merge spec")
+				return err
 			}
 		}
 		// Set site labels to keydb
@@ -181,26 +234,16 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		} else {
 			flavorKeydbSpec["commonLabels"] = siteCommonLabels
 		}
-		// Save Keydb spec
-		keydb.Object["spec"] = flavorKeydbSpec
-		// Apply Keydb resource
-		if err := r.reconcileApply(ctx, site, keydb); err != nil {
-			return ctrl.Result{}, err
-		}
-		// Update Site status about Keydb server
-		keydbReady = r.SetKeydbReadyCondition(ctx, site, keydb)
+		// save keydb spec
+		sitePreparedKeydbSpec = make(map[string]interface{})
+		sitePreparedKeydbSpec = flavorKeydbSpec
 	}
 
-	// M4e kind from M4e ansible operator
-	m4e := newUnstructuredObject(r.M4eGVK)
-	m4eName := "site-" + truncate(req.Name, 13)
-	m4e.SetName(m4eName)
-	m4e.SetNamespace(ns.GetName())
 	// Merge M4e spec if set on site Spec
 	if siteM4eSpecFound {
 		if err := mergo.MapWithOverwrite(&flavorM4eSpec, siteM4eSpec); err != nil {
-			log.V(1).Info(err.Error(), "name", m4e.GetName())
-			return ctrl.Result{}, client.IgnoreNotFound(err)
+			log.Error(err, "Couldn't merge spec")
+			return err
 		}
 	}
 	// Set site labels to M4e
@@ -210,21 +253,103 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	} else {
 		flavorM4eSpec["commonLabels"] = siteCommonLabels
 	}
-	// Save M4e server spec
-	m4e.Object["spec"] = flavorM4eSpec
-	// Apply M4e resource
-	if err := r.reconcileApply(ctx, site, m4e); err != nil {
-		return ctrl.Result{}, err
+	// save m4e spec
+	sitePreparedM4eSpec = make(map[string]interface{})
+	sitePreparedM4eSpec = flavorM4eSpec
+	return nil
+}
+
+// reconcileFinalize configures finalizer
+func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool, requeue bool, err error) {
+	log := log.FromContext(ctx)
+	log.Info("Reconcile finalizer")
+
+	// Check if Site instance is marked to be deleted, which is
+	// indicated by the deletion timestamp being set.
+	if isSiteMarkedToBeDeleted := site.GetDeletionTimestamp(); isSiteMarkedToBeDeleted != nil {
+		if controllerutil.ContainsFinalizer(site, SiteFinalizer) {
+			// Run finalization logic for SiteFinalizer. If the
+			// finalization logic fails, don't remove the finalizer so
+			// that we can retry during the next reconciliation.
+			if requeue, err := r.finalizeSite(ctx); err != nil {
+				return false, false, err
+			} else if requeue {
+				// if finalizer requires requeue
+				return false, true, err
+			}
+
+			// Remove SiteFinalizer. Once all finalizers have been
+			// removed, the object will be deleted.
+			controllerutil.RemoveFinalizer(site, SiteFinalizer)
+			if err := r.Update(ctx, site); err != nil {
+				return false, false, err
+			}
+		}
+		return true, false, nil
 	}
-	// Update Site status about M4e
-	m4eReady = r.SetM4eReadyCondition(ctx, site, m4e)
+	// Add finalizer for this CR
+	if !controllerutil.ContainsFinalizer(site, SiteFinalizer) {
+		controllerutil.AddFinalizer(site, SiteFinalizer)
+		if err := r.Update(ctx, site); err != nil {
+			return false, false, err
+		}
+	}
+	return false, false, nil
+}
+
+// reconcilePersist take care of applying and persisting changes
+func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
+	log := log.FromContext(ctx)
+	log.Info("Reconcile persistance")
+
+	// Vars
+	m4eReady := false
+	nfsReady := false
+	keydbReady := false
+
+	// Create namespace
+	if err := r.ReconcileCreate(ctx, site, siteNamespace); err != nil {
+		return err
+	}
+
+	// Save NFS Server spec
+	if siteHasNfs {
+		// Save NFS Server spec
+		siteNfs.Object["spec"] = sitePreparedNfsSpec
+		// Apply NFS Server resource
+		if err := r.ReconcileApply(ctx, site, siteNfs); err != nil {
+			return err
+		}
+		// Update Site status about NFS Server
+		nfsReady = r.SetNfsReadyCondition(ctx, site, siteNfs)
+	}
+
+	// Save Keydb spec
+	if siteHasKeydb {
+		siteKeydb.Object["spec"] = sitePreparedKeydbSpec
+		// Apply Keydb resource
+		if err := r.ReconcileApply(ctx, site, siteKeydb); err != nil {
+			return err
+		}
+		// Update Site status about Keydb
+		keydbReady = r.SetKeydbReadyCondition(ctx, site, siteKeydb)
+	}
+
+	// Save M4e spec
+	siteM4e.Object["spec"] = sitePreparedM4eSpec
+	// Apply M4e resource
+	if err := r.ReconcileApply(ctx, site, siteM4e); err != nil {
+		return err
+	}
+	// Update site status about M4e
+	m4eReady = r.SetM4eReadyCondition(ctx, site, siteM4e)
 
 	// Set site ready contidion status
 	if nfsReady && m4eReady && keydbReady {
 		r.SetReadyCondition(ctx, site)
 	}
 
-	return ctrl.Result{}, nil
+	return nil
 }
 
 // ignoreDeletionPredicate filters Delete events on resources that have been confirmed deleted
