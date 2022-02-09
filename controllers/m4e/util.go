@@ -4,7 +4,8 @@ import (
 	"context"
 	"os"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -33,58 +34,123 @@ func getEnv(envVar string, defaultVal string) string {
 	}
 }
 
-func (r *SiteReconciler) reconcileCreate(ctx context.Context, parentObj client.Object, obj client.Object) error {
+func (r *SiteReconciler) ReconcileCreate(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
 
-	if err := r.Get(ctx, types.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()}, obj); err != nil && apierrors.IsNotFound(err) {
-		log.V(1).Info("Create resource", "Resource.Kind", obj.GetObjectKind(), "Resource.Name", obj.GetName())
+	log.V(1).Info("Creating resource", "Resource", obj.GetObjectKind())
 
+	if err := r.Get(ctx, types.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()}, obj); errors.IsNotFound(err) {
 		// Set resource ownership
-		if err := r.reconcileSetOwner(ctx, parentObj, obj); err != nil {
+		if err := r.ReconcileSetOwner(ctx, parentObj, obj); err != nil {
+			log.Error(err, "Failed to create resource", "Resource", obj.GetObjectKind())
 			return err
 		}
 
 		if err := r.Create(ctx, obj); err != nil {
-			log.Error(err, "Failed to create resource", "Resource.Kind", obj.GetObjectKind(), "Resource.Name", obj.GetName())
+			log.Error(err, "Failed to create resource", "Resource", obj.GetObjectKind())
 			return err
 		}
 	} else if err != nil {
-		log.Error(err, "Failed to get resource", "Resource.Kind", obj.GetObjectKind(), "Resource.Name", obj.GetName())
+		log.Error(err, "Failed to get resource", "Resource", obj.GetObjectKind())
 		return err
 	}
+
+	log.Info("Resource created", "Resource", obj.GetObjectKind())
 	return nil
 }
 
-func (r *SiteReconciler) reconcileApply(ctx context.Context, parentObj client.Object, obj client.Object) error {
+func (r *SiteReconciler) ReconcileApply(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
 
+	log.V(1).Info("Applying patch", "Resource", obj.GetObjectKind())
+
 	// Set resource ownership
-	if err := r.reconcileSetOwner(ctx, parentObj, obj); err != nil {
+	if err := r.ReconcileSetOwner(ctx, parentObj, obj); err != nil {
+		log.Error(err, "Failed setting owner", "Resource", obj.GetObjectKind())
 		return err
 	}
 
 	// Apply resource
-	log.V(1).Info("Applying changes", "Resource.Kind", obj.GetObjectKind(), "Resource.Name", obj.GetName())
 	force := true
 	if err := r.Patch(ctx, obj, client.Apply, &client.PatchOptions{Force: &force, FieldManager: OPERATORNAME}); err != nil {
-		log.Error(err, "Failed to apply changes", "Resource.Kind", obj.GetObjectKind(), "Resource.Namespace", obj.GetNamespace(), "Resource.Name", obj.GetName())
+		log.Error(err, "Failed to attempt patching changes", "Resource", obj.GetObjectKind())
 		return err
 	}
 
 	return nil
 }
 
-func (r *SiteReconciler) reconcileSetOwner(ctx context.Context, parentObj client.Object, obj client.Object) error {
+func (r *SiteReconciler) ReconcileSetOwner(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
 
 	// Set owner reference
-	log.V(1).Info("Setting owner", "Owner", parentObj.GetUID(), "Dependant.Kind", obj.GetObjectKind(), "Dependant.Name", obj.GetName())
+	log.V(1).Info("Setting owner", "Owner", parentObj.GetUID(), "Dependant", obj.GetObjectKind())
 	if err := ctrl.SetControllerReference(parentObj, obj, r.Scheme); err != nil {
 		log.Error(err, "Failed to set owner reference")
 		return err
 	}
 
+	log.Info("Owner set", "Owner", parentObj.GetUID(), "Dependant", obj.GetObjectKind())
 	return nil
+}
+
+// ReconcileDeleteDependant deletes a resource only if it has the owner reference of its parent
+func (r *SiteReconciler) ReconcileDeleteDependant(ctx context.Context, parentObj client.Object, obj client.Object) error {
+	log := log.FromContext(ctx)
+
+	log.V(1).Info("Deleting dependant resource", "Resource", obj.GetObjectKind())
+
+	if err := r.Get(ctx, types.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()}, obj); err != nil {
+		log.V(1).Info(err.Error(), "Dependant", obj.GetObjectKind())
+		return err
+	}
+
+	if isObjMarkedToBeDeleted := obj.GetDeletionTimestamp(); isObjMarkedToBeDeleted != nil {
+		log.V(1).Info("Dependant resource marked to be deleted", "Dependant", obj.GetObjectKind())
+		return nil
+	}
+
+	// Check ownership with parent Object
+	objOwner := metav1.GetControllerOf(obj)
+
+	if objOwner == nil {
+		log.Info("Dependant resource not deleted. It has no owner", "Dependant", obj.GetObjectKind())
+		return nil
+	} else if objOwner.UID != parentObj.GetUID() {
+		log.Info("Dependant resource not deleted. Its owner does not match parent ownership (uid)", "Dependant", obj.GetObjectKind(), "Parent", parentObj.GetObjectKind())
+		return nil
+	}
+
+	gracePeriodSeconds := int64(0)
+	propagationPolicy := metav1.DeletePropagationBackground
+	if err := r.Delete(ctx, obj, client.PropagationPolicy(propagationPolicy), client.GracePeriodSeconds(gracePeriodSeconds)); err != nil {
+		log.Error(err, "Failed to delete dependant resource ", "Dependant", obj.GetObjectKind())
+		return err
+	}
+
+	log.Info("Dependant resource deleted", "Dependant", obj.GetObjectKind())
+	return nil
+}
+
+// finalizeSite cleans up before deleting Site
+func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err error) {
+	log := log.FromContext(ctx)
+	log.Info("Finalizing")
+
+	// Delete m4e and requeue in order to wait for it to be completely be removed.
+	// By doing so, any NFS Server or Keydb removal will be done after, and removal
+	// conflicts will be avoided
+	log.Info("Deleting M4e", "M4e.Namespace", siteM4e.GetNamespace(), "M4e.Name", siteM4e.GetName())
+	if err := r.ReconcileDeleteDependant(ctx, site, siteM4e); err == nil {
+		log.V(1).Info("Requeueing after M4e deletion", "M4e.Namespace", siteM4e.GetNamespace(), "M4e.Name", siteM4e.GetName())
+		return true, nil
+	} else if !errors.IsNotFound(err) {
+		log.Error(err, "M4e not deleted", "M4e.Namespace", siteM4e.GetNamespace(), "M4e.Name", siteM4e.GetName())
+		return false, err
+	}
+
+	log.Info("Successfully finalized site")
+	return false, nil
 }
 
 // truncate a string
