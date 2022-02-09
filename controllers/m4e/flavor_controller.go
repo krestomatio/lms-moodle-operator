@@ -18,20 +18,41 @@ package m4e
 
 import (
 	"context"
+	"fmt"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
 )
 
+const (
+	FlavorFinalizer string = "m4e.krestomat.io/finalizer"
+)
+
+type FlavorReconcilerContext struct {
+	markedToBeDeleted bool
+	flavor            *m4ev1alpha1.Flavor
+}
+
+type FlavorInUsedError struct {
+	Name       string // Flavor name
+	SiteNumber int    // Number of site using it
+}
+
+func (f *FlavorInUsedError) Error() string {
+	return fmt.Sprintf("Flavor '%s' is in used by %d sites", f.Name, f.SiteNumber)
+}
+
 // FlavorReconciler reconciles a Flavor object
 type FlavorReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme    *runtime.Scheme
+	flavorCtx FlavorReconcilerContext
 }
 
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=flavors,verbs=get;list;watch;create;update;patch;delete
@@ -53,9 +74,8 @@ func (r *FlavorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 
 	// your logic here
 	// Fetch the Memcached instance
-	flavor := &m4ev1alpha1.Flavor{}
-	err := r.Get(ctx, req.NamespacedName, flavor)
-	if err != nil {
+	r.flavorCtx.flavor = &m4ev1alpha1.Flavor{}
+	if err := r.Get(ctx, req.NamespacedName, r.flavorCtx.flavor); err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
@@ -68,7 +88,52 @@ func (r *FlavorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, err
 	}
 
+	// Whether it is marked to be deleted
+	r.flavorCtx.markedToBeDeleted = r.flavorCtx.flavor.GetDeletionTimestamp() != nil
+
+	// Finalize logic
+	if finalized, err := r.reconcileFinalize(ctx); err != nil {
+		return ctrl.Result{}, err
+	} else if finalized {
+		return ctrl.Result{}, nil
+	}
+
 	return ctrl.Result{}, nil
+}
+
+// reconcileFinalize configures finalizer
+func (r *FlavorReconciler) reconcileFinalize(ctx context.Context) (finalized bool, err error) {
+	log := log.FromContext(ctx)
+	log.Info("Reconcile finalizer")
+
+	// Check if Site instance is marked to be deleted, which is
+	// indicated by the deletion timestamp being set.
+	if r.flavorCtx.markedToBeDeleted {
+		if controllerutil.ContainsFinalizer(r.flavorCtx.flavor, FlavorFinalizer) {
+			// Run finalization logic for FlavorFinalizer. If the
+			// finalization logic fails, don't remove the finalizer so
+			// that we can retry during the next reconciliation.
+			if err := r.finalizeFlavor(ctx); err != nil {
+				return false, err
+			}
+			// Remove FlavorFinalizer. Once all finalizers have been
+			// removed, the object will be deleted.
+			controllerutil.RemoveFinalizer(r.flavorCtx.flavor, FlavorFinalizer)
+			if err := r.Update(ctx, r.flavorCtx.flavor); err != nil {
+				return false, err
+			}
+		}
+		// Finalized
+		return true, nil
+	}
+	// Add finalizer for this CR
+	if !controllerutil.ContainsFinalizer(r.flavorCtx.flavor, FlavorFinalizer) {
+		controllerutil.AddFinalizer(r.flavorCtx.flavor, FlavorFinalizer)
+		if err := r.Update(ctx, r.flavorCtx.flavor); err != nil {
+			return false, err
+		}
+	}
+	return false, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.

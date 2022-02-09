@@ -38,8 +38,9 @@ import (
 )
 
 const (
-	SiteNamePrefix string = "site-"
-	SiteFinalizer  string = "m4e.krestomat.io/finalizer"
+	SiteNamePrefix  string = "site-"
+	SiteFinalizer   string = "m4e.krestomat.io/finalizer"
+	FlavorNameIndex string = "spec.flavor"
 )
 
 type SiteReconcilerContext struct {
@@ -126,10 +127,8 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	// Finalize logic
 	if finalized, requeue, err := r.reconcileFinalize(ctx); err != nil {
 		return ctrl.Result{}, err
-	} else if requeue {
-		return ctrl.Result{Requeue: true}, nil
-	} else if finalized {
-		return ctrl.Result{}, nil
+	} else if finalized || requeue {
+		return ctrl.Result{Requeue: requeue}, nil
 	}
 
 	// Define resources
@@ -148,7 +147,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 // reconcilePrepare takes care of initial step during reconcile
 func (r *SiteReconciler) reconcileSet(ctx context.Context) error {
 	log := log.FromContext(ctx)
-	log.Info("Reconcile preparation")
+	log.V(1).Info("Reconcile set")
 
 	// set namespace name. It must start with an alphabetic character
 	r.siteCtx.namespaceName = SiteNamePrefix + r.siteCtx.name
@@ -194,7 +193,7 @@ func (r *SiteReconciler) reconcileSet(ctx context.Context) error {
 // reconcilePrepare takes care of initial step during reconcile
 func (r *SiteReconciler) reconcileSpecification(ctx context.Context) error {
 	log := log.FromContext(ctx)
-	log.Info("Reconcile preparation")
+	log.V(1).Info("Reconcile specification")
 
 	// Fetch flavor spec
 	r.siteCtx.flavor = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
@@ -305,7 +304,7 @@ func (r *SiteReconciler) reconcileSpecification(ctx context.Context) error {
 // reconcileFinalize configures finalizer
 func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool, requeue bool, err error) {
 	log := log.FromContext(ctx)
-	log.Info("Reconcile finalizer")
+	log.V(1).Info("Reconcile finalizer")
 
 	// Check if Site instance is marked to be deleted, which is
 	// indicated by the deletion timestamp being set.
@@ -317,7 +316,7 @@ func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool,
 			if requeue, err := r.finalizeSite(ctx); err != nil {
 				return false, false, err
 			} else if requeue {
-				// if finalizer requires requeue
+				// finalizer requires requeue
 				return false, true, err
 			}
 
@@ -328,6 +327,7 @@ func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool,
 				return false, false, err
 			}
 		}
+		// Finalized
 		return true, false, nil
 	}
 	// Add finalizer for this CR
@@ -343,7 +343,7 @@ func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool,
 // reconcilePersist take care of applying and persisting changes
 func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 	log := log.FromContext(ctx)
-	log.Info("Reconcile persistance")
+	log.V(1).Info("Reconcile persist")
 
 	// Vars
 	m4eReady := false
@@ -409,6 +409,17 @@ func ignoreDeletionPredicate() predicate.Predicate {
 func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	mgr.GetScheme().AddKnownTypeWithName(r.M4eGVK, &unstructured.Unstructured{})
 	metav1.AddToGroupVersion(mgr.GetScheme(), r.M4eGVK.GroupVersion())
+
+	// Add spec.flavor index
+	if err := mgr.GetFieldIndexer().IndexField(context.Background(), &m4ev1alpha1.Site{}, FlavorNameIndex, func(obj client.Object) []string {
+		flavorName := obj.(*m4ev1alpha1.Site).Spec.Flavor
+		if flavorName == "" {
+			return nil
+		}
+		return []string{flavorName}
+	}); err != nil {
+		return err
+	}
 
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&m4ev1alpha1.Site{}).

@@ -12,6 +12,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+
+	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
 )
 
 const (
@@ -179,6 +181,30 @@ func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err er
 
 	log.Info("Successfully finalized site")
 	return false, nil
+}
+
+// finalizeSite cleans up before deleting Flavor
+func (r *FlavorReconciler) finalizeFlavor(ctx context.Context) error {
+	log := log.FromContext(ctx)
+	log.Info("Finalizing")
+
+	// Whether any Site is using this flavor
+	log.Info("Deleting Flavor", "Flavor.Namespace", r.flavorCtx.flavor.GetNamespace(), "Flavor.Name", r.flavorCtx.flavor.GetName())
+	siteList := &m4ev1alpha1.SiteList{}
+	if err := r.List(ctx, siteList, client.MatchingFields{"spec.flavor": r.flavorCtx.flavor.GetName()}); err != nil {
+		log.Error(err, "Unable to list child sites")
+		return err
+	}
+
+	sitesUsingFlavor := len(siteList.Items)
+	if sitesUsingFlavor > 0 {
+		flavorNotFoundError := &FlavorInUsedError{r.flavorCtx.flavor.GetName(), sitesUsingFlavor}
+		log.Error(flavorNotFoundError, "Cannot delete flavor")
+		return flavorNotFoundError
+	}
+
+	log.Info("Successfully finalized site")
+	return nil
 }
 
 // truncate a string
