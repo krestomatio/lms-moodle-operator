@@ -21,21 +21,6 @@ const (
 	NFSNAMESPACE string = "rook-nfs"
 )
 
-func newUnstructuredObject(gvk schema.GroupVersionKind) *unstructured.Unstructured {
-	obj := &unstructured.Unstructured{}
-	obj.SetGroupVersionKind(gvk)
-	return obj
-}
-
-func getEnv(envVar string, defaultVal string) string {
-	val, ok := os.LookupEnv(envVar)
-	if !ok {
-		return defaultVal
-	} else {
-		return val
-	}
-}
-
 // ReconcileCreate create resource if it does not exists. Otherwise it does nothing
 func (r *SiteReconciler) ReconcileCreate(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
@@ -45,7 +30,7 @@ func (r *SiteReconciler) ReconcileCreate(ctx context.Context, parentObj client.O
 	if err := r.Get(ctx, types.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()}, obj); !errors.IsNotFound(err) {
 		log.V(1).Info("Resource already exists", "Resource", obj.GetObjectKind())
 		return nil
-	} else if err != nil {
+	} else if client.IgnoreNotFound(err) != nil {
 		log.Error(err, "Failed to get resource", "Resource", obj.GetObjectKind())
 		return err
 	}
@@ -96,7 +81,6 @@ func (r *SiteReconciler) ReconcileSetOwner(ctx context.Context, parentObj client
 		return err
 	}
 
-	log.Info("Owner set", "Owner", parentObj.GetUID(), "Dependant", obj.GetObjectKind())
 	return nil
 }
 
@@ -134,7 +118,7 @@ func (r *SiteReconciler) ReconcileDeleteDependant(ctx context.Context, parentObj
 		return err
 	}
 
-	log.Info("Dependant resource deleted", "Dependant", obj.GetObjectKind())
+	log.Info("Dependant resource set to be deleted", "Dependant", obj.GetObjectKind())
 	return nil
 }
 
@@ -203,8 +187,166 @@ func (r *FlavorReconciler) finalizeFlavor(ctx context.Context) error {
 		return flavorNotFoundError
 	}
 
-	log.Info("Successfully finalized site")
+	log.Info("Successfully finalized flavor")
 	return nil
+}
+
+// updateSiteState update site state
+// return any error
+func (r *SiteReconciler) updateSiteState(ctx context.Context) error {
+	log := log.FromContext(ctx)
+
+	var state string
+
+	// get ready condition
+	readyCondition, readyConditionFound, readyConditionErr := getConditionByType(r.siteCtx.site, ReadyConditionType)
+
+	if readyConditionErr != nil {
+		log.Error(readyConditionErr, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
+		return readyConditionErr
+	}
+
+	// get M4e ready condition
+	m4eReadyCondition, m4eReadyConditionFound, m4eReadyConditionErr := getConditionByType(r.siteCtx.site, M4eReadyConditionType)
+
+	if m4eReadyConditionErr != nil {
+		log.Error(m4eReadyConditionErr, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
+		return m4eReadyConditionErr
+	}
+
+	if readyConditionFound && m4eReadyConditionFound {
+		state = r.setSiteState(readyCondition, m4eReadyCondition)
+	} else {
+		state = string(m4ev1alpha1.SettingUpState)
+	}
+
+	// set state in site object
+	stateUpdate, err := SetStatusState(r.siteCtx.site, state)
+	if err != nil {
+		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
+		return err
+	}
+
+	if !stateUpdate {
+		log.V(1).Info("Site state not updated")
+		return nil
+	}
+
+	// save status
+	if err := r.Status().Update(ctx, r.siteCtx.site); err != nil {
+		log.Error(err, "Unable to update Site '"+r.siteCtx.name+"' state")
+		return err
+	}
+
+	log.V(1).Info("Site state updated")
+	return nil
+}
+
+// updateFlavorState update flavor state
+// return any error
+func (r *FlavorReconciler) updateFlavorState(ctx context.Context) error {
+	log := log.FromContext(ctx)
+
+	state := r.setFlavorState()
+
+	// set state in site object
+	stateUpdate, err := SetStatusState(r.flavorCtx.flavor, string(state))
+	if err != nil {
+		log.Error(err, "unable to update Flavor '"+r.flavorCtx.flavor.GetName()+"' state")
+		return err
+	}
+
+	if !stateUpdate {
+		log.V(1).Info("Flavor state not updated")
+		return nil
+	}
+
+	// save status
+	if err := r.Status().Update(ctx, r.flavorCtx.flavor); err != nil {
+		log.Error(err, "Unable to update Flavor '"+r.flavorCtx.flavor.GetName()+"' state")
+		return err
+	}
+
+	log.V(1).Info("Flavor state updated")
+	return nil
+}
+
+// setSiteState defines Site state value from ready condition
+// return state string
+func (r *SiteReconciler) setSiteState(readyCondition map[string]interface{}, m4eReadyCondition map[string]interface{}) string {
+	status := readyCondition["status"]
+	m4eStatus := m4eReadyCondition["status"]
+	m4eReason := m4eReadyCondition["reason"]
+
+	// Terminating
+	if r.siteCtx.markedToBeDeleted {
+		return string(m4ev1alpha1.TerminatingState)
+	}
+
+	if status == "False" || m4eStatus == "False" {
+		// Failed
+		if m4eReason == "Error" {
+			return string(m4ev1alpha1.FailedState)
+		}
+		// Creating
+		if m4eReason == "NotInstantiated" || m4eReason == "Instantiated" || m4eReason == "NotCreated" {
+			return string(m4ev1alpha1.CreatingState)
+		}
+	}
+	// Ready
+	if m4eStatus == "True" {
+		return string(m4ev1alpha1.ReadyState)
+	}
+
+	return string(m4ev1alpha1.UnknownState)
+}
+
+// setFlavorState defines Flavor state value
+// return state string
+func (r *FlavorReconciler) setFlavorState() string {
+	if r.flavorCtx.markedToBeDeleted {
+		return string(m4ev1alpha1.TerminatingState)
+	}
+
+	return string(m4ev1alpha1.ReadyState)
+}
+
+// SetStatusState set status state key in unstructure object
+// It returns a bool flag if state was updated, and
+// any error
+func SetStatusState(objU *unstructured.Unstructured, state string) (bool, error) {
+	updateState := false
+	objState, objStateFound, objStateErr := unstructured.NestedString(objU.UnstructuredContent(), "status", "state")
+
+	if objStateErr != nil {
+		return false, objStateErr
+	}
+
+	if !objStateFound || objState != state {
+		updateState = true
+		if err := unstructured.SetNestedField(objU.Object, state, "status", "state"); err != nil {
+			return false, err
+		}
+	}
+
+	return updateState, nil
+}
+
+// Init a new unstructured object with determined GVK
+func newUnstructuredObject(gvk schema.GroupVersionKind) *unstructured.Unstructured {
+	objU := &unstructured.Unstructured{}
+	objU.SetGroupVersionKind(gvk)
+	return objU
+}
+
+// get an environmental variable
+func getEnv(envVar string, defaultVal string) string {
+	val, ok := os.LookupEnv(envVar)
+	if !ok {
+		return defaultVal
+	} else {
+		return val
+	}
 }
 
 // truncate a string

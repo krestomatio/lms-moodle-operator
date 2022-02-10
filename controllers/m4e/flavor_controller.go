@@ -20,8 +20,9 @@ import (
 	"context"
 	"fmt"
 
-	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -36,7 +37,8 @@ const (
 
 type FlavorReconcilerContext struct {
 	markedToBeDeleted bool
-	flavor            *m4ev1alpha1.Flavor
+	name              string
+	flavor            *unstructured.Unstructured
 }
 
 type FlavorInUsedError struct {
@@ -72,23 +74,15 @@ func (r *FlavorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	log := log.FromContext(ctx)
 	log.Info("Starting reconcile")
 
-	// your logic here
-	// Fetch the Memcached instance
-	r.flavorCtx.flavor = &m4ev1alpha1.Flavor{}
-	if err := r.Get(ctx, req.NamespacedName, r.flavorCtx.flavor); err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			log.Info("Flavor resource not found. Ignoring since object must be deleted")
-			return ctrl.Result{}, nil
-		}
-		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get Flavor")
-		return ctrl.Result{}, err
+	// Fetch Site instance
+	r.flavorCtx.name = req.Name
+	r.flavorCtx.flavor = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
+	if err := r.Get(ctx, types.NamespacedName{Name: r.flavorCtx.name}, r.flavorCtx.flavor); err != nil {
+		log.V(1).Info(err.Error())
+		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// Whether it is marked to be deleted
+	// whether site is marked to be deleted
 	r.flavorCtx.markedToBeDeleted = r.flavorCtx.flavor.GetDeletionTimestamp() != nil
 
 	// Finalize logic
@@ -98,7 +92,7 @@ func (r *FlavorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, nil
 	}
 
-	return ctrl.Result{}, nil
+	return ctrl.Result{}, r.updateFlavorState(ctx)
 }
 
 // reconcileFinalize configures finalizer
@@ -109,6 +103,10 @@ func (r *FlavorReconciler) reconcileFinalize(ctx context.Context) (finalized boo
 	// Check if Site instance is marked to be deleted, which is
 	// indicated by the deletion timestamp being set.
 	if r.flavorCtx.markedToBeDeleted {
+		// update site state (terminating)
+		if err := r.updateFlavorState(ctx); err != nil {
+			return false, err
+		}
 		if controllerutil.ContainsFinalizer(r.flavorCtx.flavor, FlavorFinalizer) {
 			// Run finalization logic for FlavorFinalizer. If the
 			// finalization logic fails, don't remove the finalizer so

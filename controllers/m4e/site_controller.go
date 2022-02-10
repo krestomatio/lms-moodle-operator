@@ -73,9 +73,9 @@ type SiteReconcilerContext struct {
 	flavorM4eSpec        map[string]interface{}
 	flavorNfsSpec        map[string]interface{}
 	flavorKeydbSpec      map[string]interface{}
-	preparedM4eSpec      map[string]interface{}
-	preparedNfsSpec      map[string]interface{}
-	preparedKeydbSpec    map[string]interface{}
+	combinedM4eSpec      map[string]interface{}
+	combinedNfsSpec      map[string]interface{}
+	combinedKeydbSpec    map[string]interface{}
 	namespace            *corev1.Namespace
 }
 
@@ -245,8 +245,8 @@ func (r *SiteReconciler) reconcileSpecification(ctx context.Context) error {
 			r.siteCtx.flavorNfsSpec["commonLabels"] = r.siteCtx.commonLabels
 		}
 		// save nfs spec
-		r.siteCtx.preparedNfsSpec = make(map[string]interface{})
-		r.siteCtx.preparedNfsSpec = r.siteCtx.flavorNfsSpec
+		r.siteCtx.combinedNfsSpec = make(map[string]interface{})
+		r.siteCtx.combinedNfsSpec = r.siteCtx.flavorNfsSpec
 	}
 
 	// Keydb kind from Keydb ansible operator
@@ -277,8 +277,8 @@ func (r *SiteReconciler) reconcileSpecification(ctx context.Context) error {
 			r.siteCtx.flavorKeydbSpec["commonLabels"] = r.siteCtx.commonLabels
 		}
 		// save keydb spec
-		r.siteCtx.preparedKeydbSpec = make(map[string]interface{})
-		r.siteCtx.preparedKeydbSpec = r.siteCtx.flavorKeydbSpec
+		r.siteCtx.combinedKeydbSpec = make(map[string]interface{})
+		r.siteCtx.combinedKeydbSpec = r.siteCtx.flavorKeydbSpec
 	}
 
 	// Merge M4e spec if set on site Spec
@@ -296,8 +296,8 @@ func (r *SiteReconciler) reconcileSpecification(ctx context.Context) error {
 		r.siteCtx.flavorM4eSpec["commonLabels"] = r.siteCtx.commonLabels
 	}
 	// save m4e spec
-	r.siteCtx.preparedM4eSpec = make(map[string]interface{})
-	r.siteCtx.preparedM4eSpec = r.siteCtx.flavorM4eSpec
+	r.siteCtx.combinedM4eSpec = make(map[string]interface{})
+	r.siteCtx.combinedM4eSpec = r.siteCtx.flavorM4eSpec
 	return nil
 }
 
@@ -309,6 +309,10 @@ func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool,
 	// Check if Site instance is marked to be deleted, which is
 	// indicated by the deletion timestamp being set.
 	if r.siteCtx.markedToBeDeleted {
+		// update site state (terminating)
+		if err := r.updateSiteState(ctx); err != nil {
+			return false, false, err
+		}
 		if controllerutil.ContainsFinalizer(r.siteCtx.site, SiteFinalizer) {
 			// Run finalization logic for SiteFinalizer. If the
 			// finalization logic fails, don't remove the finalizer so
@@ -347,8 +351,8 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 
 	// Vars
 	m4eReady := false
-	nfsReady := false
-	keydbReady := false
+	nfsReady := !r.siteCtx.hasNfs
+	keydbReady := !r.siteCtx.hasKeydb
 
 	// Create namespace
 	if err := r.ReconcileCreate(ctx, r.siteCtx.site, r.siteCtx.namespace); err != nil {
@@ -358,7 +362,7 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 	// Save NFS Server spec
 	if r.siteCtx.hasNfs {
 		// Save NFS Server spec
-		r.siteCtx.nfs.Object["spec"] = r.siteCtx.preparedNfsSpec
+		r.siteCtx.nfs.Object["spec"] = r.siteCtx.combinedNfsSpec
 		// Apply NFS Server resource
 		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.nfs); err != nil {
 			return err
@@ -369,7 +373,7 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 
 	// Save Keydb spec
 	if r.siteCtx.hasKeydb {
-		r.siteCtx.keydb.Object["spec"] = r.siteCtx.preparedKeydbSpec
+		r.siteCtx.keydb.Object["spec"] = r.siteCtx.combinedKeydbSpec
 		// Apply Keydb resource
 		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.keydb); err != nil {
 			return err
@@ -379,7 +383,7 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 	}
 
 	// Save M4e spec
-	r.siteCtx.m4e.Object["spec"] = r.siteCtx.preparedM4eSpec
+	r.siteCtx.m4e.Object["spec"] = r.siteCtx.combinedM4eSpec
 	// Apply M4e resource
 	if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.m4e); err != nil {
 		return err
@@ -387,12 +391,12 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 	// Update site status about M4e
 	m4eReady = r.SetM4eReadyCondition(ctx, r.siteCtx.site, r.siteCtx.m4e)
 
-	// Set site ready contidion status
+	// Set site ready contidion status and state
 	if nfsReady && m4eReady && keydbReady {
 		r.SetReadyCondition(ctx, r.siteCtx.site)
 	}
 
-	return nil
+	return r.updateSiteState(ctx)
 }
 
 // ignoreDeletionPredicate filters Delete events on resources that have been confirmed deleted
