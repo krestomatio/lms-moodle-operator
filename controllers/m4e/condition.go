@@ -9,6 +9,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
+const (
+	ReadyConditionType      string = "Ready"
+	M4eReadyConditionType   string = "M4eReady"
+	NfsReadyConditionType   string = "NfsReady"
+	KeydbReadyConditionType string = "KeydbReady"
+)
+
 // FindConditionUnstructuredByType returns first Condition with given conditionType
 // along with bool flag which indicates if the Condition is found or not
 func FindConditionUnstructuredByType(conditionsUnstructured []interface{}, conditionType string) (map[string]interface{}, bool) {
@@ -23,7 +30,7 @@ func FindConditionUnstructuredByType(conditionsUnstructured []interface{}, condi
 }
 
 // SetReadyCondition set ready condition
-func (r *SiteReconciler) SetReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured) {
+func (r *SiteReconciler) SetReadyCondition(ctx context.Context, site *unstructured.Unstructured) {
 	log := log.FromContext(ctx)
 
 	parentReadyCondition := map[string]interface{}{
@@ -33,14 +40,14 @@ func (r *SiteReconciler) SetReadyCondition(ctx context.Context, parentObj *unstr
 		"message": "Site is ready",
 	}
 
-	hasSetCondition, setConditionErr := SetCondition(parentObj, parentReadyCondition)
+	hasSetCondition, setConditionErr := SetCondition(site, parentReadyCondition)
 	if setConditionErr != nil {
 		log.Error(setConditionErr, "unable to set ready condition based on dependant condition status")
 	}
 
 	// update parent status conditions if conditions changed
 	if hasSetCondition {
-		if err := r.Status().Update(ctx, parentObj); err != nil {
+		if err := r.Status().Update(ctx, site); err != nil {
 			log.Error(err, "unable to update resource status")
 		}
 	}
@@ -48,34 +55,31 @@ func (r *SiteReconciler) SetReadyCondition(ctx context.Context, parentObj *unstr
 
 // SetM4eReadyCondition set ready condition depending on ready status of M4e Server
 // and returns bool flag which indicates ready condition status of that dependant object
-// along with any error setting the condition
 func (r *SiteReconciler) SetM4eReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
-	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, "M4eReady", "Ready", "True")
+	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, M4eReadyConditionType, ReadyConditionType)
 }
 
 // SetNfsReadyCondition set ready condition depending on ready status of NFS Server
 // and returns bool flag which indicates ready condition status of that dependant object
-// along with any error setting the condition
 func (r *SiteReconciler) SetNfsReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
-	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, "NfsReady", "Ready", "True")
+	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, NfsReadyConditionType, ReadyConditionType)
 }
 
 // SetKeydbReadyCondition set ready condition depending on ready status of Keydb
 // and returns bool flag which indicates ready condition status of that dependant object
-// along with any error setting the condition
 func (r *SiteReconciler) SetKeydbReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
-	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, "KeydbReady", "Ready", "True")
+	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, KeydbReadyConditionType, ReadyConditionType)
 }
 
-// SetConditionFromDependantByType set ready condition depending on ready status of dependant object filter by type
-// and returns bool flag which indicates ready condition status of that dependant object
-// along with any error setting the condition
-func (r *SiteReconciler) SetConditionFromDependantByType(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured, parentConditionType string, dependantConditionType string, stringToEvalConditionStatus string) bool {
+// SetConditionFromDependantByType set a condition in a parent object from
+// a ready type condition of a dependant object based on its status
+// Returns bool flag which indicates ready condition status of the dependant object
+func (r *SiteReconciler) SetConditionFromDependantByType(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured, parentConditionType string, dependantConditionType string) bool {
 	log := log.FromContext(ctx)
-	parentReady := false
+	dependantConditionStatus := false
 
 	// get dependant condition by type
-	dependantCondition, dependantConditionFound, dependantConditionErr := getConditionFromDependantByType(dependantObj, dependantConditionType)
+	dependantCondition, dependantConditionFound, dependantConditionErr := getConditionByType(dependantObj, dependantConditionType)
 
 	if dependantConditionErr != nil {
 		log.Error(dependantConditionErr, "unable to get dependant condition")
@@ -110,7 +114,7 @@ func (r *SiteReconciler) SetConditionFromDependantByType(ctx context.Context, pa
 		}
 		hasSetCondition = hasSetParentReadyCondition
 	} else {
-		parentReady = true
+		dependantConditionStatus = true
 	}
 
 	// update parent status conditions
@@ -121,15 +125,15 @@ func (r *SiteReconciler) SetConditionFromDependantByType(ctx context.Context, pa
 		}
 	}
 
-	return parentReady
+	return dependantConditionStatus
 }
 
-// getConditionFromDependantByType returns condition from dependant resourse by type,
+// getConditionByType returns a condition by type from a unstructure object,
 // a bool flag which indicates whether condition exists, and
 // any error getting the condition
-func getConditionFromDependantByType(dependant *unstructured.Unstructured, conditionType string) (map[string]interface{}, bool, error) {
+func getConditionByType(objU *unstructured.Unstructured, conditionType string) (map[string]interface{}, bool, error) {
 	// look for conditions slice in unstructured object
-	conditions, conditionsFound, conditionsErr := unstructured.NestedSlice(dependant.Object, "status", "conditions")
+	conditions, conditionsFound, conditionsErr := unstructured.NestedSlice(objU.Object, "status", "conditions")
 	if conditionsErr != nil {
 		return make(map[string]interface{}), false, conditionsErr
 	}
@@ -138,7 +142,7 @@ func getConditionFromDependantByType(dependant *unstructured.Unstructured, condi
 		return make(map[string]interface{}), false, nil
 	}
 
-	// look for ready condition type
+	// look for condition type
 	condition, conditionFound := FindConditionUnstructuredByType(conditions, conditionType)
 
 	return condition, conditionFound, nil

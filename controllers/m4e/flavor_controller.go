@@ -18,20 +18,43 @@ package m4e
 
 import (
 	"context"
+	"fmt"
 
-	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
 )
 
+const (
+	FlavorFinalizer string = "m4e.krestomat.io/finalizer"
+)
+
+type FlavorReconcilerContext struct {
+	markedToBeDeleted bool
+	name              string
+	flavor            *unstructured.Unstructured
+}
+
+type FlavorInUsedError struct {
+	Name       string // Flavor name
+	SiteNumber int    // Number of site using it
+}
+
+func (f *FlavorInUsedError) Error() string {
+	return fmt.Sprintf("Flavor '%s' is in used by %d sites", f.Name, f.SiteNumber)
+}
+
 // FlavorReconciler reconciles a Flavor object
 type FlavorReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme    *runtime.Scheme
+	flavorCtx FlavorReconcilerContext
 }
 
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=flavors,verbs=get;list;watch;create;update;patch;delete
@@ -51,24 +74,64 @@ func (r *FlavorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	log := log.FromContext(ctx)
 	log.Info("Starting reconcile")
 
-	// your logic here
-	// Fetch the Memcached instance
-	flavor := &m4ev1alpha1.Flavor{}
-	err := r.Get(ctx, req.NamespacedName, flavor)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// Request object not found, could have been deleted after reconcile request.
-			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
-			// Return and don't requeue
-			log.Info("Flavor resource not found. Ignoring since object must be deleted")
-			return ctrl.Result{}, nil
-		}
-		// Error reading the object - requeue the request.
-		log.Error(err, "Failed to get Flavor")
-		return ctrl.Result{}, err
+	// Fetch Site instance
+	r.flavorCtx.name = req.Name
+	r.flavorCtx.flavor = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
+	if err := r.Get(ctx, types.NamespacedName{Name: r.flavorCtx.name}, r.flavorCtx.flavor); err != nil {
+		log.V(1).Info(err.Error())
+		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	return ctrl.Result{}, nil
+	// whether site is marked to be deleted
+	r.flavorCtx.markedToBeDeleted = r.flavorCtx.flavor.GetDeletionTimestamp() != nil
+
+	// Finalize logic
+	if finalized, err := r.reconcileFinalize(ctx); err != nil {
+		return ctrl.Result{}, err
+	} else if finalized {
+		return ctrl.Result{}, nil
+	}
+
+	return ctrl.Result{}, r.updateFlavorState(ctx)
+}
+
+// reconcileFinalize configures finalizer
+func (r *FlavorReconciler) reconcileFinalize(ctx context.Context) (finalized bool, err error) {
+	log := log.FromContext(ctx)
+	log.Info("Reconcile finalizer")
+
+	// Check if Site instance is marked to be deleted, which is
+	// indicated by the deletion timestamp being set.
+	if r.flavorCtx.markedToBeDeleted {
+		// update site state (terminating)
+		if err := r.updateFlavorState(ctx); err != nil {
+			return false, err
+		}
+		if controllerutil.ContainsFinalizer(r.flavorCtx.flavor, FlavorFinalizer) {
+			// Run finalization logic for FlavorFinalizer. If the
+			// finalization logic fails, don't remove the finalizer so
+			// that we can retry during the next reconciliation.
+			if err := r.finalizeFlavor(ctx); err != nil {
+				return false, err
+			}
+			// Remove FlavorFinalizer. Once all finalizers have been
+			// removed, the object will be deleted.
+			controllerutil.RemoveFinalizer(r.flavorCtx.flavor, FlavorFinalizer)
+			if err := r.Update(ctx, r.flavorCtx.flavor); err != nil {
+				return false, err
+			}
+		}
+		// Finalized
+		return true, nil
+	}
+	// Add finalizer for this CR
+	if !controllerutil.ContainsFinalizer(r.flavorCtx.flavor, FlavorFinalizer) {
+		controllerutil.AddFinalizer(r.flavorCtx.flavor, FlavorFinalizer)
+		if err := r.Update(ctx, r.flavorCtx.flavor); err != nil {
+			return false, err
+		}
+	}
+	return false, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.

@@ -47,11 +47,18 @@ type FlavorStatus struct {
 
 	// Sites store the name of the sites which are using this flavor
 	Sites []string `json:"nodes,omitempty"`
+
+	// state describes the site state
+	// +kubebuilder:default:="Unknown"
+	// +optional
+	State StatusState `json:"state,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
+//+kubebuilder:printcolumn:name="STATUS",type="string",description="Flavor status such as Unknown/Used/NotUsed/Terminating etc",JSONPath=".status.state",priority=0
+//+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
 
 // Flavor is the Schema for the flavors API
 type Flavor struct {

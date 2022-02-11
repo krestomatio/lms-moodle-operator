@@ -16,7 +16,16 @@ spec:
     singular: flavor
   scope: Cluster
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Flavor status such as Unknown/Used/NotUsed/Terminating etc
+      jsonPath: .status.state
+      name: STATUS
+      type: string
+    - description: Age of the resource
+      jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Flavor is the Schema for the flavors API
@@ -559,6 +568,17 @@ spec:
                 items:
                   type: string
                 type: array
+              state:
+                default: Unknown
+                description: state describes the site state
+                enum:
+                - Unknown
+                - Creating
+                - SettingUp
+                - Failed
+                - Ready
+                - Terminating
+                type: string
             type: object
         type: object
     served: true

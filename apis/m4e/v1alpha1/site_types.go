@@ -58,11 +58,44 @@ type SiteStatus struct {
 	// +listMapKey=type
 	// +optional
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
+
+	// state describes the site state
+	// +kubebuilder:default:="Unknown"
+	// +optional
+	State StatusState `json:"state,omitempty"`
 }
+
+// StatusState describes the site state
+// +kubebuilder:validation:Enum=Unknown;Creating;SettingUp;Failed;Ready;Terminating;
+type StatusState string
+
+const (
+	// Resource is in an unknown
+	UnknownState StatusState = "Unknown"
+
+	// Resource is being created
+	CreatingState StatusState = "Creating"
+
+	// Resource is being set up
+	SettingUpState StatusState = "SettingUp"
+
+	// Resource has failed
+	FailedState StatusState = "Failed"
+
+	// Resource is ready
+	ReadyState StatusState = "Ready"
+
+	// Resource is being deleted
+	TerminatingState StatusState = "Terminating"
+)
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
+//+kubebuilder:printcolumn:name="STATUS",type="string",description="Site status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
+//+kubebuilder:printcolumn:name="FLAVOR",type="string",description="Flavor name",JSONPath=".spec.flavor",priority=0
+//+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
+//+kubebuilder:printcolumn:name="URL",type="string",JSONPath=".spec.moodleHost",description="Site URL",priority=0
 
 // Site is the Schema for the sites API
 type Site struct {
