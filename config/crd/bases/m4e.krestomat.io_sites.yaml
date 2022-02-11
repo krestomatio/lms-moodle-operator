@@ -31,8 +31,8 @@ spec:
       name: AGE
       type: date
     - description: Site URL
-      jsonPath: .spec.moodleHost
-      name: URL
+      jsonPath: .spec.m4eSpec.moodleHost
+      name: HOST
       type: string
     name: v1alpha1
     schema:
