@@ -119,8 +119,8 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	// Vars
 	r.siteCtx.name = req.Name
 
-	// Set resource
-	if err := r.reconcileSet(ctx); err != nil {
+	// Prepare resource, saved any error for later
+	if err := r.reconcilePrepare(ctx); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -129,11 +129,6 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		return ctrl.Result{}, err
 	} else if finalized || requeue {
 		return ctrl.Result{Requeue: requeue}, nil
-	}
-
-	// Define resources
-	if err := r.reconcileSpecification(ctx); err != nil {
-		return ctrl.Result{}, err
 	}
 
 	// Patch resources
@@ -145,7 +140,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 }
 
 // reconcilePrepare takes care of initial step during reconcile
-func (r *SiteReconciler) reconcileSet(ctx context.Context) error {
+func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	log := log.FromContext(ctx)
 	log.V(1).Info("Reconcile set")
 
@@ -186,14 +181,6 @@ func (r *SiteReconciler) reconcileSet(ctx context.Context) error {
 	r.siteCtx.flavorName, _, _ = unstructured.NestedString(r.siteCtx.spec, "flavor")
 
 	r.siteCtx.commonLabels = m4ev1alpha1.GroupVersion.Group + "/site_name: " + r.siteCtx.name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor_name: " + r.siteCtx.flavorName
-
-	return nil
-}
-
-// reconcilePrepare takes care of initial step during reconcile
-func (r *SiteReconciler) reconcileSpecification(ctx context.Context) error {
-	log := log.FromContext(ctx)
-	log.V(1).Info("Reconcile specification")
 
 	// Fetch flavor spec
 	r.siteCtx.flavor = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
