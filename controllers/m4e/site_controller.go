@@ -285,6 +285,12 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	// save m4e spec
 	r.siteCtx.combinedM4eSpec = make(map[string]interface{})
 	r.siteCtx.combinedM4eSpec = r.siteCtx.flavorM4eSpec
+
+	// set UUID when it has to notify status to a url
+	if err := r.setNotifyUUID(); err != nil {
+		log.Error(err, "Couldn't add status uuid")
+		return err
+	}
 	return nil
 }
 
