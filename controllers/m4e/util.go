@@ -303,14 +303,15 @@ func (r *SiteReconciler) setSiteState(readyCondition map[string]interface{}, m4e
 
 // setNotifyUUID defines site uuid if notifying status to an endpoint
 // Should be used once combinedM4eSpec is set
+// By default, site name is used as UUID
 func (r *SiteReconciler) setNotifyUUID() error {
 	// whether it has to notify status to a url
-	_, m4eSiteNotifyStatusFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "notify_status")
+	_, m4eSiteNotifyStatusFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "notifyStatus")
 	if m4eSiteNotifyStatusFound {
-		_, m4eSiteNotifyStatusUuidFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "notify_status", "notify_status_uuid")
+		_, m4eSiteNotifyStatusUuidFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "notifyStatus", "uuid")
 		if !m4eSiteNotifyStatusUuidFound {
 			// set uuid to notify about
-			if err := unstructured.SetNestedField(r.siteCtx.combinedM4eSpec, r.siteCtx.name, "notify_status", "notify_status_uuid"); err != nil {
+			if err := unstructured.SetNestedField(r.siteCtx.combinedM4eSpec, r.siteCtx.name, "notifyStatus", "uuid"); err != nil {
 				return err
 			}
 		}
