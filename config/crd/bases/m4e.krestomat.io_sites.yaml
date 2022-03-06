@@ -465,6 +465,32 @@ spec:
                           type: string
                       type: object
                     type: array
+                  notifyStatus:
+                    description: NotifyStatus specification using ansible URI module
+                    properties:
+                      method:
+                        description: Method The HTTP method of the request or response.
+                        enum:
+                        - GET
+                        - POST
+                        type: string
+                      statusCode:
+                        description: StatusCode A list of valid, numeric, HTTP status
+                          codes that signifies success of the request.
+                        items:
+                          type: integer
+                        type: array
+                      url:
+                        description: HTTP or HTTPS URL in the form (http|https)://host.domain[:port]/path
+                        type: string
+                      uuid:
+                        description: UUID used when notifying status to an endpoint
+                        maxLength: 36
+                        minLength: 36
+                        type: string
+                    required:
+                    - url
+                    type: object
                   postgresImage:
                     description: PostgresImage defines image for postgres container
                     maxLength: 255

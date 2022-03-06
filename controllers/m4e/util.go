@@ -301,6 +301,24 @@ func (r *SiteReconciler) setSiteState(readyCondition map[string]interface{}, m4e
 	return string(m4ev1alpha1.UnknownState)
 }
 
+// setNotifyUUID defines site uuid if notifying status to an endpoint
+// Should be used once combinedM4eSpec is set
+// By default, site name is used as UUID
+func (r *SiteReconciler) setNotifyUUID() error {
+	// whether it has to notify status to a url
+	_, m4eSiteNotifyStatusFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "notifyStatus")
+	if m4eSiteNotifyStatusFound {
+		_, m4eSiteNotifyStatusUuidFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "notifyStatus", "uuid")
+		if !m4eSiteNotifyStatusUuidFound {
+			// set uuid to notify about
+			if err := unstructured.SetNestedField(r.siteCtx.combinedM4eSpec, r.siteCtx.name, "notifyStatus", "uuid"); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // setFlavorState defines Flavor state value
 // return state string
 func (r *FlavorReconciler) setFlavorState() string {
