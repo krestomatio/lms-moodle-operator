@@ -273,7 +273,7 @@ type NotifyStatus struct {
 	// +optional
 	StatusCode []int8 `json:"statusCode,omitempty"`
 	// Method The HTTP method of the request or response.
-	// +kubebuilder:validation:Enum=GET;POST
+	// +kubebuilder:validation:Enum=GET;POST;PUT;PATCH;DELETE
 	// +optional
 	Method string `json:"method,omitempty"`
 	// UUID used when notifying status to an endpoint
