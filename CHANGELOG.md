@@ -1,5 +1,5 @@
 ## Changes
 
-### Chores
+### Bug Fixes
 
-* bump dependant operators version (Job Céspedes Ortiz)
+* status: add uri methods (Job Céspedes Ortiz)
