@@ -459,6 +459,9 @@ spec:
                         enum:
                         - GET
                         - POST
+                        - PUT
+                        - PATCH
+                        - DELETE
                         type: string
                       statusCode:
                         description: StatusCode A list of valid, numeric, HTTP status
