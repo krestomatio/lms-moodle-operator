@@ -17,14 +17,14 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - description: Flavor status such as Unknown/Used/NotUsed/Terminating etc
-      jsonPath: .status.state
-      name: STATUS
-      type: string
     - description: Age of the resource
       jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
+    - description: Flavor status such as Unknown/Used/NotUsed/Terminating etc
+      jsonPath: .status.state
+      name: STATUS
+      type: string
     name: v1alpha1
     schema:
       openAPIV3Schema:

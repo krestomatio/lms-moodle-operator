@@ -17,19 +17,23 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
+    - description: Age of the resource
+      jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
     - description: Site status such as Unknown/SettingUp/Ready/Failed/Terminating
         etc
       jsonPath: .status.state
       name: STATUS
       type: string
+    - description: Time of latest transition
+      jsonPath: .status.conditions[?(@.type=='Ready')].lastTransitionTime
+      name: SINCE
+      type: date
     - description: Flavor name
       jsonPath: .spec.flavor
       name: FLAVOR
       type: string
-    - description: Age of the resource
-      jsonPath: .metadata.creationTimestamp
-      name: AGE
-      type: date
     - description: Site URL
       jsonPath: .spec.m4eSpec.moodleHost
       name: HOST

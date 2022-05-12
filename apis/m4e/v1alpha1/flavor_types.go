@@ -57,8 +57,8 @@ type FlavorStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
-//+kubebuilder:printcolumn:name="STATUS",type="string",description="Flavor status such as Unknown/Used/NotUsed/Terminating etc",JSONPath=".status.state",priority=0
 //+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
+//+kubebuilder:printcolumn:name="STATUS",type="string",description="Flavor status such as Unknown/Used/NotUsed/Terminating etc",JSONPath=".status.state",priority=0
 
 // Flavor is the Schema for the flavors API
 type Flavor struct {
