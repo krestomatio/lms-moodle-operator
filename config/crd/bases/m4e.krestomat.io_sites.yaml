@@ -578,10 +578,26 @@ spec:
               nfsSpec:
                 description: NfsSpec defines NFS Server spec to override Flavor
                 properties:
+                  serverConfLogLevel:
+                    description: 'ServerConfLogLevel set nfs log level. Default: EVENT'
+                    enum:
+                    - "NULL"
+                    - FATAL
+                    - MAJ
+                    - CRIT
+                    - WARN
+                    - EVENT
+                    - INFO
+                    - DEBUG
+                    - MID_DEBUG
+                    - M_DBG
+                    - FULL_DEBUG
+                    - F_DBG
+                    type: string
                   serverExportGroupid:
                     format: int32
                     type: integer
-                  serverExportPermissions:
+                  serverExportMode:
                     pattern: '[0-7]{4}'
                     type: string
                   serverExportUserid:
@@ -592,13 +608,13 @@ spec:
                   serverPvcAutoexpansionCapGib:
                     format: int32
                     type: integer
-                  serverPvcAutoexpansionGib:
+                  serverPvcAutoexpansionIncrementGib:
                     format: int32
                     type: integer
-                  serverPvcInitSizeGib:
+                  serverPvcAutoexpansionInitSizeGib:
                     format: int32
                     type: integer
-                  serverPvcStorageClassName:
+                  serverPvcDataStorageClassName:
                     maxLength: 255
                     minLength: 1
                     type: string

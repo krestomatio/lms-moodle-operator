@@ -35,7 +35,7 @@ spec:
     ## Set export folder groupid to 0
     serverExportGroupid: 0
     ## Set export folder permissions to 775
-    serverExportPermissions: "0755"
+    serverExportMode: "0755"
 
     # Autoexpansion: if storage available is less than 20% or 'server_pvc_autoexpansion_gib', adjust PVC storage size according to 'server_pvc_autoexpansion_gib' and 'server_pvc_autoexpansion_cap_gib':
     # * Kubernetes cluster and (NFS) Server PVC must support expansion of volumes
@@ -45,15 +45,15 @@ spec:
     ## Enable autoexpansion
     serverPvcAutoexpansion: true
     ## Every time autoexpansion is required, increment 5 GiB
-    serverPvcAutoexpansionGib: 5
+    serverPvcAutoexpansionIncrementGib: 5
     ## But no more than 250 GiB
     serverPvcAutoexpansionCapGib: 250
     # Other
     ## (NFS) Server PVC initial size in GiB
-    serverPvcInitSizeGib: 1
+    serverPvcAutoexpansionInitSizeGib: 1
 
     ## Storage class name to be used by this (NFS) Server
-    # serverPvcStorageClassName: standard
+    # serverPvcDataStorageClassName: standard
   keydbSpec:
     # keydbMode: one of 'standalone', 'multimaster', 'custom'
     # By default 'standalone' is 1 replica and 'multimaster' 3
