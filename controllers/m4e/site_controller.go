@@ -57,7 +57,6 @@ type SiteReconcilerContext struct {
 	namespaceName        string
 	m4eName              string
 	nfsName              string
-	nfsNamespaceName     string
 	keydbName            string
 	commonLabels         string
 	site                 *unstructured.Unstructured
@@ -150,7 +149,6 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.m4eName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
 	// set NFS Server name and namespace. It must start with an alphabetic character
 	r.siteCtx.nfsName = SiteNamePrefix + r.siteCtx.name
-	r.siteCtx.nfsNamespaceName = getEnv("NFSNAMESPACE", NFSNAMESPACE)
 	// set Keydb name. It must start with an alphabetic character
 	r.siteCtx.keydbName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
 	// site namespace
@@ -199,7 +197,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.hasKeydb = r.siteCtx.keydbSpecFound || r.siteCtx.flavorKeydbSpecFound
 	if r.siteCtx.hasNfs {
 		r.siteCtx.nfs.SetName(r.siteCtx.nfsName)
-		r.siteCtx.nfs.SetNamespace(r.siteCtx.nfsNamespaceName)
+		r.siteCtx.nfs.SetNamespace(r.siteCtx.namespaceName)
 	}
 	if r.siteCtx.hasKeydb {
 		r.siteCtx.keydb.SetName(r.siteCtx.keydbName)

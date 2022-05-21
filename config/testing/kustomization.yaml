@@ -11,7 +11,6 @@ patchesStrategicMerge:
 - ../default/manager_auth_proxy_patch.yaml
 - manager_image.yaml
 - debug_logs_patch.yaml
-- nfs_namespace.yaml
 images:
 - name: testing
   newName: testing-operator

@@ -18,7 +18,6 @@ import (
 
 const (
 	OPERATORNAME string = "kio-operator"
-	NFSNAMESPACE string = "rook-nfs"
 )
 
 // ReconcileCreate create resource if it does not exists. Otherwise it does nothing
