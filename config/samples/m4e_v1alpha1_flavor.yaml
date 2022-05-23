@@ -1,33 +1,55 @@
 apiVersion: m4e.krestomat.io/v1alpha1
 kind: Flavor
 metadata:
-  name: flavor-sample
+  name: base-standard-gke
 spec:
   m4eSpec:
+    # moodleImage: quay.io/krestomatio/moodle@sha256:b4d211fba94312940fc78f144fd3e654bebc1c5cd2e3904d43dbe08f3c1769cb
+    moodleProtocol: https
     ## Moodle new instance
-    # moodleNewInstance: true
     moodleNewInstanceAgreeLicense: true
     moodleNewInstanceFullname: Demo site
     moodleNewInstanceShortname: demo
     moodleNewInstanceSummary: A demo site
-    ## Admin credentials. MUST CHANGED
-    moodleNewInstanceAdminuser: admin
-    moodleNewInstanceAdminmail: admin@example.com
-    ### 'changeme' as admin password:
+    moodleNewInstanceAdminmail: admin@otherexample.com
     moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
-    # MoodlePvcMoodledataSize: 1Gi
-    # moodlePvcMoodledataStorageAccessMode: ReadWriteOnce
-    # moodlePvcMoodledataStorageClassName: standard
+    # Moodle data
+    moodlePvcMoodledataSize: 5Gi
+    moodlePvcMoodledataStorageAccessMode: ReadWriteMany
+    nginxIngressAnnotations: |
+      kubernetes.io/ingress.class: "haproxy"
+    ## Postgres as db for site
+    # moodlePostgresMetaName: postgres-sample
+    ## Nfs as shared storage for site
+    # moodleNfsMetaName: server-sample
+    ## Keydb as cache for site
+    # moodleKeydbMetaName: keydb-sample
     ## Redis
-    moodleRedisSessionStore: true
-    moodleRedisMucStore: true
-    moodleRedisMucStoreRoutine: true
     moodleConfigSessionRedisPrefix: 'sess_'
     moodleConfigSessionRedisSerializer_use_igbinary: true
     moodleConfigSessionRedisCompressor: gzip
     moodleRedisMucStorePrefix: muc_
     moodleRedisMucStoreSerializer: 2
     moodleRedisMucStoreCompressor: 1
+
+    ## Notify status endpoint
+    notifyStatus:
+      url: https://api.krestomat.io/v1/operators/sites
+      method: PUT
+  postgresSpec:
+    # postgresMode: one of 'standalone', 'readreplicas'
+    # by default 'standalone' is 1 one primary only, while 'readreplicas' is 1 primary and 1 replica
+    postgresMode: 'standalone'
+
+    # Assign 1Gi to each persistent volume: primary and replicas
+    postgresPvcDataSize: 1Gi
+
+    # Add extra pgbouncer config
+    # pgbouncerExtraConfig: |
+    #   listen_backlog = 256
+
+    ## Storage class name to be used by Postgres
+    postgresPvcDataStorageClassName: gke-csi-standard
   nfsSpec:
     # Ownership/permissions
     ## Set export folder userid to 48
@@ -35,9 +57,9 @@ spec:
     ## Set export folder groupid to 0
     serverExportGroupid: 0
     ## Set export folder permissions to 775
-    serverExportMode: "0755"
+    serverExportPermissions: "0755"
 
-    # Autoexpansion: if storage available is less than 20% or 'server_pvc_autoexpansion_gib', adjust PVC storage size according to 'server_pvc_autoexpansion_gib' and 'server_pvc_autoexpansion_cap_gib':
+    # Autoexpansion: if storage available is less than 20% or 'serverPvcAutoexpansionIncrementGib', adjust PVC storage size according to 'serverPvcAutoexpansionIncrementGib' and 'serverPvcAutoexpansionCapGib':
     # * Kubernetes cluster and (NFS) Server PVC must support expansion of volumes
     # * In older version, (NFS) Server pod may be restart when autoexpanding if Kubernetes feature gate
     #   'ExpandInUsePersistentVolumes' is false. See:
@@ -53,7 +75,7 @@ spec:
     serverPvcAutoexpansionInitSizeGib: 1
 
     ## Storage class name to be used by this (NFS) Server
-    # serverPvcDataStorageClassName: standard
+    serverPvcDataStorageClassName: gke-csi-standard
   keydbSpec:
     # keydbMode: one of 'standalone', 'multimaster', 'custom'
     # By default 'standalone' is 1 replica and 'multimaster' 3
