@@ -22,12 +22,6 @@ import (
 
 // M4eSpec defines the desired state of M4e
 type M4eSpec struct {
-	// MoodleSize defines moodle number of replicas between 0 and 255
-	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=255
-	// +optional
-	MoodleSize int32 `json:"moodleSize,omitempty"`
-
 	// MoodleImage defines image for moodle container
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
@@ -117,10 +111,6 @@ type M4eSpec struct {
 	// +optional
 	MoodleUpdateMajor bool `json:"moodleUpdateMajor,omitempty"`
 
-	// MoodleStatusUsage whether moodle usage is shown. Default: false
-	// +optional
-	MoodleStatusUsage bool `json:"moodleStatusUsage,omitempty"`
-
 	// NginxSize defines nginx number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=255
@@ -140,36 +130,51 @@ type M4eSpec struct {
 	// +optional
 	NginxTolerations []corev1.Toleration `json:"nginxTolerations,omitempty"`
 
-	// PostgresSize defines postgres number of replicas between 0 and 1
-	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=1
+	// NginxExtraConfig contains extra Nginx server config
 	// +optional
-	PostgresSize int32 `json:"postgresSize,omitempty"`
+	NginxExtraConfig string `json:"nginxExtraConfig,omitempty"`
 
-	// PostgresImage defines image for postgres container
+	// PhpFpmSize defines Phpfpm number of replicas between 0 and 255
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=255
+	// +optional
+	PhpFpmSize int32 `json:"phpFpmSize,omitempty"`
+
+	// PhpFpmImage defines image for Phpfpm container
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	PostgresImage string `json:"postgresImage,omitempty"`
+	PhpFpmImage string `json:"phpFpmImage,omitempty"`
 
-	// PostgresPvcDataSize defines postgres storage size
-	// +kubebuilder:validation:MinLength=2
-	// +kubebuilder:validation:MaxLength=100
+	// PhpFpmIngressAnnotations defines Phpfpm annotations
 	// +optional
-	PostgresPvcDataSize string `json:"postgresPvcDataSize,omitempty"`
+	PhpFpmIngressAnnotations string `json:"phpFpmIngressAnnotations,omitempty"`
 
-	// PostgresPvcDataStorageAccessMode defines postgres storage access modes
+	// PhpFpmTolerations defines any tolerations for Phpfpm pods.
 	// +optional
-	PostgresPvcDataStorageAccessMode StorageAccessMode `json:"postgresPvcDataStorageAccessMode,omitempty"`
+	PhpFpmTolerations []corev1.Toleration `json:"phpFpmTolerations,omitempty"`
 
-	// PostgresPvcDataStorageClassName defines postgres storage class
-	// +kubebuilder:validation:MinLength=2
+	// PhpFpmPhpExtraIni contains extra php ini config
+	// +optional
+	PhpFpmPhpExtraIni string `json:"phpFpmPhpExtraIni,omitempty"`
+
+	// PhpFpmExtraConfig contains extra php-fpm config
+	// +optional
+	PhpFpmExtraConfig string `json:"phpFpmExtraConfig,omitempty"`
+
+	// MoodlePostgresMetaName defines Postgres CR name to use as database.
 	// +kubebuilder:validation:MaxLength=63
 	// +optional
-	PostgresPvcDataStorageClassName string `json:"postgresPvcDataStorageClassName,omitempty"`
+	MoodlePostgresMetaName string `json:"moodlePostgresMetaName,omitempty"`
 
-	// PostgresTolerations defines any tolerations for Postgres pods.
+	// MoodleNfsMetaName defines (NFS) Server CR name to use as shared storage for moodledata.
+	// +kubebuilder:validation:MaxLength=63
 	// +optional
-	PostgresTolerations []corev1.Toleration `json:"postgresTolerations,omitempty"`
+	MoodleNfsMetaName string `json:"moodleNfsMetaName,omitempty"`
+
+	// MoodleKeydbMetaName defines Keydb CR name to use as redis cache.
+	// +kubebuilder:validation:MaxLength=63
+	// +optional
+	MoodleKeydbMetaName string `json:"moodleKeydbMetaName,omitempty"`
 
 	// MoodleRedisSessionStore whether redis is configured as session store. Default: false
 	// +optional
@@ -179,19 +184,15 @@ type M4eSpec struct {
 	// +optional
 	MoodleRedisMucStore bool `json:"moodleRedisMucStore,omitempty"`
 
-	// MoodleRedisMucStoreRoutine whether redis MUC store config is enforce during Routine. Default: false
-	// +optional
-	MoodleRedisMucStoreRoutine bool `json:"moodleRedisMucStoreRoutine,omitempty"`
-
 	// MoodleRedisHost defines redis host. Default: '127.0.0.1'
 	// +kubebuilder:validation:MaxLength=100
 	// +optional
 	MoodleRedisHost string `json:"moodleRedisHost,omitempty"`
 
-	// MoodleRedisSecretAuthSecret defines redis auth secret name. Default: ''
+	// MoodleRedisSecret defines redis auth secret name. Default: ''
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	MoodleRedisSecretAuthSecret string `json:"moodleRedisSecretAuthSecret,omitempty"`
+	MoodleRedisSecret string `json:"moodleRedisSecret,omitempty"`
 
 	// MoodleRedisSecretAuthKey defines key inside auth secret name. Default: 'keydb_password'
 	// +kubebuilder:validation:MaxLength=100
@@ -203,9 +204,9 @@ type M4eSpec struct {
 	// +optional
 	MoodleConfigSessionRedisPrefix string `json:"moodleConfigSessionRedisPrefix,omitempty"`
 
-	// MoodleConfigSessionRedisSerializer_use_igbinary whether igbinary is used for redis session. Default: false
+	// MoodleConfigSessionRedisSerializerUseIgbinary whether igbinary is used for redis session. Default: false
 	// +optional
-	MoodleConfigSessionRedisSerializer_use_igbinary bool `json:"moodleConfigSessionRedisSerializer_use_igbinary,omitempty"`
+	MoodleConfigSessionRedisSerializerUseIgbinary bool `json:"moodleConfigSessionRedisSerializerUseIgbinary,omitempty"`
 
 	// MoodleConfigSessionRedisCompressor defines redis session compresor
 	// +optional
