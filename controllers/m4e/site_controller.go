@@ -44,38 +44,46 @@ const (
 )
 
 type SiteReconcilerContext struct {
-	hasNfs               bool
-	hasKeydb             bool
-	markedToBeDeleted    bool
-	m4eSpecFound         bool
-	nfsSpecFound         bool
-	keydbSpecFound       bool
-	flavorNfsSpecFound   bool
-	flavorKeydbSpecFound bool
-	name                 string
-	flavorName           string
-	namespaceName        string
-	m4eName              string
-	nfsName              string
-	keydbName            string
-	commonLabels         string
-	site                 *unstructured.Unstructured
-	flavor               *unstructured.Unstructured
-	m4e                  *unstructured.Unstructured
-	nfs                  *unstructured.Unstructured
-	keydb                *unstructured.Unstructured
-	spec                 map[string]interface{}
-	m4eSpec              map[string]interface{}
-	nfsSpec              map[string]interface{}
-	keydbSpec            map[string]interface{}
-	flavorSpec           map[string]interface{}
-	flavorM4eSpec        map[string]interface{}
-	flavorNfsSpec        map[string]interface{}
-	flavorKeydbSpec      map[string]interface{}
-	combinedM4eSpec      map[string]interface{}
-	combinedNfsSpec      map[string]interface{}
-	combinedKeydbSpec    map[string]interface{}
-	namespace            *corev1.Namespace
+	hasNfs                  bool
+	hasKeydb                bool
+	hasPostgres             bool
+	markedToBeDeleted       bool
+	m4eSpecFound            bool
+	nfsSpecFound            bool
+	keydbSpecFound          bool
+	postgresSpecFound       bool
+	flavorNfsSpecFound      bool
+	flavorKeydbSpecFound    bool
+	flavorPostgresSpecFound bool
+	name                    string
+	flavorName              string
+	namespaceName           string
+	m4eName                 string
+	nfsName                 string
+	keydbName               string
+	postgresName            string
+	commonLabels            string
+	site                    *unstructured.Unstructured
+	flavor                  *unstructured.Unstructured
+	m4e                     *unstructured.Unstructured
+	nfs                     *unstructured.Unstructured
+	keydb                   *unstructured.Unstructured
+	postgres                *unstructured.Unstructured
+	spec                    map[string]interface{}
+	m4eSpec                 map[string]interface{}
+	nfsSpec                 map[string]interface{}
+	keydbSpec               map[string]interface{}
+	postgresSpec            map[string]interface{}
+	flavorSpec              map[string]interface{}
+	flavorM4eSpec           map[string]interface{}
+	flavorNfsSpec           map[string]interface{}
+	flavorKeydbSpec         map[string]interface{}
+	flavorPostgresSpec      map[string]interface{}
+	combinedM4eSpec         map[string]interface{}
+	combinedNfsSpec         map[string]interface{}
+	combinedKeydbSpec       map[string]interface{}
+	combinedPostgresSpec    map[string]interface{}
+	namespace               *corev1.Namespace
 }
 
 type FlavorNotFoundError struct {
@@ -89,9 +97,9 @@ func (f *FlavorNotFoundError) Error() string {
 // SiteReconciler reconciles a Site object
 type SiteReconciler struct {
 	client.Client
-	Scheme                   *runtime.Scheme
-	M4eGVK, NfsGVK, KeydbGVK schema.GroupVersionKind
-	siteCtx                  SiteReconcilerContext
+	Scheme                                *runtime.Scheme
+	M4eGVK, NfsGVK, KeydbGVK, PostgresGVK schema.GroupVersionKind
+	siteCtx                               SiteReconcilerContext
 }
 
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=sites,verbs=get;list;watch;create;update;patch;delete
@@ -148,8 +156,10 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.namespaceName = SiteNamePrefix + r.siteCtx.name
 	// set M4e name. It must start with an alphabetic character
 	r.siteCtx.m4eName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
+	// set Postgres name. It must start with an alphabetic character
+	r.siteCtx.postgresName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
 	// set NFS Server name and namespace. It must start with an alphabetic character
-	r.siteCtx.nfsName = SiteNamePrefix + r.siteCtx.name
+	r.siteCtx.nfsName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
 	// set Keydb name. It must start with an alphabetic character
 	r.siteCtx.keydbName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
 	// site namespace
@@ -157,6 +167,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.namespace.SetName(r.siteCtx.namespaceName)
 	// dependant components
 	r.siteCtx.m4e = newUnstructuredObject(r.M4eGVK)
+	r.siteCtx.postgres = newUnstructuredObject(r.PostgresGVK)
 	r.siteCtx.nfs = newUnstructuredObject(r.NfsGVK)
 	r.siteCtx.keydb = newUnstructuredObject(r.KeydbGVK)
 	// namespaces and names
@@ -174,6 +185,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	}
 	r.siteCtx.spec, _, _ = unstructured.NestedMap(r.siteCtx.site.UnstructuredContent(), "spec")
 	r.siteCtx.m4eSpec, r.siteCtx.m4eSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "m4eSpec")
+	r.siteCtx.postgresSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "postgresSpec")
 	r.siteCtx.nfsSpec, r.siteCtx.nfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "nfsSpec")
 	r.siteCtx.keydbSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "keydbSpec")
 
@@ -190,12 +202,19 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 
 	r.siteCtx.flavorSpec, _, _ = unstructured.NestedMap(r.siteCtx.flavor.UnstructuredContent(), "spec")
 	r.siteCtx.flavorM4eSpec, _, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "m4eSpec")
+	r.siteCtx.flavorPostgresSpec, r.siteCtx.flavorPostgresSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "postgresSpec")
 	r.siteCtx.flavorNfsSpec, r.siteCtx.flavorNfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "nfsSpec")
 	r.siteCtx.flavorKeydbSpec, r.siteCtx.flavorKeydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "keydbSpec")
 
 	// whether Site has dependant components
+	r.siteCtx.hasPostgres = r.siteCtx.postgresSpecFound || r.siteCtx.flavorPostgresSpecFound
 	r.siteCtx.hasNfs = r.siteCtx.nfsSpecFound || r.siteCtx.flavorNfsSpecFound
 	r.siteCtx.hasKeydb = r.siteCtx.keydbSpecFound || r.siteCtx.flavorKeydbSpecFound
+	if r.siteCtx.hasPostgres {
+		r.siteCtx.postgres.SetName(r.siteCtx.postgresName)
+		r.siteCtx.postgres.SetNamespace(r.siteCtx.namespaceName)
+	}
+
 	if r.siteCtx.hasNfs {
 		r.siteCtx.nfs.SetName(r.siteCtx.nfsName)
 		r.siteCtx.nfs.SetNamespace(r.siteCtx.namespaceName)
@@ -205,12 +224,41 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		r.siteCtx.keydb.SetNamespace(r.siteCtx.namespaceName)
 	}
 
+	// Postgres kind from Postgres ansible operator
+	if r.siteCtx.hasPostgres {
+		// Set Postgres host and secret, if not already present in M4e spec
+		postgresRelatedM4eSpec := map[string]interface{}{
+			"moodlePostgresMetaName": r.siteCtx.postgresName,
+		}
+		// Merge M4e related postgres spec with flavor M4e spec
+		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorM4eSpec, postgresRelatedM4eSpec); err != nil {
+			log.Error(err, "Couldn't merge spec")
+			return err
+		}
+		// Merge Postgres spec if set on site Spec
+		if r.siteCtx.postgresSpecFound {
+			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorPostgresSpec, r.siteCtx.postgresSpec); err != nil {
+				log.Error(err, "Couldn't merge spec")
+				return err
+			}
+		}
+		// Set site labels to postgres
+		flavorPostgresSpecCommonLabelsString, flavorPostgresSpecCommonLabelsFound, _ := unstructured.NestedString(r.siteCtx.flavorPostgresSpec, "commonLabels")
+		if flavorPostgresSpecCommonLabelsFound {
+			r.siteCtx.flavorPostgresSpec["commonLabels"] = r.siteCtx.commonLabels + "\n" + flavorPostgresSpecCommonLabelsString
+		} else {
+			r.siteCtx.flavorPostgresSpec["commonLabels"] = r.siteCtx.commonLabels
+		}
+		// save postgres spec
+		r.siteCtx.combinedPostgresSpec = make(map[string]interface{})
+		r.siteCtx.combinedPostgresSpec = r.siteCtx.flavorPostgresSpec
+	}
+
 	// Server kind from NFS ansible operator
 	if r.siteCtx.hasNfs {
 		// Set NFS storage class name and access modes when using NFS operator
 		nfsRelatedM4eSpec := map[string]interface{}{
-			"moodlePvcMoodledataStorageClassName":  r.siteCtx.nfsName + "-nfs-sc",
-			"moodlePvcMoodledataStorageAccessMode": m4ev1alpha1.ReadWriteMany,
+			"moodleNfsMetaName": r.siteCtx.nfsName,
 		}
 		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorM4eSpec, nfsRelatedM4eSpec); err != nil {
 			log.Error(err, "Couldn't merge spec")
@@ -239,9 +287,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	if r.siteCtx.hasKeydb {
 		// Set Keydb host and secret, if not already present in M4e spec
 		keydbRelatedM4eSpec := map[string]interface{}{
-			"moodleRedisHost":             r.siteCtx.keydbName + "-keydb-service",
-			"moodleRedisSecretAuthSecret": r.siteCtx.keydbName + "-keydb-secret",
-			"moodleRedisSecretAuthKey":    "keydb_password",
+			"moodleKeydbMetaName": r.siteCtx.keydbName,
 		}
 		// Merge M4e related keydb spec with flavor M4e spec
 		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorM4eSpec, keydbRelatedM4eSpec); err != nil {
@@ -345,10 +391,22 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 	m4eReady := false
 	nfsReady := !r.siteCtx.hasNfs
 	keydbReady := !r.siteCtx.hasKeydb
+	postgresReady := !r.siteCtx.hasPostgres
 
 	// Create namespace
 	if err := r.ReconcileCreate(ctx, r.siteCtx.site, r.siteCtx.namespace); err != nil {
 		return err
+	}
+
+	// Save Postgres spec
+	if r.siteCtx.hasPostgres {
+		r.siteCtx.postgres.Object["spec"] = r.siteCtx.combinedPostgresSpec
+		// Apply Postgres resource
+		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.postgres); err != nil {
+			return err
+		}
+		// Update Site status about Postgres
+		postgresReady = r.SetPostgresReadyCondition(ctx, r.siteCtx.site, r.siteCtx.postgres)
 	}
 
 	// Save NFS Server spec
@@ -384,7 +442,7 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 	m4eReady = r.SetM4eReadyCondition(ctx, r.siteCtx.site, r.siteCtx.m4e)
 
 	// Set site ready contidion status and state
-	if nfsReady && m4eReady && keydbReady {
+	if nfsReady && m4eReady && keydbReady && postgresReady {
 		r.SetReadyCondition(ctx, r.siteCtx.site)
 	}
 
@@ -423,5 +481,6 @@ func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(newUnstructuredObject(r.M4eGVK)).
 		Owns(newUnstructuredObject(r.NfsGVK)).
 		Owns(newUnstructuredObject(r.KeydbGVK)).
+		Owns(newUnstructuredObject(r.PostgresGVK)).
 		Complete(r)
 }

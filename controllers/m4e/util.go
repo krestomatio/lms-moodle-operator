@@ -138,6 +138,18 @@ func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err er
 		return false, err
 	}
 
+	// Delete Keydb and requeue in order to wait for it to be completely be removed.
+	if r.siteCtx.hasKeydb {
+		log.Info("Deleting Keydb", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.keydb); err == nil {
+			log.V(1).Info("Requeueing after Keydb deletion", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+			return true, nil
+		} else if !errors.IsNotFound(err) {
+			log.Error(err, "Keydb not deleted", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+			return false, err
+		}
+	}
+
 	// Delete nfs server and requeue in order to wait for it to be completely be removed.
 	if r.siteCtx.hasNfs {
 		log.Info("Deleting NFS Server", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
@@ -150,14 +162,14 @@ func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err er
 		}
 	}
 
-	// Delete Keydb and requeue in order to wait for it to be completely be removed.
-	if r.siteCtx.hasKeydb {
-		log.Info("Deleting Keydb", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
-		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.keydb); err == nil {
-			log.V(1).Info("Requeueing after Keydb deletion", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+	// Delete Postgres and requeue in order to wait for it to be completely be removed.
+	if r.siteCtx.hasPostgres {
+		log.Info("Deleting Postgres", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
+		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.postgres); err == nil {
+			log.V(1).Info("Requeueing after Postgres deletion", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
 			return true, nil
 		} else if !errors.IsNotFound(err) {
-			log.Error(err, "Keydb not deleted", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+			log.Error(err, "Postgres not deleted", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
 			return false, err
 		}
 	}
