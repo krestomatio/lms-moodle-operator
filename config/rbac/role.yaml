@@ -103,3 +103,15 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - postgres.krestomat.io
+  resources:
+  - postgres
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
