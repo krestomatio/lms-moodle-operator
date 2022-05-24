@@ -99,10 +99,6 @@ type NfsSpec struct {
 	// +optional
 	ServerPvcAutoexpansionCapGib int32 `json:"serverPvcAutoexpansionCapGib,omitempty"`
 
-	// ServerPvcAutoexpansionInitSizeGib defines initial pvc size
-	// +optional
-	ServerPvcAutoexpansionInitSizeGib int32 `json:"serverPvcAutoexpansionInitSizeGib,omitempty"`
-
 	// ServerGaneshaExtraBlockConfig contains extra block in ganesha server config
 	// +optional
 	ServerGaneshaExtraBlockConfig string `json:"serverGaneshaExtraBlockConfig,omitempty"`

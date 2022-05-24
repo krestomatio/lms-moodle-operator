@@ -62,21 +62,21 @@ type M4eSpec struct {
 	// +kubebuilder:validation:Pattern="^\\$2[ayb]\\$.{56}$"
 	MoodleNewAdminpassHash string `json:"moodleNewAdminpassHash"`
 
-	// MoodlePvcMoodledataSize defines moodledata storage size
+	// MoodlePvcDataSize defines moodledata storage size
 	// +kubebuilder:validation:MinLength=2
 	// +kubebuilder:validation:MaxLength=100
 	// +optional
-	MoodlePvcMoodledataSize string `json:"moodlePvcMoodledataSize,omitempty"`
+	MoodlePvcDataSize string `json:"moodlePvcDataSize,omitempty"`
 
-	// MoodlePvcMoodledataStorageAccessMode defines moodledata storage access modes
+	// MoodlePvcDataStorageAccessMode defines moodledata storage access modes
 	// +optional
-	MoodlePvcMoodledataStorageAccessMode StorageAccessMode `json:"moodlePvcMoodledataStorageAccessMode,omitempty"`
+	MoodlePvcDataStorageAccessMode StorageAccessMode `json:"moodlePvcDataStorageAccessMode,omitempty"`
 
-	// MoodlePvcMoodledataStorageClassName defines moodledata storage class
+	// MoodlePvcDataStorageClassName defines moodledata storage class
 	// +kubebuilder:validation:MinLength=2
 	// +kubebuilder:validation:MaxLength=63
 	// +optional
-	MoodlePvcMoodledataStorageClassName string `json:"moodlePvcMoodledataStorageClassName,omitempty"`
+	MoodlePvcDataStorageClassName string `json:"moodlePvcDataStorageClassName,omitempty"`
 
 	// MoodleHost defines Moodle host for url
 	// +kubebuilder:validation:MinLength=2

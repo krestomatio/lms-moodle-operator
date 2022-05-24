@@ -304,22 +304,21 @@ spec:
                     - http
                     - https
                     type: string
-                  moodlePvcMoodledataSize:
-                    description: MoodlePvcMoodledataSize defines moodledata storage
-                      size
+                  moodlePvcDataSize:
+                    description: MoodlePvcDataSize defines moodledata storage size
                     maxLength: 100
                     minLength: 2
                     type: string
-                  moodlePvcMoodledataStorageAccessMode:
-                    description: MoodlePvcMoodledataStorageAccessMode defines moodledata
+                  moodlePvcDataStorageAccessMode:
+                    description: MoodlePvcDataStorageAccessMode defines moodledata
                       storage access modes
                     enum:
                     - ReadWriteOnce
                     - ReadOnlyMany
                     - ReadWriteMany
                     type: string
-                  moodlePvcMoodledataStorageClassName:
-                    description: MoodlePvcMoodledataStorageClassName defines moodledata
+                  moodlePvcDataStorageClassName:
+                    description: MoodlePvcDataStorageClassName defines moodledata
                       storage class
                     maxLength: 63
                     minLength: 2
@@ -619,11 +618,6 @@ spec:
                   serverPvcAutoexpansionIncrementGib:
                     description: ServerPvcAutoexpansionIncrementGib defines Gib to
                       increment
-                    format: int32
-                    type: integer
-                  serverPvcAutoexpansionInitSizeGib:
-                    description: ServerPvcAutoexpansionInitSizeGib defines initial
-                      pvc size
                     format: int32
                     type: integer
                   serverPvcDataSize:
