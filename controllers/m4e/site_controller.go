@@ -140,11 +140,11 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	}
 
 	// Patch resources
-	if err := r.reconcilePersist(ctx); err != nil {
+	if requeue, err := r.reconcilePersist(ctx); err != nil {
 		return ctrl.Result{}, err
+	} else {
+		return ctrl.Result{Requeue: requeue}, nil
 	}
-
-	return ctrl.Result{}, nil
 }
 
 // reconcilePrepare takes care of initial step during reconcile
@@ -383,7 +383,7 @@ func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool,
 }
 
 // reconcilePersist take care of applying and persisting changes
-func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
+func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, err error) {
 	log := log.FromContext(ctx)
 	log.V(1).Info("Reconcile persist")
 
@@ -395,7 +395,7 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 
 	// Create namespace
 	if err := r.ReconcileCreate(ctx, r.siteCtx.site, r.siteCtx.namespace); err != nil {
-		return err
+		return false, err
 	}
 
 	// Save Postgres spec
@@ -403,10 +403,21 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 		r.siteCtx.postgres.Object["spec"] = r.siteCtx.combinedPostgresSpec
 		// Apply Postgres resource
 		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.postgres); err != nil {
-			return err
+			return false, err
 		}
 		// Update Site status about Postgres
 		postgresReady = r.SetPostgresReadyCondition(ctx, r.siteCtx.site, r.siteCtx.postgres)
+	}
+
+	// Save Keydb spec
+	if r.siteCtx.hasKeydb {
+		r.siteCtx.keydb.Object["spec"] = r.siteCtx.combinedKeydbSpec
+		// Apply Keydb resource
+		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.keydb); err != nil {
+			return false, err
+		}
+		// Update Site status about Keydb
+		keydbReady = r.SetKeydbReadyCondition(ctx, r.siteCtx.site, r.siteCtx.keydb)
 	}
 
 	// Save NFS Server spec
@@ -415,28 +426,24 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 		r.siteCtx.nfs.Object["spec"] = r.siteCtx.combinedNfsSpec
 		// Apply NFS Server resource
 		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.nfs); err != nil {
-			return err
+			return false, err
 		}
 		// Update Site status about NFS Server
 		nfsReady = r.SetNfsReadyCondition(ctx, r.siteCtx.site, r.siteCtx.nfs)
-	}
 
-	// Save Keydb spec
-	if r.siteCtx.hasKeydb {
-		r.siteCtx.keydb.Object["spec"] = r.siteCtx.combinedKeydbSpec
-		// Apply Keydb resource
-		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.keydb); err != nil {
-			return err
+		// Wait for NFS Server to be ready; otherwise requeue
+		// NFS Server must be ready in order to mount its export as pvc
+		if !nfsReady {
+			log.Info("(NFS) Server is not ready, requeueing...", "Server.Name", r.siteCtx.nfs.GetName())
+			return true, r.updateSiteState(ctx)
 		}
-		// Update Site status about Keydb
-		keydbReady = r.SetKeydbReadyCondition(ctx, r.siteCtx.site, r.siteCtx.keydb)
 	}
 
 	// Save M4e spec
 	r.siteCtx.m4e.Object["spec"] = r.siteCtx.combinedM4eSpec
 	// Apply M4e resource
 	if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.m4e); err != nil {
-		return err
+		return false, err
 	}
 	// Update site status about M4e
 	m4eReady = r.SetM4eReadyCondition(ctx, r.siteCtx.site, r.siteCtx.m4e)
@@ -446,7 +453,7 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) error {
 		r.SetReadyCondition(ctx, r.siteCtx.site)
 	}
 
-	return r.updateSiteState(ctx)
+	return false, r.updateSiteState(ctx)
 }
 
 // ignoreDeletionPredicate filters Delete events on resources that have been confirmed deleted
