@@ -31,7 +31,11 @@ type FlavorSpec struct {
 	// M4eSpec defines M4e spec
 	M4eSpec M4eSpec `json:"m4eSpec"`
 
-	// NfsSpec defines NFS Server spec to deploy optionally
+	// PostgresSpec defines Postgres spec to deploy optionally
+	// +optional
+	PostgresSpec PostgresSpec `json:"postgresSpec"`
+
+	// NfsSpec defines (NFS) Server spec to deploy optionally
 	// +optional
 	NfsSpec NfsSpec `json:"nfsSpec"`
 

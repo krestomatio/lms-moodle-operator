@@ -1,23 +1,18 @@
 apiVersion: m4e.krestomat.io/v1alpha1
 kind: Flavor
 metadata:
-  name: base-standard-gke
+  name: flavor-sample
 spec:
   m4eSpec:
-    # moodleImage: quay.io/krestomatio/moodle@sha256:b4d211fba94312940fc78f144fd3e654bebc1c5cd2e3904d43dbe08f3c1769cb
-    moodleProtocol: https
     ## Moodle new instance
     moodleNewInstanceAgreeLicense: true
     moodleNewInstanceFullname: Demo site
     moodleNewInstanceShortname: demo
     moodleNewInstanceSummary: A demo site
+    ## Admin credentials. MUST CHANGED
     moodleNewInstanceAdminmail: admin@otherexample.com
+    ### 'changeme' as admin password:
     moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
-    # Moodle data
-    moodlePvcDataSize: 5Gi
-    moodlePvcDataStorageAccessMode: ReadWriteMany
-    nginxIngressAnnotations: |
-      kubernetes.io/ingress.class: "haproxy"
     ## Postgres as db for site
     # moodlePostgresMetaName: postgres-sample
     ## Nfs as shared storage for site
@@ -26,16 +21,12 @@ spec:
     # moodleKeydbMetaName: keydb-sample
     ## Redis
     moodleConfigSessionRedisPrefix: 'sess_'
-    moodleConfigSessionRedisSerializer_use_igbinary: true
+    moodleConfigSessionRedisSerializerUseIgbinary: true
     moodleConfigSessionRedisCompressor: gzip
     moodleRedisMucStorePrefix: muc_
     moodleRedisMucStoreSerializer: 2
     moodleRedisMucStoreCompressor: 1
 
-    ## Notify status endpoint
-    notifyStatus:
-      url: https://api.krestomat.io/v1/operators/sites
-      method: PUT
   postgresSpec:
     # postgresMode: one of 'standalone', 'readreplicas'
     # by default 'standalone' is 1 one primary only, while 'readreplicas' is 1 primary and 1 replica
@@ -49,7 +40,7 @@ spec:
     #   listen_backlog = 256
 
     ## Storage class name to be used by Postgres
-    postgresPvcDataStorageClassName: gke-csi-standard
+    postgresPvcDataStorageClassName: standard
   nfsSpec:
     # Ownership/permissions
     ## Set export folder userid to 48
@@ -57,7 +48,7 @@ spec:
     ## Set export folder groupid to 0
     serverExportGroupid: 0
     ## Set export folder permissions to 775
-    serverExportPermissions: "0755"
+    serverExportMode: "0755"
 
     # Autoexpansion: if storage available is less than 20% or 'serverPvcAutoexpansionIncrementGib', adjust PVC storage size according to 'serverPvcAutoexpansionIncrementGib' and 'serverPvcAutoexpansionCapGib':
     # * Kubernetes cluster and PVC must support expansion of volumes
@@ -72,7 +63,7 @@ spec:
     serverPvcAutoexpansionCapGib: 5
 
     ## Storage class name to be used by this (NFS) Server
-    serverPvcDataStorageClassName: gke-csi-standard
+    serverPvcDataStorageClassName: standard
   keydbSpec:
     # keydbMode: one of 'standalone', 'multimaster', 'custom'
     # By default 'standalone' is 1 replica and 'multimaster' 3

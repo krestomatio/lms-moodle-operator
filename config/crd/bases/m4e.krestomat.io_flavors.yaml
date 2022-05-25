@@ -550,7 +550,7 @@ spec:
                 - moodleNewInstanceAgreeLicense
                 type: object
               nfsSpec:
-                description: NfsSpec defines NFS Server spec to deploy optionally
+                description: NfsSpec defines (NFS) Server spec to deploy optionally
                 properties:
                   serverConfLogLevel:
                     description: 'ServerConfLogLevel defines nfs log level. Default:
@@ -649,6 +649,356 @@ spec:
                     type: string
                   serverTolerations:
                     description: ServerTolerations defines any tolerations for Server
+                      pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+              postgresSpec:
+                description: PostgresSpec defines Postgres spec to deploy optionally
+                properties:
+                  pgbouncerExtraConfig:
+                    description: PgbouncerExtraConfig contains extra pgbouncer config
+                    type: string
+                  pgbouncerReadonlyExtraConfig:
+                    description: PgbouncerReadonlyExtraConfig contains extra pgbouncerReadonly
+                      config
+                    type: string
+                  pgbouncerReadonlyResourceLimits:
+                    description: PgbouncerReadonlyResourceLimits whether resource
+                      limits are set
+                    type: boolean
+                  pgbouncerReadonlyResourceLimitsCpu:
+                    description: PgbouncerReadonlyResourceLimitsCpu set cpu for resource
+                      limits
+                    maxLength: 20
+                    type: string
+                  pgbouncerReadonlyResourceLimitsMemory:
+                    description: PgbouncerReadonlyResourceLimitsMemory set memory
+                      for resource limits
+                    maxLength: 20
+                    type: string
+                  pgbouncerReadonlyResourceRequests:
+                    description: PgbouncerReadonlyResourceRequests whether resource
+                      requests are set
+                    type: boolean
+                  pgbouncerReadonlyResourceRequestsCpu:
+                    description: PgbouncerReadonlyResourceRequestsCpu set cpu for
+                      resource requests
+                    maxLength: 20
+                    type: string
+                  pgbouncerReadonlyResourceRequestsMemory:
+                    description: PgbouncerReadonlyResourceRequestsMemory set memory
+                      for resource requests
+                    maxLength: 20
+                    type: string
+                  pgbouncerReadonlyTolerations:
+                    description: PgbouncerReadonlyTolerations defines any tolerations
+                      for PgbouncerReadonly pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                  pgbouncerResourceLimits:
+                    description: PgbouncerResourceLimits whether resource limits are
+                      set
+                    type: boolean
+                  pgbouncerResourceLimitsCpu:
+                    description: PgbouncerResourceLimitsCpu set cpu for resource limits
+                    maxLength: 20
+                    type: string
+                  pgbouncerResourceLimitsMemory:
+                    description: PgbouncerResourceLimitsMemory set memory for resource
+                      limits
+                    maxLength: 20
+                    type: string
+                  pgbouncerResourceRequests:
+                    description: PgbouncerResourceRequests whether resource requests
+                      are set
+                    type: boolean
+                  pgbouncerResourceRequestsCpu:
+                    description: PgbouncerResourceRequestsCpu set cpu for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  pgbouncerResourceRequestsMemory:
+                    description: PgbouncerResourceRequestsMemory set memory for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  pgbouncerTolerations:
+                    description: PgbouncerTolerations defines any tolerations for
+                      Pgbouncer pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                  postgresExtraConfig:
+                    description: PostgresExtraConfig contains extra postgres config
+                    type: string
+                  postgresImage:
+                    description: PostgresImage defines image for postgres container
+                    maxLength: 255
+                    type: string
+                  postgresMode:
+                    description: PostgresMode describes mode postgres runs
+                    enum:
+                    - standalone
+                    - readreplicas
+                    type: string
+                  postgresPvcDataSize:
+                    description: PostgresPvcDataSize defines postgres storage size
+                    maxLength: 20
+                    minLength: 2
+                    type: string
+                  postgresPvcDataStorageAccessMode:
+                    description: PostgresPvcDataStorageAccessMode defines postgres
+                      storage access modes
+                    enum:
+                    - ReadWriteOnce
+                    - ReadOnlyMany
+                    - ReadWriteMany
+                    type: string
+                  postgresPvcDataStorageClassName:
+                    description: PostgresPvcDataStorageClassName defines postgres
+                      storage class
+                    maxLength: 63
+                    minLength: 2
+                    type: string
+                  postgresReadreplicasPvcDataSize:
+                    description: PostgresReadreplicasPvcDataSize defines postgres
+                      readreplicas storage size
+                    maxLength: 20
+                    minLength: 2
+                    type: string
+                  postgresReadreplicasPvcDataStorageAccessMode:
+                    description: PostgresReadreplicasPvcDataStorageAccessMode defines
+                      postgres readreplicas storage access modes
+                    enum:
+                    - ReadWriteOnce
+                    - ReadOnlyMany
+                    - ReadWriteMany
+                    type: string
+                  postgresReadreplicasPvcDataStorageClassName:
+                    description: PostgresReadreplicasPvcDataStorageClassName defines
+                      postgres readreplicas storage class
+                    maxLength: 63
+                    minLength: 2
+                    type: string
+                  postgresReadreplicasResourceLimits:
+                    description: PostgresReadreplicasResourceLimits whether resource
+                      limits are set
+                    type: boolean
+                  postgresReadreplicasResourceLimitsCpu:
+                    description: PostgresReadreplicasResourceLimitsCpu set cpu for
+                      resource limits
+                    maxLength: 20
+                    type: string
+                  postgresReadreplicasResourceLimitsMemory:
+                    description: PostgresReadreplicasResourceLimitsMemory set memory
+                      for resource limits
+                    maxLength: 20
+                    type: string
+                  postgresReadreplicasResourceRequests:
+                    description: PostgresReadreplicasResourceRequests whether resource
+                      requests are set
+                    type: boolean
+                  postgresReadreplicasResourceRequestsCpu:
+                    description: PostgresReadreplicasResourceRequestsCpu set cpu for
+                      resource requests
+                    maxLength: 20
+                    type: string
+                  postgresReadreplicasResourceRequestsMemory:
+                    description: PostgresReadreplicasResourceRequestsMemory set memory
+                      for resource requests
+                    maxLength: 20
+                    type: string
+                  postgresReadreplicasSize:
+                    description: PostgresReadreplicasSize defines postgres readreplicas
+                      number of replicas
+                    format: int32
+                    type: integer
+                  postgresReadreplicasTolerations:
+                    description: PostgresReadreplicasTolerations defines any tolerations
+                      for PostgresReadreplicas pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                  postgresResourceLimits:
+                    description: PostgresResourceLimits whether resource limits are
+                      set
+                    type: boolean
+                  postgresResourceLimitsCpu:
+                    description: PostgresResourceLimitsCpu set cpu for resource limits
+                    maxLength: 20
+                    type: string
+                  postgresResourceLimitsMemory:
+                    description: PostgresResourceLimitsMemory set memory for resource
+                      limits
+                    maxLength: 20
+                    type: string
+                  postgresResourceRequests:
+                    description: PostgresResourceRequests whether resource requests
+                      are set
+                    type: boolean
+                  postgresResourceRequestsCpu:
+                    description: PostgresResourceRequestsCpu set cpu for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  postgresResourceRequestsMemory:
+                    description: PostgresResourceRequestsMemory set memory for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  postgresSize:
+                    description: PostgresSize defines postgres number of replicas
+                    format: int32
+                    type: integer
+                  postgresTolerations:
+                    description: PostgresTolerations defines any tolerations for Postgres
                       pods.
                     items:
                       description: The pod this Toleration is attached to tolerates
