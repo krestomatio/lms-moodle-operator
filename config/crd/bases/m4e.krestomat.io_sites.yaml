@@ -241,6 +241,12 @@ spec:
                           type: string
                       type: object
                     type: array
+                  moodleHealthcheckSubpath:
+                    description: MoodleHealthcheckSubpath defines Moodle subpath for
+                      nginx check
+                    maxLength: 100
+                    minLength: 2
+                    type: string
                   moodleHost:
                     description: MoodleHost defines Moodle host for url
                     maxLength: 100
@@ -293,6 +299,12 @@ spec:
                       use as shared storage for moodledata.
                     maxLength: 63
                     type: string
+                  moodlePort:
+                    description: MoodlePort defines Moodle port for url
+                    format: int32
+                    maximum: 65535
+                    minimum: 1
+                    type: integer
                   moodlePostgresMetaName:
                     description: MoodlePostgresMetaName defines Postgres CR name to
                       use as database.
@@ -362,6 +374,11 @@ spec:
                     description: 'MoodleRedisSessionStore whether redis is configured
                       as session store. Default: false'
                     type: boolean
+                  moodleSubpath:
+                    description: MoodleSubpath defines Moodle subpath for url
+                    maxLength: 100
+                    minLength: 2
+                    type: string
                   moodleTolerations:
                     description: MoodleTolerations defines any tolerations for Moodle
                       pods.

@@ -83,6 +83,24 @@ type M4eSpec struct {
 	// +kubebuilder:validation:MaxLength=100
 	MoodleHost string `json:"moodleHost,omitempty"`
 
+	// MoodlePort defines Moodle port for url
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	// +optional
+	MoodlePort int32 `json:"moodlePort,omitempty"`
+
+	// MoodleSubpath defines Moodle subpath for url
+	// +kubebuilder:validation:MinLength=2
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodleSubpath string `json:"moodleSubpath,omitempty"`
+
+	// MoodleHealthcheckSubpath defines Moodle subpath for nginx check
+	// +kubebuilder:validation:MinLength=2
+	// +kubebuilder:validation:MaxLength=100
+	// +optional
+	MoodleHealthcheckSubpath string `json:"moodleHealthcheckSubpath,omitempty"`
+
 	// MoodleProtocol whether to use http or https
 	// +optional
 	MoodleProtocol MoodleProtocol `json:"moodleProtocol,omitempty"`
