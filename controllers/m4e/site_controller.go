@@ -19,6 +19,7 @@ package m4e
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -152,16 +153,24 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	log := log.FromContext(ctx)
 	log.V(1).Info("Reconcile set")
 
+	// set base name for dependant resources
+	baseName := SiteNamePrefix + truncate(r.siteCtx.name, 13)
+	baseNamespace := SiteNamePrefix + r.siteCtx.name
+	// if site name already include the prefix, do not use it
+	if hasPrefix := strings.HasPrefix(r.siteCtx.name, SiteNamePrefix); hasPrefix {
+		baseName = truncate(r.siteCtx.name, 13)
+		baseNamespace = r.siteCtx.name
+	}
 	// set namespace name. It must start with an alphabetic character
-	r.siteCtx.namespaceName = SiteNamePrefix + r.siteCtx.name
+	r.siteCtx.namespaceName = baseNamespace
 	// set M4e name. It must start with an alphabetic character
-	r.siteCtx.m4eName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
+	r.siteCtx.m4eName = baseName
 	// set Postgres name. It must start with an alphabetic character
-	r.siteCtx.postgresName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
+	r.siteCtx.postgresName = baseName
 	// set NFS Server name and namespace. It must start with an alphabetic character
-	r.siteCtx.nfsName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
+	r.siteCtx.nfsName = baseName
 	// set Keydb name. It must start with an alphabetic character
-	r.siteCtx.keydbName = SiteNamePrefix + truncate(r.siteCtx.name, 13)
+	r.siteCtx.keydbName = baseName
 	// site namespace
 	r.siteCtx.namespace = &corev1.Namespace{}
 	r.siteCtx.namespace.SetName(r.siteCtx.namespaceName)
