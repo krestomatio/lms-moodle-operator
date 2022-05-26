@@ -1063,12 +1063,6 @@ spec:
           status:
             description: FlavorStatus defines the observed state of Flavor
             properties:
-              nodes:
-                description: Sites store the name of the sites which are using this
-                  flavor
-                items:
-                  type: string
-                type: array
               state:
                 default: Unknown
                 description: state describes the site state

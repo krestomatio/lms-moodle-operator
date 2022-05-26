@@ -49,9 +49,6 @@ type FlavorStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Sites store the name of the sites which are using this flavor
-	Sites []string `json:"nodes,omitempty"`
-
 	// state describes the site state
 	// +kubebuilder:default:="Unknown"
 	// +optional
