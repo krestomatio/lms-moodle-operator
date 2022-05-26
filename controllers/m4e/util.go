@@ -126,56 +126,59 @@ func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err er
 	log := log.FromContext(ctx)
 	log.Info("Finalizing")
 
-	// Delete m4e and requeue in order to wait for it to be completely be removed.
-	// By doing so, any NFS Server or Keydb removal will be done after, and removal
+	// Delete m4e and inmediately requeue in order to wait for it to be completely be removed.
+	// By doing so, any dependant CR removal will be done after, and removal
 	// conflicts will be avoided
 	log.Info("Deleting M4e", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
 	if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.m4e); err == nil {
-		log.V(1).Info("Requeueing after M4e deletion", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
+		log.V(1).Info("Set for requeue after M4e deletion", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
 		return true, nil
 	} else if !errors.IsNotFound(err) {
 		log.Error(err, "M4e not deleted", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
 		return false, err
 	}
 
-	// Delete Keydb and requeue in order to wait for it to be completely be removed.
+	// Delete Keydb and set for later requeuing in order to wait for it to be completely be removed.
 	if r.siteCtx.hasKeydb {
 		log.Info("Deleting Keydb", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
 		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.keydb); err == nil {
-			log.V(1).Info("Requeueing after Keydb deletion", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
-			return true, nil
+			log.V(1).Info("Set for requeue after Keydb deletion", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+			requeue = true
 		} else if !errors.IsNotFound(err) {
 			log.Error(err, "Keydb not deleted", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
 			return false, err
 		}
 	}
 
-	// Delete nfs server and requeue in order to wait for it to be completely be removed.
-	if r.siteCtx.hasNfs {
-		log.Info("Deleting NFS Server", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
-		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.nfs); err == nil {
-			log.V(1).Info("Requeueing after NFS Server deletion", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
-			return true, nil
-		} else if !errors.IsNotFound(err) {
-			log.Error(err, "NFS Server not deleted", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
-			return false, err
-		}
-	}
-
-	// Delete Postgres and requeue in order to wait for it to be completely be removed.
+	// Delete Postgres and set for later requeuing in order to wait for it to be completely be removed.
 	if r.siteCtx.hasPostgres {
 		log.Info("Deleting Postgres", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
 		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.postgres); err == nil {
-			log.V(1).Info("Requeueing after Postgres deletion", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
-			return true, nil
+			log.V(1).Info("Set for requeue after Postgres deletion", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
+			requeue = true
 		} else if !errors.IsNotFound(err) {
 			log.Error(err, "Postgres not deleted", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
 			return false, err
 		}
 	}
 
-	log.Info("Successfully finalized site")
-	return false, nil
+	// Delete nfs server and set for later requeuing in order to wait for it to be completely be removed.
+	if r.siteCtx.hasNfs {
+		log.Info("Deleting NFS Server", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
+		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.nfs); err == nil {
+			log.V(1).Info("Set for requeue after NFS Server deletion", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
+			requeue = true
+		} else if !errors.IsNotFound(err) {
+			log.Error(err, "NFS Server not deleted", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
+			return false, err
+		}
+	}
+
+	if !requeue {
+		log.Info("Successfully finalized site")
+	}
+
+	return requeue, nil
 }
 
 // finalizeSite cleans up before deleting Flavor

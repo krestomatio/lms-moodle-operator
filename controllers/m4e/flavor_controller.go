@@ -74,7 +74,7 @@ func (r *FlavorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	log := log.FromContext(ctx)
 	log.Info("Starting reconcile")
 
-	// Fetch Site instance
+	// Fetch Flavor instance
 	r.flavorCtx.name = req.Name
 	r.flavorCtx.flavor = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
 	if err := r.Get(ctx, types.NamespacedName{Name: r.flavorCtx.name}, r.flavorCtx.flavor); err != nil {
@@ -82,7 +82,7 @@ func (r *FlavorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// whether site is marked to be deleted
+	// whether Flavor is marked to be deleted
 	r.flavorCtx.markedToBeDeleted = r.flavorCtx.flavor.GetDeletionTimestamp() != nil
 
 	// Finalize logic
