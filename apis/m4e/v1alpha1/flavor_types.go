@@ -31,7 +31,11 @@ type FlavorSpec struct {
 	// M4eSpec defines M4e spec
 	M4eSpec M4eSpec `json:"m4eSpec"`
 
-	// NfsSpec defines NFS Server spec to deploy optionally
+	// PostgresSpec defines Postgres spec to deploy optionally
+	// +optional
+	PostgresSpec PostgresSpec `json:"postgresSpec"`
+
+	// NfsSpec defines (NFS) Server spec to deploy optionally
 	// +optional
 	NfsSpec NfsSpec `json:"nfsSpec"`
 
@@ -45,9 +49,6 @@ type FlavorStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Sites store the name of the sites which are using this flavor
-	Sites []string `json:"nodes,omitempty"`
-
 	// state describes the site state
 	// +kubebuilder:default:="Unknown"
 	// +optional
@@ -57,8 +58,8 @@ type FlavorStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
-//+kubebuilder:printcolumn:name="STATUS",type="string",description="Flavor status such as Unknown/Used/NotUsed/Terminating etc",JSONPath=".status.state",priority=0
 //+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
+//+kubebuilder:printcolumn:name="STATUS",type="string",description="Flavor status such as Unknown/Used/NotUsed/Terminating etc",JSONPath=".status.state",priority=0
 
 // Flavor is the Schema for the flavors API
 type Flavor struct {

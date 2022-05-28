@@ -5,29 +5,42 @@ metadata:
 spec:
   m4eSpec:
     ## Moodle new instance
-    # moodleNewInstance: true
     moodleNewInstanceAgreeLicense: true
     moodleNewInstanceFullname: Demo site
     moodleNewInstanceShortname: demo
     moodleNewInstanceSummary: A demo site
     ## Admin credentials. MUST CHANGED
-    moodleNewInstanceAdminuser: admin
-    moodleNewInstanceAdminmail: admin@example.com
+    moodleNewInstanceAdminmail: admin@otherexample.com
     ### 'changeme' as admin password:
     moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
-    # MoodlePvcMoodledataSize: 1Gi
-    # moodlePvcMoodledataStorageAccessMode: ReadWriteOnce
-    # moodlePvcMoodledataStorageClassName: standard
+    ## Postgres as db for site
+    # moodlePostgresMetaName: postgres-sample
+    ## Nfs as shared storage for site
+    # moodleNfsMetaName: server-sample
+    ## Keydb as cache for site
+    # moodleKeydbMetaName: keydb-sample
     ## Redis
-    moodleRedisSessionStore: true
-    moodleRedisMucStore: true
-    moodleRedisMucStoreRoutine: true
     moodleConfigSessionRedisPrefix: 'sess_'
-    moodleConfigSessionRedisSerializer_use_igbinary: true
+    moodleConfigSessionRedisSerializerUseIgbinary: true
     moodleConfigSessionRedisCompressor: gzip
     moodleRedisMucStorePrefix: muc_
     moodleRedisMucStoreSerializer: 2
     moodleRedisMucStoreCompressor: 1
+
+  postgresSpec:
+    # postgresMode: one of 'standalone', 'readreplicas'
+    # by default 'standalone' is 1 one primary only, while 'readreplicas' is 1 primary and 1 replica
+    postgresMode: 'standalone'
+
+    # Assign 1Gi to each persistent volume: primary and replicas
+    postgresPvcDataSize: 1Gi
+
+    # Add extra pgbouncer config
+    # pgbouncerExtraConfig: |
+    #   listen_backlog = 256
+
+    ## Storage class name to be used by Postgres
+    postgresPvcDataStorageClassName: standard
   nfsSpec:
     # Ownership/permissions
     ## Set export folder userid to 48
@@ -35,25 +48,22 @@ spec:
     ## Set export folder groupid to 0
     serverExportGroupid: 0
     ## Set export folder permissions to 775
-    serverExportPermissions: "0755"
+    serverExportMode: "0755"
 
-    # Autoexpansion: if storage available is less than 20% or 'server_pvc_autoexpansion_gib', adjust PVC storage size according to 'server_pvc_autoexpansion_gib' and 'server_pvc_autoexpansion_cap_gib':
-    # * Kubernetes cluster and (NFS) Server PVC must support expansion of volumes
-    # * In older version, (NFS) Server pod may be restart when autoexpanding if Kubernetes feature gate
+    # Autoexpansion: if storage available is less than 20% or 'serverPvcAutoexpansionIncrementGib', adjust PVC storage size according to 'serverPvcAutoexpansionIncrementGib' and 'serverPvcAutoexpansionCapGib':
+    # * Kubernetes cluster and PVC must support expansion of volumes
+    # * In older cluster versions, pods require restart when autoexpanding if Kubernetes feature gate
     #   'ExpandInUsePersistentVolumes' is false. See:
     #   https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/
     ## Enable autoexpansion
     serverPvcAutoexpansion: true
-    ## Every time autoexpansion is required, increment 5 GiB
-    serverPvcAutoexpansionGib: 5
-    ## But no more than 250 GiB
-    serverPvcAutoexpansionCapGib: 250
-    # Other
-    ## (NFS) Server PVC initial size in GiB
-    serverPvcInitSizeGib: 1
+    ## Every time autoexpansion is required, increment 1 GiB
+    serverPvcAutoexpansionIncrementGib: 1
+    ## But no more than 5 GiB
+    serverPvcAutoexpansionCapGib: 5
 
     ## Storage class name to be used by this (NFS) Server
-    # serverPvcStorageClassName: standard
+    serverPvcDataStorageClassName: standard
   keydbSpec:
     # keydbMode: one of 'standalone', 'multimaster', 'custom'
     # By default 'standalone' is 1 replica and 'multimaster' 3

@@ -92,9 +92,10 @@ const (
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 //+kubebuilder:resource:scope=Cluster
-//+kubebuilder:printcolumn:name="STATUS",type="string",description="Site status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
-//+kubebuilder:printcolumn:name="FLAVOR",type="string",description="Flavor name",JSONPath=".spec.flavor",priority=0
 //+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
+//+kubebuilder:printcolumn:name="STATUS",type="string",description="Site status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
+//+kubebuilder:printcolumn:name="SINCE",type="date",JSONPath=".status.conditions[?(@.type=='Ready')].lastTransitionTime",description="Time of latest transition",priority=0
+//+kubebuilder:printcolumn:name="FLAVOR",type="string",description="Flavor name",JSONPath=".spec.flavor",priority=0
 //+kubebuilder:printcolumn:name="HOST",type="string",JSONPath=".spec.m4eSpec.moodleHost",description="Site URL",priority=0
 
 // Site is the Schema for the sites API

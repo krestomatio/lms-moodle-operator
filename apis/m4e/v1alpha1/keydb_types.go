@@ -93,11 +93,11 @@ type KeydbMode string
 
 const (
 	// Standalone runs keydb as standlone, single node
-	Standalone KeydbMode = "standalone"
+	KeydbStandalone KeydbMode = "standalone"
 
 	// Multimaster runs keydb as multimaster, three nodes by default
-	Multimaster KeydbMode = "multimaster"
+	KeydbMultimaster KeydbMode = "multimaster"
 
 	// Custom do not set force any mode, the user must configure keydb
-	Custom KeydbMode = "custom"
+	KeydbCustom KeydbMode = "custom"
 )

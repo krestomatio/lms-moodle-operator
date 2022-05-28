@@ -57,6 +57,11 @@ var (
 		Version: "v1alpha1",
 		Kind:    "Keydb",
 	}
+	postgresGvk = schema.GroupVersionKind{
+		Group:   "postgres.krestomat.io",
+		Version: "v1alpha1",
+		Kind:    "Postgres",
+	}
 )
 
 func init() {
@@ -97,11 +102,12 @@ func main() {
 	}
 
 	if err = (&m4econtrollers.SiteReconciler{
-		Client:   mgr.GetClient(),
-		Scheme:   mgr.GetScheme(),
-		M4eGVK:   m4eGvk,
-		NfsGVK:   nfsGvk,
-		KeydbGVK: keydbGvk,
+		Client:      mgr.GetClient(),
+		Scheme:      mgr.GetScheme(),
+		M4eGVK:      m4eGvk,
+		NfsGVK:      nfsGvk,
+		KeydbGVK:    keydbGvk,
+		PostgresGVK: postgresGvk,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Site")
 		os.Exit(1)

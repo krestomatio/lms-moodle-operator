@@ -10,10 +10,11 @@ import (
 )
 
 const (
-	ReadyConditionType      string = "Ready"
-	M4eReadyConditionType   string = "M4eReady"
-	NfsReadyConditionType   string = "NfsReady"
-	KeydbReadyConditionType string = "KeydbReady"
+	ReadyConditionType         string = "Ready"
+	M4eReadyConditionType      string = "M4eReady"
+	NfsReadyConditionType      string = "NfsReady"
+	KeydbReadyConditionType    string = "KeydbReady"
+	PostgresReadyConditionType string = "PostgresReady"
 )
 
 // FindConditionUnstructuredByType returns first Condition with given conditionType
@@ -57,6 +58,12 @@ func (r *SiteReconciler) SetReadyCondition(ctx context.Context, site *unstructur
 // and returns bool flag which indicates ready condition status of that dependant object
 func (r *SiteReconciler) SetM4eReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, M4eReadyConditionType, ReadyConditionType)
+}
+
+// SetPostgresReadyCondition set ready condition depending on ready status of Postgres
+// and returns bool flag which indicates ready condition status of that dependant object
+func (r *SiteReconciler) SetPostgresReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
+	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, PostgresReadyConditionType, ReadyConditionType)
 }
 
 // SetNfsReadyCondition set ready condition depending on ready status of NFS Server

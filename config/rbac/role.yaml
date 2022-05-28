@@ -1,4 +1,3 @@
-
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -95,6 +94,18 @@ rules:
   - nfs.krestomat.io
   resources:
   - servers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - postgres.krestomat.io
+  resources:
+  - postgres
   verbs:
   - create
   - delete

@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
+    controller-gen.kubebuilder.io/version: v0.8.0
   creationTimestamp: null
   name: flavors.m4e.krestomat.io
 spec:
@@ -17,14 +16,14 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - description: Flavor status such as Unknown/Used/NotUsed/Terminating etc
-      jsonPath: .status.state
-      name: STATUS
-      type: string
     - description: Age of the resource
       jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
+    - description: Flavor status such as Unknown/Used/NotUsed/Terminating etc
+      jsonPath: .status.state
+      name: STATUS
+      type: string
     name: v1alpha1
     schema:
       openAPIV3Schema:
@@ -177,9 +176,9 @@ spec:
                       redis session. Default: '''''
                     maxLength: 100
                     type: string
-                  moodleConfigSessionRedisSerializer_use_igbinary:
-                    description: 'MoodleConfigSessionRedisSerializer_use_igbinary
-                      whether igbinary is used for redis session. Default: false'
+                  moodleConfigSessionRedisSerializerUseIgbinary:
+                    description: 'MoodleConfigSessionRedisSerializerUseIgbinary whether
+                      igbinary is used for redis session. Default: false'
                     type: boolean
                   moodleCronjobTolerations:
                     description: MoodleCronjobTolerations defines any tolerations
@@ -223,6 +222,12 @@ spec:
                           type: string
                       type: object
                     type: array
+                  moodleHealthcheckSubpath:
+                    description: MoodleHealthcheckSubpath defines Moodle subpath for
+                      nginx check
+                    maxLength: 100
+                    minLength: 2
+                    type: string
                   moodleHost:
                     description: MoodleHost defines Moodle host for url
                     maxLength: 100
@@ -231,6 +236,11 @@ spec:
                   moodleImage:
                     description: MoodleImage defines image for moodle container
                     maxLength: 255
+                    type: string
+                  moodleKeydbMetaName:
+                    description: MoodleKeydbMetaName defines Keydb CR name to use
+                      as redis cache.
+                    maxLength: 63
                     type: string
                   moodleNewAdminpassHash:
                     description: MoodleNewAdminPassHash is the bcrypt compatible admin
@@ -265,28 +275,43 @@ spec:
                   moodleNewInstanceSummary:
                     maxLength: 300
                     type: string
+                  moodleNfsMetaName:
+                    description: MoodleNfsMetaName defines (NFS) Server CR name to
+                      use as shared storage for moodledata.
+                    maxLength: 63
+                    type: string
+                  moodlePort:
+                    description: MoodlePort defines Moodle port for url
+                    format: int32
+                    maximum: 65535
+                    minimum: 1
+                    type: integer
+                  moodlePostgresMetaName:
+                    description: MoodlePostgresMetaName defines Postgres CR name to
+                      use as database.
+                    maxLength: 63
+                    type: string
                   moodleProtocol:
                     description: MoodleProtocol whether to use http or https
                     enum:
                     - http
                     - https
                     type: string
-                  moodlePvcMoodledataSize:
-                    description: MoodlePvcMoodledataSize defines moodledata storage
-                      size
+                  moodlePvcDataSize:
+                    description: MoodlePvcDataSize defines moodledata storage size
                     maxLength: 100
                     minLength: 2
                     type: string
-                  moodlePvcMoodledataStorageAccessMode:
-                    description: MoodlePvcMoodledataStorageAccessMode defines moodledata
+                  moodlePvcDataStorageAccessMode:
+                    description: MoodlePvcDataStorageAccessMode defines moodledata
                       storage access modes
                     enum:
                     - ReadWriteOnce
                     - ReadOnlyMany
                     - ReadWriteMany
                     type: string
-                  moodlePvcMoodledataStorageClassName:
-                    description: MoodlePvcMoodledataStorageClassName defines moodledata
+                  moodlePvcDataStorageClassName:
+                    description: MoodlePvcDataStorageClassName defines moodledata
                       storage class
                     maxLength: 63
                     minLength: 2
@@ -310,41 +335,31 @@ spec:
                       MUC store. Default: '''''
                     maxLength: 100
                     type: string
-                  moodleRedisMucStoreRoutine:
-                    description: 'MoodleRedisMucStoreRoutine whether redis MUC store
-                      config is enforce during Routine. Default: false'
-                    type: boolean
                   moodleRedisMucStoreSerializer:
                     description: 'MoodleRedisMucStoreSerializer defines serializer
                       for redis MUC store. Default: 1'
                     maximum: 2
                     minimum: 1
                     type: integer
+                  moodleRedisSecret:
+                    description: 'MoodleRedisSecret defines redis auth secret name.
+                      Default: '''''
+                    maxLength: 255
+                    type: string
                   moodleRedisSecretAuthKey:
                     description: 'MoodleRedisSecretAuthKey defines key inside auth
                       secret name. Default: ''keydb_password'''
                     maxLength: 100
                     type: string
-                  moodleRedisSecretAuthSecret:
-                    description: 'MoodleRedisSecretAuthSecret defines redis auth secret
-                      name. Default: '''''
-                    maxLength: 255
-                    type: string
                   moodleRedisSessionStore:
                     description: 'MoodleRedisSessionStore whether redis is configured
                       as session store. Default: false'
                     type: boolean
-                  moodleSize:
-                    description: MoodleSize defines moodle number of replicas between
-                      0 and 255
-                    format: int32
-                    maximum: 255
-                    minimum: 0
-                    type: integer
-                  moodleStatusUsage:
-                    description: 'MoodleStatusUsage whether moodle usage is shown.
-                      Default: false'
-                    type: boolean
+                  moodleSubpath:
+                    description: MoodleSubpath defines Moodle subpath for url
+                    maxLength: 100
+                    minLength: 2
+                    type: string
                   moodleTolerations:
                     description: MoodleTolerations defines any tolerations for Moodle
                       pods.
@@ -395,6 +410,9 @@ spec:
                     description: 'MoodleUpdateMinor whether minor updates are automatically
                       applied. Default: true'
                     type: boolean
+                  nginxExtraConfig:
+                    description: NginxExtraConfig contains extra Nginx server config
+                    type: string
                   nginxImage:
                     description: NginxImage defines image for nginx container
                     maxLength: 255
@@ -480,38 +498,28 @@ spec:
                     required:
                     - url
                     type: object
-                  postgresImage:
-                    description: PostgresImage defines image for postgres container
+                  phpFpmExtraConfig:
+                    description: PhpFpmExtraConfig contains extra php-fpm config
+                    type: string
+                  phpFpmImage:
+                    description: PhpFpmImage defines image for Phpfpm container
                     maxLength: 255
                     type: string
-                  postgresPvcDataSize:
-                    description: PostgresPvcDataSize defines postgres storage size
-                    maxLength: 100
-                    minLength: 2
+                  phpFpmIngressAnnotations:
+                    description: PhpFpmIngressAnnotations defines Phpfpm annotations
                     type: string
-                  postgresPvcDataStorageAccessMode:
-                    description: PostgresPvcDataStorageAccessMode defines postgres
-                      storage access modes
-                    enum:
-                    - ReadWriteOnce
-                    - ReadOnlyMany
-                    - ReadWriteMany
+                  phpFpmPhpExtraIni:
+                    description: PhpFpmPhpExtraIni contains extra php ini config
                     type: string
-                  postgresPvcDataStorageClassName:
-                    description: PostgresPvcDataStorageClassName defines postgres
-                      storage class
-                    maxLength: 63
-                    minLength: 2
-                    type: string
-                  postgresSize:
-                    description: PostgresSize defines postgres number of replicas
-                      between 0 and 1
+                  phpFpmSize:
+                    description: PhpFpmSize defines Phpfpm number of replicas between
+                      0 and 255
                     format: int32
-                    maximum: 1
+                    maximum: 255
                     minimum: 0
                     type: integer
-                  postgresTolerations:
-                    description: PostgresTolerations defines any tolerations for Postgres
+                  phpFpmTolerations:
+                    description: PhpFpmTolerations defines any tolerations for Phpfpm
                       pods.
                     items:
                       description: The pod this Toleration is attached to tolerates
@@ -558,32 +566,495 @@ spec:
                 - moodleNewInstanceAgreeLicense
                 type: object
               nfsSpec:
-                description: NfsSpec defines NFS Server spec to deploy optionally
+                description: NfsSpec defines (NFS) Server spec to deploy optionally
                 properties:
+                  serverConfLogLevel:
+                    description: 'ServerConfLogLevel defines nfs log level. Default:
+                      EVENT'
+                    enum:
+                    - "NULL"
+                    - FATAL
+                    - MAJ
+                    - CRIT
+                    - WARN
+                    - EVENT
+                    - INFO
+                    - DEBUG
+                    - MID_DEBUG
+                    - M_DBG
+                    - FULL_DEBUG
+                    - F_DBG
+                    type: string
                   serverExportGroupid:
+                    description: ServerExportGroupid defines export folder groupid
                     format: int32
                     type: integer
-                  serverExportPermissions:
+                  serverExportMode:
+                    description: ServerExportMode defines folder permissions mode
                     pattern: '[0-7]{4}'
                     type: string
                   serverExportUserid:
+                    description: ServerExportUserid defines export folder userid
                     format: int32
                     type: integer
+                  serverGaneshaExtraBlockConfig:
+                    description: ServerGaneshaExtraBlockConfig contains extra block
+                      in ganesha server config
+                    type: string
+                  serverImage:
+                    description: ServerImage defines image for server container
+                    maxLength: 255
+                    type: string
                   serverPvcAutoexpansion:
+                    description: ServerPvcAutoexpansion enables autoexpansion
                     type: boolean
                   serverPvcAutoexpansionCapGib:
+                    description: ServerPvcAutoexpansionCapGib defines limit for autoexpansion
+                      increments
                     format: int32
                     type: integer
-                  serverPvcAutoexpansionGib:
+                  serverPvcAutoexpansionIncrementGib:
+                    description: ServerPvcAutoexpansionIncrementGib defines Gib to
+                      increment
                     format: int32
                     type: integer
-                  serverPvcInitSizeGib:
-                    format: int32
-                    type: integer
-                  serverPvcStorageClassName:
-                    maxLength: 255
-                    minLength: 1
+                  serverPvcDataSize:
+                    description: ServerPvcDataSize defines server storage size
+                    maxLength: 20
+                    minLength: 2
                     type: string
+                  serverPvcDataStorageAccessMode:
+                    description: ServerPvcDataStorageAccessMode defines server storage
+                      access modes
+                    enum:
+                    - ReadWriteOnce
+                    - ReadOnlyMany
+                    - ReadWriteMany
+                    type: string
+                  serverPvcDataStorageClassName:
+                    description: ServerPvcDataStorageClassName defines server storage
+                      class
+                    maxLength: 63
+                    minLength: 2
+                    type: string
+                  serverResourceLimits:
+                    description: ServerResourceLimits whether resource limits are
+                      set
+                    type: boolean
+                  serverResourceLimitsCpu:
+                    description: ServerResourceLimitsCpu set cpu for resource limits
+                    maxLength: 20
+                    type: string
+                  serverResourceLimitsMemory:
+                    description: ServerResourceLimitsMemory set memory for resource
+                      limits
+                    maxLength: 20
+                    type: string
+                  serverResourceRequests:
+                    description: ServerResourceRequests whether resource requests
+                      are set
+                    type: boolean
+                  serverResourceRequestsCpu:
+                    description: ServerResourceRequestsCpu set cpu for resource requests
+                    maxLength: 20
+                    type: string
+                  serverResourceRequestsMemory:
+                    description: ServerResourceRequestsMemory set memory for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  serverTolerations:
+                    description: ServerTolerations defines any tolerations for Server
+                      pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                type: object
+              postgresSpec:
+                description: PostgresSpec defines Postgres spec to deploy optionally
+                properties:
+                  pgbouncerExtraConfig:
+                    description: PgbouncerExtraConfig contains extra pgbouncer config
+                    type: string
+                  pgbouncerReadonlyExtraConfig:
+                    description: PgbouncerReadonlyExtraConfig contains extra pgbouncerReadonly
+                      config
+                    type: string
+                  pgbouncerReadonlyResourceLimits:
+                    description: PgbouncerReadonlyResourceLimits whether resource
+                      limits are set
+                    type: boolean
+                  pgbouncerReadonlyResourceLimitsCpu:
+                    description: PgbouncerReadonlyResourceLimitsCpu set cpu for resource
+                      limits
+                    maxLength: 20
+                    type: string
+                  pgbouncerReadonlyResourceLimitsMemory:
+                    description: PgbouncerReadonlyResourceLimitsMemory set memory
+                      for resource limits
+                    maxLength: 20
+                    type: string
+                  pgbouncerReadonlyResourceRequests:
+                    description: PgbouncerReadonlyResourceRequests whether resource
+                      requests are set
+                    type: boolean
+                  pgbouncerReadonlyResourceRequestsCpu:
+                    description: PgbouncerReadonlyResourceRequestsCpu set cpu for
+                      resource requests
+                    maxLength: 20
+                    type: string
+                  pgbouncerReadonlyResourceRequestsMemory:
+                    description: PgbouncerReadonlyResourceRequestsMemory set memory
+                      for resource requests
+                    maxLength: 20
+                    type: string
+                  pgbouncerReadonlyTolerations:
+                    description: PgbouncerReadonlyTolerations defines any tolerations
+                      for PgbouncerReadonly pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                  pgbouncerResourceLimits:
+                    description: PgbouncerResourceLimits whether resource limits are
+                      set
+                    type: boolean
+                  pgbouncerResourceLimitsCpu:
+                    description: PgbouncerResourceLimitsCpu set cpu for resource limits
+                    maxLength: 20
+                    type: string
+                  pgbouncerResourceLimitsMemory:
+                    description: PgbouncerResourceLimitsMemory set memory for resource
+                      limits
+                    maxLength: 20
+                    type: string
+                  pgbouncerResourceRequests:
+                    description: PgbouncerResourceRequests whether resource requests
+                      are set
+                    type: boolean
+                  pgbouncerResourceRequestsCpu:
+                    description: PgbouncerResourceRequestsCpu set cpu for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  pgbouncerResourceRequestsMemory:
+                    description: PgbouncerResourceRequestsMemory set memory for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  pgbouncerTolerations:
+                    description: PgbouncerTolerations defines any tolerations for
+                      Pgbouncer pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                  postgresExtraConfig:
+                    description: PostgresExtraConfig contains extra postgres config
+                    type: string
+                  postgresImage:
+                    description: PostgresImage defines image for postgres container
+                    maxLength: 255
+                    type: string
+                  postgresMode:
+                    description: PostgresMode describes mode postgres runs
+                    enum:
+                    - standalone
+                    - readreplicas
+                    type: string
+                  postgresPvcDataSize:
+                    description: PostgresPvcDataSize defines postgres storage size
+                    maxLength: 20
+                    minLength: 2
+                    type: string
+                  postgresPvcDataStorageAccessMode:
+                    description: PostgresPvcDataStorageAccessMode defines postgres
+                      storage access modes
+                    enum:
+                    - ReadWriteOnce
+                    - ReadOnlyMany
+                    - ReadWriteMany
+                    type: string
+                  postgresPvcDataStorageClassName:
+                    description: PostgresPvcDataStorageClassName defines postgres
+                      storage class
+                    maxLength: 63
+                    minLength: 2
+                    type: string
+                  postgresReadreplicasPvcDataSize:
+                    description: PostgresReadreplicasPvcDataSize defines postgres
+                      readreplicas storage size
+                    maxLength: 20
+                    minLength: 2
+                    type: string
+                  postgresReadreplicasPvcDataStorageAccessMode:
+                    description: PostgresReadreplicasPvcDataStorageAccessMode defines
+                      postgres readreplicas storage access modes
+                    enum:
+                    - ReadWriteOnce
+                    - ReadOnlyMany
+                    - ReadWriteMany
+                    type: string
+                  postgresReadreplicasPvcDataStorageClassName:
+                    description: PostgresReadreplicasPvcDataStorageClassName defines
+                      postgres readreplicas storage class
+                    maxLength: 63
+                    minLength: 2
+                    type: string
+                  postgresReadreplicasResourceLimits:
+                    description: PostgresReadreplicasResourceLimits whether resource
+                      limits are set
+                    type: boolean
+                  postgresReadreplicasResourceLimitsCpu:
+                    description: PostgresReadreplicasResourceLimitsCpu set cpu for
+                      resource limits
+                    maxLength: 20
+                    type: string
+                  postgresReadreplicasResourceLimitsMemory:
+                    description: PostgresReadreplicasResourceLimitsMemory set memory
+                      for resource limits
+                    maxLength: 20
+                    type: string
+                  postgresReadreplicasResourceRequests:
+                    description: PostgresReadreplicasResourceRequests whether resource
+                      requests are set
+                    type: boolean
+                  postgresReadreplicasResourceRequestsCpu:
+                    description: PostgresReadreplicasResourceRequestsCpu set cpu for
+                      resource requests
+                    maxLength: 20
+                    type: string
+                  postgresReadreplicasResourceRequestsMemory:
+                    description: PostgresReadreplicasResourceRequestsMemory set memory
+                      for resource requests
+                    maxLength: 20
+                    type: string
+                  postgresReadreplicasSize:
+                    description: PostgresReadreplicasSize defines postgres readreplicas
+                      number of replicas
+                    format: int32
+                    type: integer
+                  postgresReadreplicasTolerations:
+                    description: PostgresReadreplicasTolerations defines any tolerations
+                      for PostgresReadreplicas pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                  postgresResourceLimits:
+                    description: PostgresResourceLimits whether resource limits are
+                      set
+                    type: boolean
+                  postgresResourceLimitsCpu:
+                    description: PostgresResourceLimitsCpu set cpu for resource limits
+                    maxLength: 20
+                    type: string
+                  postgresResourceLimitsMemory:
+                    description: PostgresResourceLimitsMemory set memory for resource
+                      limits
+                    maxLength: 20
+                    type: string
+                  postgresResourceRequests:
+                    description: PostgresResourceRequests whether resource requests
+                      are set
+                    type: boolean
+                  postgresResourceRequestsCpu:
+                    description: PostgresResourceRequestsCpu set cpu for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  postgresResourceRequestsMemory:
+                    description: PostgresResourceRequestsMemory set memory for resource
+                      requests
+                    maxLength: 20
+                    type: string
+                  postgresSize:
+                    description: PostgresSize defines postgres number of replicas
+                    format: int32
+                    type: integer
+                  postgresTolerations:
+                    description: PostgresTolerations defines any tolerations for Postgres
+                      pods.
+                    items:
+                      description: The pod this Toleration is attached to tolerates
+                        any taint that matches the triple <key,value,effect> using
+                        the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: Effect indicates the taint effect to match.
+                            Empty means match all taint effects. When specified, allowed
+                            values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: Key is the taint key that the toleration applies
+                            to. Empty means match all taint keys. If the key is empty,
+                            operator must be Exists; this combination means to match
+                            all values and all keys.
+                          type: string
+                        operator:
+                          description: Operator represents a key's relationship to
+                            the value. Valid operators are Exists and Equal. Defaults
+                            to Equal. Exists is equivalent to wildcard for value,
+                            so that a pod can tolerate all taints of a particular
+                            category.
+                          type: string
+                        tolerationSeconds:
+                          description: TolerationSeconds represents the period of
+                            time the toleration (which must be of effect NoExecute,
+                            otherwise this field is ignored) tolerates the taint.
+                            By default, it is not set, which means tolerate the taint
+                            forever (do not evict). Zero and negative values will
+                            be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: Value is the taint value the toleration matches
+                            to. If the operator is Exists, the value should be empty,
+                            otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
                 type: object
             required:
             - m4eSpec
@@ -591,12 +1062,6 @@ spec:
           status:
             description: FlavorStatus defines the observed state of Flavor
             properties:
-              nodes:
-                description: Sites store the name of the sites which are using this
-                  flavor
-                items:
-                  type: string
-                type: array
               state:
                 default: Unknown
                 description: state describes the site state

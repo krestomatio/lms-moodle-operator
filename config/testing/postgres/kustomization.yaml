@@ -1,6 +1,7 @@
-# Install rook nfs operator
+# Install nfs operator
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: kio-test
+namePrefix: kio-
 resources:
-- ../../../operators/rook-nfs/operator
+- ../../operators/postgres
