@@ -2,7 +2,6 @@ package m4e
 
 import (
 	"context"
-	"os"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -369,16 +368,6 @@ func newUnstructuredObject(gvk schema.GroupVersionKind) *unstructured.Unstructur
 	objU := &unstructured.Unstructured{}
 	objU.SetGroupVersionKind(gvk)
 	return objU
-}
-
-// get an environmental variable
-func getEnv(envVar string, defaultVal string) string {
-	val, ok := os.LookupEnv(envVar)
-	if !ok {
-		return defaultVal
-	} else {
-		return val
-	}
 }
 
 // truncate a string
