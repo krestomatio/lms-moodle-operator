@@ -247,9 +247,9 @@ type M4eSpec struct {
 	// +optional
 	MoodleRedisMucStoreCompressor int8 `json:"moodleRedisMucStoreCompressor,omitempty"`
 
-	// NotifyStatus specification using ansible URI module
+	// RoutineStatusCrNotify specification using ansible URI module
 	// +optional
-	NotifyStatus NotifyStatus `json:"notifyStatus,omitempty"`
+	RoutineStatusCrNotify RoutineStatusCrNotify `json:"routineStatusCrNotify,omitempty"`
 }
 
 // StorageAccessMode describes storage access modes
@@ -278,14 +278,14 @@ const (
 	ReadWriteMany StorageAccessMode = "ReadWriteMany"
 )
 
-// NotifyStatusUUID used when notifying status to an endpoint
+// RoutineStatusCrNotifyUUID used when notifying status to an endpoint
 // +kubebuilder:validation:MinLength=36
 // +kubebuilder:validation:MaxLength=36
 // +optional
-type NotifyStatusUUID string
+type RoutineStatusCrNotifyUUID string
 
-// NotifyStatus specification using ansible URI module
-type NotifyStatus struct {
+// RoutineStatusCrNotify specification using ansible URI module
+type RoutineStatusCrNotify struct {
 	// HTTP or HTTPS URL in the form (http|https)://host.domain[:port]/path
 	Url string `json:"url"`
 	// StatusCode A list of valid, numeric, HTTP status codes that signifies success of the request.
@@ -297,5 +297,5 @@ type NotifyStatus struct {
 	Method string `json:"method,omitempty"`
 	// UUID used when notifying status to an endpoint
 	// +optional
-	UUID NotifyStatusUUID `json:"uuid,omitempty"`
+	UUID RoutineStatusCrNotifyUUID `json:"uuid,omitempty"`
 }

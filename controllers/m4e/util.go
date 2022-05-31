@@ -319,12 +319,12 @@ func (r *SiteReconciler) setSiteState(readyCondition map[string]interface{}, m4e
 // By default, site name is used as UUID
 func (r *SiteReconciler) setNotifyUUID() error {
 	// whether it has to notify status to a url
-	_, m4eSiteNotifyStatusFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "notifyStatus")
-	if m4eSiteNotifyStatusFound {
-		_, m4eSiteNotifyStatusUuidFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "notifyStatus", "uuid")
-		if !m4eSiteNotifyStatusUuidFound {
+	_, m4eSiteRoutineStatusCrNotifyFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "routineStatusCrNotify")
+	if m4eSiteRoutineStatusCrNotifyFound {
+		_, m4eSiteRoutineStatusCrNotifyUuidFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "routineStatusCrNotify", "uuid")
+		if !m4eSiteRoutineStatusCrNotifyUuidFound {
 			// set uuid to notify about
-			if err := unstructured.SetNestedField(r.siteCtx.combinedM4eSpec, r.siteCtx.name, "notifyStatus", "uuid"); err != nil {
+			if err := unstructured.SetNestedField(r.siteCtx.combinedM4eSpec, r.siteCtx.name, "routineStatusCrNotify", "uuid"); err != nil {
 				return err
 			}
 		}
