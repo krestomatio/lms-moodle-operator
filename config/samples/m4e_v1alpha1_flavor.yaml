@@ -56,11 +56,11 @@ spec:
     #   'ExpandInUsePersistentVolumes' is false. See:
     #   https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/
     ## Enable autoexpansion
-    serverPvcAutoexpansion: true
+    # serverPvcAutoexpansion: true
     ## Every time autoexpansion is required, increment 1 GiB
-    serverPvcAutoexpansionIncrementGib: 1
+    # serverPvcAutoexpansionIncrementGib: 1
     ## But no more than 5 GiB
-    serverPvcAutoexpansionCapGib: 5
+    # serverPvcAutoexpansionCapGib: 5
 
     ## Storage class name to be used by this (NFS) Server
     serverPvcDataStorageClassName: standard
