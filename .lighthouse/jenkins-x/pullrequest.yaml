@@ -21,8 +21,8 @@ spec:
                 value: midnight
             resources:
               limits:
-                cpu: 400m
-                memory: 512Mi
+                cpu: 2000m
+                memory: 4096Mi
               requests:
                 cpu: 50m
                 memory: 32Mi
