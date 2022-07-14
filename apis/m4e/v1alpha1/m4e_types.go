@@ -105,10 +105,6 @@ type M4eSpec struct {
 	// +optional
 	MoodleProtocol MoodleProtocol `json:"moodleProtocol,omitempty"`
 
-	// MoodleTolerations defines any tolerations for Moodle pods.
-	// +optional
-	MoodleTolerations []corev1.Toleration `json:"moodleTolerations,omitempty"`
-
 	// MoodleCronjobTolerations defines any tolerations for Moodle cronjob pods.
 	// +optional
 	MoodleCronjobTolerations []corev1.Toleration `json:"moodleCronjobTolerations,omitempty"`
