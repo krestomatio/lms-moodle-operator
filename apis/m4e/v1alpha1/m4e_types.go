@@ -280,6 +280,10 @@ const (
 // +optional
 type RoutineStatusCrNotifyUUID string
 
+// RoutineStatusCrNotifyHeaders used when notifying status to an endpoint
+// +optional
+type RoutineStatusCrNotifyHeaders struct{}
+
 // RoutineStatusCrNotify specification using ansible URI module
 type RoutineStatusCrNotify struct {
 	// HTTP or HTTPS URL in the form (http|https)://host.domain[:port]/path
@@ -294,4 +298,7 @@ type RoutineStatusCrNotify struct {
 	// UUID used when notifying status to an endpoint
 	// +optional
 	UUID RoutineStatusCrNotifyUUID `json:"uuid,omitempty"`
+	// Headers used when notifying status to an endpoint
+	// +optional
+	Headers RoutineStatusCrNotifyHeaders `json:"headers,omitempty"`
 }

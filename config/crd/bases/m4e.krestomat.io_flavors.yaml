@@ -493,6 +493,9 @@ spec:
                     description: RoutineStatusCrNotify specification using ansible
                       URI module
                     properties:
+                      headers:
+                        description: Headers used when notifying status to an endpoint
+                        type: object
                       method:
                         description: Method The HTTP method of the request or response.
                         enum:
