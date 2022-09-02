@@ -21,90 +21,90 @@ import corev1 "k8s.io/api/core/v1"
 // NfsSpec defines the desired state of Nfs
 // +optional
 type NfsSpec struct {
-	// ServerImage defines image for server container
+	// GaneshaImage defines image for ganesha server container
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
-	ServerImage string `json:"serverImage,omitempty"`
+	GaneshaImage string `json:"ganeshaImage,omitempty"`
 
-	// ServerPvcDataSize defines server storage size
+	// GaneshaPvcDataSize defines ganesha server storage size
 	// +kubebuilder:validation:MinLength=2
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
-	ServerPvcDataSize string `json:"serverPvcDataSize,omitempty"`
+	GaneshaPvcDataSize string `json:"ganeshaPvcDataSize,omitempty"`
 
-	// ServerPvcDataStorageAccessMode defines server storage access modes
+	// GaneshaPvcDataStorageAccessMode defines ganesha server storage access modes
 	// +optional
-	ServerPvcDataStorageAccessMode StorageAccessMode `json:"serverPvcDataStorageAccessMode,omitempty"`
+	GaneshaPvcDataStorageAccessMode StorageAccessMode `json:"ganeshaPvcDataStorageAccessMode,omitempty"`
 
-	// ServerPvcDataStorageClassName defines server storage class
+	// GaneshaPvcDataStorageClassName defines ganesha server storage class
 	// +kubebuilder:validation:MinLength=2
 	// +kubebuilder:validation:MaxLength=63
 	// +optional
-	ServerPvcDataStorageClassName string `json:"serverPvcDataStorageClassName,omitempty"`
+	GaneshaPvcDataStorageClassName string `json:"ganeshaPvcDataStorageClassName,omitempty"`
 
-	// ServerResourceRequests whether resource requests are set
+	// GaneshaResourceRequests whether resource requests are set
 	// +optional
-	ServerResourceRequests bool `json:"serverResourceRequests,omitempty"`
+	GaneshaResourceRequests bool `json:"ganeshaResourceRequests,omitempty"`
 
-	// ServerResourceRequestsCpu set cpu for resource requests
+	// GaneshaResourceRequestsCpu set cpu for resource requests
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
-	ServerResourceRequestsCpu string `json:"serverResourceRequestsCpu,omitempty"`
+	GaneshaResourceRequestsCpu string `json:"ganeshaResourceRequestsCpu,omitempty"`
 
-	// ServerResourceRequestsMemory set memory for resource requests
+	// GaneshaResourceRequestsMemory set memory for resource requests
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
-	ServerResourceRequestsMemory string `json:"serverResourceRequestsMemory,omitempty"`
+	GaneshaResourceRequestsMemory string `json:"ganeshaResourceRequestsMemory,omitempty"`
 
-	// ServerResourceLimits whether resource limits are set
+	// GaneshaResourceLimits whether resource limits are set
 	// +optional
-	ServerResourceLimits bool `json:"serverResourceLimits,omitempty"`
+	GaneshaResourceLimits bool `json:"ganeshaResourceLimits,omitempty"`
 
-	// ServerResourceLimitsCpu set cpu for resource limits
+	// GaneshaResourceLimitsCpu set cpu for resource limits
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
-	ServerResourceLimitsCpu string `json:"serverResourceLimitsCpu,omitempty"`
+	GaneshaResourceLimitsCpu string `json:"ganeshaResourceLimitsCpu,omitempty"`
 
-	// ServerResourceLimitsMemory set memory for resource limits
+	// GaneshaResourceLimitsMemory set memory for resource limits
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
-	ServerResourceLimitsMemory string `json:"serverResourceLimitsMemory,omitempty"`
+	GaneshaResourceLimitsMemory string `json:"ganeshaResourceLimitsMemory,omitempty"`
 
-	// ServerTolerations defines any tolerations for Server pods.
+	// GaneshaTolerations defines any tolerations for Ganesha server pods.
 	// +optional
-	ServerTolerations []corev1.Toleration `json:"serverTolerations,omitempty"`
+	GaneshaTolerations []corev1.Toleration `json:"ganeshaTolerations,omitempty"`
 
-	// ServerExportUserid defines export folder userid
+	// GaneshaExportUserid defines export folder userid
 	// +optional defines export folder userid
-	ServerExportUserid int32 `json:"serverExportUserid,omitempty"`
+	GaneshaExportUserid int32 `json:"ganeshaExportUserid,omitempty"`
 
-	// ServerExportGroupid defines export folder groupid
+	// GaneshaExportGroupid defines export folder groupid
 	// +optional
-	ServerExportGroupid int32 `json:"serverExportGroupid,omitempty"`
+	GaneshaExportGroupid int32 `json:"ganeshaExportGroupid,omitempty"`
 
-	// ServerExportMode defines folder permissions mode
+	// GaneshaExportMode defines folder permissions mode
 	// +kubebuilder:validation:Pattern="[0-7]{4}"
 	// +optional
-	ServerExportMode string `json:"serverExportMode,omitempty"`
+	GaneshaExportMode string `json:"ganeshaExportMode,omitempty"`
 
-	// ServerPvcAutoexpansion enables autoexpansion
+	// GaneshaPvcAutoexpansion enables autoexpansion
 	// +optional
-	ServerPvcAutoexpansion bool `json:"serverPvcAutoexpansion,omitempty"`
+	GaneshaPvcAutoexpansion bool `json:"ganeshaPvcAutoexpansion,omitempty"`
 
-	// ServerPvcAutoexpansionIncrementGib defines Gib to increment
+	// GaneshaPvcAutoexpansionIncrementGib defines Gib to increment
 	// +optional
-	ServerPvcAutoexpansionIncrementGib int32 `json:"serverPvcAutoexpansionIncrementGib,omitempty"`
+	GaneshaPvcAutoexpansionIncrementGib int32 `json:"ganeshaPvcAutoexpansionIncrementGib,omitempty"`
 
-	// ServerPvcAutoexpansionCapGib defines limit for autoexpansion increments
+	// GaneshaPvcAutoexpansionCapGib defines limit for autoexpansion increments
 	// +optional
-	ServerPvcAutoexpansionCapGib int32 `json:"serverPvcAutoexpansionCapGib,omitempty"`
+	GaneshaPvcAutoexpansionCapGib int32 `json:"ganeshaPvcAutoexpansionCapGib,omitempty"`
 
-	// ServerGaneshaExtraBlockConfig contains extra block in ganesha server config
+	// GaneshaExtraBlockConfig contains extra block in ganesha server ganesha config
 	// +optional
-	ServerGaneshaExtraBlockConfig string `json:"serverGaneshaExtraBlockConfig,omitempty"`
+	GaneshaExtraBlockConfig string `json:"ganeshaExtraBlockConfig,omitempty"`
 
-	// ServerConfLogLevel defines nfs log level. Default: EVENT
+	// GaneshaConfLogLevel defines nfs log level. Default: EVENT
 	// +kubebuilder:validation:Enum=NULL;FATAL;MAJ;CRIT;WARN;EVENT;INFO;DEBUG;MID_DEBUG;M_DBG;FULL_DEBUG;F_DBG
 	// +optional
-	ServerConfLogLevel string `json:"serverConfLogLevel,omitempty"`
+	GaneshaConfLogLevel string `json:"ganeshaConfLogLevel,omitempty"`
 }

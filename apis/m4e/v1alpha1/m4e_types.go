@@ -144,7 +144,7 @@ type M4eSpec struct {
 	// +optional
 	NginxTolerations []corev1.Toleration `json:"nginxTolerations,omitempty"`
 
-	// NginxExtraConfig contains extra Nginx server config
+	// NginxExtraConfig contains extra Nginx config
 	// +optional
 	NginxExtraConfig string `json:"nginxExtraConfig,omitempty"`
 
@@ -180,7 +180,7 @@ type M4eSpec struct {
 	// +optional
 	MoodlePostgresMetaName string `json:"moodlePostgresMetaName,omitempty"`
 
-	// MoodleNfsMetaName defines (NFS) Server CR name to use as shared storage for moodledata.
+	// MoodleNfsMetaName defines (NFS) Ganesha server CR name to use as shared storage for moodledata.
 	// +kubebuilder:validation:MaxLength=63
 	// +optional
 	MoodleNfsMetaName string `json:"moodleNfsMetaName,omitempty"`

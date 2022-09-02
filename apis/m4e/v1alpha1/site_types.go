@@ -37,7 +37,7 @@ type SiteSpec struct {
 	// +optional
 	M4eSpec M4eSpec `json:"m4eSpec,omitempty"`
 
-	// NfsSpec defines NFS Server spec to override Flavor
+	// NfsSpec defines NFS Ganesha server spec to override Flavor
 	// +optional
 	NfsSpec NfsSpec `json:"nfsSpec,omitempty"`
 

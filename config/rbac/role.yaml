@@ -93,7 +93,7 @@ rules:
 - apiGroups:
   - nfs.krestomat.io
   resources:
-  - servers
+  - ganeshas
   verbs:
   - create
   - delete

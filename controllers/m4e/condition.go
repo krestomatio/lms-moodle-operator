@@ -54,7 +54,7 @@ func (r *SiteReconciler) SetReadyCondition(ctx context.Context, site *unstructur
 	}
 }
 
-// SetM4eReadyCondition set ready condition depending on ready status of M4e Server
+// SetM4eReadyCondition set ready condition depending on ready status of M4e
 // and returns bool flag which indicates ready condition status of that dependant object
 func (r *SiteReconciler) SetM4eReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, M4eReadyConditionType, ReadyConditionType)
@@ -66,7 +66,7 @@ func (r *SiteReconciler) SetPostgresReadyCondition(ctx context.Context, parentOb
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, PostgresReadyConditionType, ReadyConditionType)
 }
 
-// SetNfsReadyCondition set ready condition depending on ready status of NFS Server
+// SetNfsReadyCondition set ready condition depending on ready status of NFS Ganesha
 // and returns bool flag which indicates ready condition status of that dependant object
 func (r *SiteReconciler) SetNfsReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, NfsReadyConditionType, ReadyConditionType)
