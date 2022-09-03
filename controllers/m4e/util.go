@@ -161,14 +161,14 @@ func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err er
 		}
 	}
 
-	// Delete nfs server and set for later requeuing in order to wait for it to be completely be removed.
+	// Delete nfs ganesha server and set for later requeuing in order to wait for it to be completely be removed.
 	if r.siteCtx.hasNfs {
-		log.Info("Deleting NFS Server", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
+		log.Info("Deleting NFS Ganesha", "Ganesha.Namespace", r.siteCtx.nfs.GetNamespace(), "Ganesha.Name", r.siteCtx.nfs.GetName())
 		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.nfs); err == nil {
-			log.V(1).Info("Set for requeue after NFS Server deletion", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
+			log.V(1).Info("Set for requeue after NFS Ganesha server deletion", "Ganesha.Namespace", r.siteCtx.nfs.GetNamespace(), "Ganesha.Name", r.siteCtx.nfs.GetName())
 			requeue = true
 		} else if !errors.IsNotFound(err) {
-			log.Error(err, "NFS Server not deleted", "Server.Namespace", r.siteCtx.nfs.GetNamespace(), "Server.Name", r.siteCtx.nfs.GetName())
+			log.Error(err, "NFS Ganesha server not deleted", "Ganesha.Namespace", r.siteCtx.nfs.GetNamespace(), "Ganesha.Name", r.siteCtx.nfs.GetName())
 			return false, err
 		}
 	}

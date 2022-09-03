@@ -50,7 +50,7 @@ var (
 	nfsGvk = schema.GroupVersionKind{
 		Group:   "nfs.krestomat.io",
 		Version: "v1alpha1",
-		Kind:    "Server",
+		Kind:    "Ganesha",
 	}
 	keydbGvk = schema.GroupVersionKind{
 		Group:   "keydb.krestomat.io",

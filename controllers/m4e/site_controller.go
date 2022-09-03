@@ -107,7 +107,7 @@ type SiteReconciler struct {
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=sites/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=sites/finalizers,verbs=update
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=m4es,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=nfs.krestomat.io,resources=servers,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=nfs.krestomat.io,resources=ganeshas,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=keydb.krestomat.io,resources=keydbs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=postgres.krestomat.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch;create
@@ -167,7 +167,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.m4eName = baseName
 	// set Postgres name. It must start with an alphabetic character
 	r.siteCtx.postgresName = baseName
-	// set NFS Server name and namespace. It must start with an alphabetic character
+	// set NFS Ganesha server name and namespace. It must start with an alphabetic character
 	r.siteCtx.nfsName = baseName
 	// set Keydb name. It must start with an alphabetic character
 	r.siteCtx.keydbName = baseName
@@ -263,7 +263,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		r.siteCtx.combinedPostgresSpec = r.siteCtx.flavorPostgresSpec
 	}
 
-	// Server kind from NFS ansible operator
+	// Ganesha server kind from NFS ansible operator
 	if r.siteCtx.hasNfs {
 		// Set NFS storage class name and access modes when using NFS operator
 		nfsRelatedM4eSpec := map[string]interface{}{
@@ -429,21 +429,21 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 		keydbReady = r.SetKeydbReadyCondition(ctx, r.siteCtx.site, r.siteCtx.keydb)
 	}
 
-	// Save NFS Server spec
+	// Save NFS Ganesha server spec
 	if r.siteCtx.hasNfs {
-		// Save NFS Server spec
+		// Save NFS Ganesha server spec
 		r.siteCtx.nfs.Object["spec"] = r.siteCtx.combinedNfsSpec
-		// Apply NFS Server resource
+		// Apply NFS Ganesha server resource
 		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.nfs); err != nil {
 			return false, err
 		}
-		// Update Site status about NFS Server
+		// Update Site status about NFS Ganesha
 		nfsReady = r.SetNfsReadyCondition(ctx, r.siteCtx.site, r.siteCtx.nfs)
 
-		// Wait for NFS Server to be ready; otherwise requeue
-		// NFS Server must be ready in order to mount its export as pvc
+		// Wait for NFS Ganesha server to be ready; otherwise requeue
+		// NFS Ganesha server must be ready in order to mount its export as pvc
 		if !nfsReady {
-			log.Info("(NFS) Server is not ready, requeueing...", "Server.Name", r.siteCtx.nfs.GetName())
+			log.Info("(NFS) Ganesha server is not ready, requeueing...", "Ganesha.Name", r.siteCtx.nfs.GetName())
 			return true, r.updateSiteState(ctx)
 		}
 	}

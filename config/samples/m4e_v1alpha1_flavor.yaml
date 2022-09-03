@@ -16,7 +16,7 @@ spec:
     ## Postgres as db for site
     # moodlePostgresMetaName: postgres-sample
     ## Nfs as shared storage for site
-    # moodleNfsMetaName: server-sample
+    # moodleNfsMetaName: ganesha-sample
     ## Keydb as cache for site
     # moodleKeydbMetaName: keydb-sample
     ## Redis
@@ -44,26 +44,26 @@ spec:
   nfsSpec:
     # Ownership/permissions
     ## Set export folder userid to 48
-    serverExportUserid: 48
+    ganeshaExportUserid: 48
     ## Set export folder groupid to 0
-    serverExportGroupid: 0
+    ganeshaExportGroupid: 0
     ## Set export folder permissions to 775
-    serverExportMode: "0755"
+    ganeshaExportMode: "0755"
 
-    # Autoexpansion: if storage available is less than 20% or 'serverPvcAutoexpansionIncrementGib', adjust PVC storage size according to 'serverPvcAutoexpansionIncrementGib' and 'serverPvcAutoexpansionCapGib':
+    # Autoexpansion: if storage available is less than 20% or 'ganeshaPvcAutoexpansionIncrementGib', adjust PVC storage size according to 'ganeshaPvcAutoexpansionIncrementGib' and 'ganeshaPvcAutoexpansionCapGib':
     # * Kubernetes cluster and PVC must support expansion of volumes
     # * In older cluster versions, pods require restart when autoexpanding if Kubernetes feature gate
     #   'ExpandInUsePersistentVolumes' is false. See:
     #   https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/
     ## Enable autoexpansion
-    # serverPvcAutoexpansion: true
+    # ganeshaPvcAutoexpansion: true
     ## Every time autoexpansion is required, increment 1 GiB
-    # serverPvcAutoexpansionIncrementGib: 1
+    # ganeshaPvcAutoexpansionIncrementGib: 1
     ## But no more than 5 GiB
-    # serverPvcAutoexpansionCapGib: 5
+    # ganeshaPvcAutoexpansionCapGib: 5
 
-    ## Storage class name to be used by this (NFS) Server
-    serverPvcDataStorageClassName: standard
+    ## Storage class name to be used by this (NFS) Ganesha
+    ganeshaPvcDataStorageClassName: standard
   keydbSpec:
     # keydbMode: one of 'standalone', 'multimaster', 'custom'
     # By default 'standalone' is 1 replica and 'multimaster' 3

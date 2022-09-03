@@ -35,7 +35,7 @@ type FlavorSpec struct {
 	// +optional
 	PostgresSpec PostgresSpec `json:"postgresSpec"`
 
-	// NfsSpec defines (NFS) Server spec to deploy optionally
+	// NfsSpec defines (NFS) Ganesha server spec to deploy optionally
 	// +optional
 	NfsSpec NfsSpec `json:"nfsSpec"`
 

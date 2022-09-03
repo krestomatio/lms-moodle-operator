@@ -276,8 +276,8 @@ spec:
                     maxLength: 300
                     type: string
                   moodleNfsMetaName:
-                    description: MoodleNfsMetaName defines (NFS) Server CR name to
-                      use as shared storage for moodledata.
+                    description: MoodleNfsMetaName defines (NFS) Ganesha server CR
+                      name to use as shared storage for moodledata.
                     maxLength: 63
                     type: string
                   moodlePort:
@@ -369,7 +369,7 @@ spec:
                       applied. Default: true'
                     type: boolean
                   nginxExtraConfig:
-                    description: NginxExtraConfig contains extra Nginx server config
+                    description: NginxExtraConfig contains extra Nginx config
                     type: string
                   nginxImage:
                     description: NginxImage defines image for nginx container
@@ -493,6 +493,9 @@ spec:
                     description: RoutineStatusCrNotify specification using ansible
                       URI module
                     properties:
+                      headers:
+                        description: Headers used when notifying status to an endpoint
+                        type: object
                       method:
                         description: Method The HTTP method of the request or response.
                         enum:
@@ -525,10 +528,10 @@ spec:
                 - moodleNewInstanceAgreeLicense
                 type: object
               nfsSpec:
-                description: NfsSpec defines (NFS) Server spec to deploy optionally
+                description: NfsSpec defines (NFS) Ganesha server spec to deploy optionally
                 properties:
-                  serverConfLogLevel:
-                    description: 'ServerConfLogLevel defines nfs log level. Default:
+                  ganeshaConfLogLevel:
+                    description: 'GaneshaConfLogLevel defines nfs log level. Default:
                       EVENT'
                     enum:
                     - "NULL"
@@ -544,87 +547,88 @@ spec:
                     - FULL_DEBUG
                     - F_DBG
                     type: string
-                  serverExportGroupid:
-                    description: ServerExportGroupid defines export folder groupid
+                  ganeshaExportGroupid:
+                    description: GaneshaExportGroupid defines export folder groupid
                     format: int32
                     type: integer
-                  serverExportMode:
-                    description: ServerExportMode defines folder permissions mode
+                  ganeshaExportMode:
+                    description: GaneshaExportMode defines folder permissions mode
                     pattern: '[0-7]{4}'
                     type: string
-                  serverExportUserid:
-                    description: ServerExportUserid defines export folder userid
+                  ganeshaExportUserid:
+                    description: GaneshaExportUserid defines export folder userid
                     format: int32
                     type: integer
-                  serverGaneshaExtraBlockConfig:
-                    description: ServerGaneshaExtraBlockConfig contains extra block
-                      in ganesha server config
+                  ganeshaExtraBlockConfig:
+                    description: GaneshaExtraBlockConfig contains extra block in ganesha
+                      server ganesha config
                     type: string
-                  serverImage:
-                    description: ServerImage defines image for server container
+                  ganeshaImage:
+                    description: GaneshaImage defines image for ganesha server container
                     maxLength: 255
                     type: string
-                  serverPvcAutoexpansion:
-                    description: ServerPvcAutoexpansion enables autoexpansion
+                  ganeshaPvcAutoexpansion:
+                    description: GaneshaPvcAutoexpansion enables autoexpansion
                     type: boolean
-                  serverPvcAutoexpansionCapGib:
-                    description: ServerPvcAutoexpansionCapGib defines limit for autoexpansion
+                  ganeshaPvcAutoexpansionCapGib:
+                    description: GaneshaPvcAutoexpansionCapGib defines limit for autoexpansion
                       increments
                     format: int32
                     type: integer
-                  serverPvcAutoexpansionIncrementGib:
-                    description: ServerPvcAutoexpansionIncrementGib defines Gib to
+                  ganeshaPvcAutoexpansionIncrementGib:
+                    description: GaneshaPvcAutoexpansionIncrementGib defines Gib to
                       increment
                     format: int32
                     type: integer
-                  serverPvcDataSize:
-                    description: ServerPvcDataSize defines server storage size
+                  ganeshaPvcDataSize:
+                    description: GaneshaPvcDataSize defines ganesha server storage
+                      size
                     maxLength: 20
                     minLength: 2
                     type: string
-                  serverPvcDataStorageAccessMode:
-                    description: ServerPvcDataStorageAccessMode defines server storage
-                      access modes
+                  ganeshaPvcDataStorageAccessMode:
+                    description: GaneshaPvcDataStorageAccessMode defines ganesha server
+                      storage access modes
                     enum:
                     - ReadWriteOnce
                     - ReadOnlyMany
                     - ReadWriteMany
                     type: string
-                  serverPvcDataStorageClassName:
-                    description: ServerPvcDataStorageClassName defines server storage
-                      class
+                  ganeshaPvcDataStorageClassName:
+                    description: GaneshaPvcDataStorageClassName defines ganesha server
+                      storage class
                     maxLength: 63
                     minLength: 2
                     type: string
-                  serverResourceLimits:
-                    description: ServerResourceLimits whether resource limits are
+                  ganeshaResourceLimits:
+                    description: GaneshaResourceLimits whether resource limits are
                       set
                     type: boolean
-                  serverResourceLimitsCpu:
-                    description: ServerResourceLimitsCpu set cpu for resource limits
+                  ganeshaResourceLimitsCpu:
+                    description: GaneshaResourceLimitsCpu set cpu for resource limits
                     maxLength: 20
                     type: string
-                  serverResourceLimitsMemory:
-                    description: ServerResourceLimitsMemory set memory for resource
+                  ganeshaResourceLimitsMemory:
+                    description: GaneshaResourceLimitsMemory set memory for resource
                       limits
                     maxLength: 20
                     type: string
-                  serverResourceRequests:
-                    description: ServerResourceRequests whether resource requests
+                  ganeshaResourceRequests:
+                    description: GaneshaResourceRequests whether resource requests
                       are set
                     type: boolean
-                  serverResourceRequestsCpu:
-                    description: ServerResourceRequestsCpu set cpu for resource requests
+                  ganeshaResourceRequestsCpu:
+                    description: GaneshaResourceRequestsCpu set cpu for resource requests
                     maxLength: 20
                     type: string
-                  serverResourceRequestsMemory:
-                    description: ServerResourceRequestsMemory set memory for resource
+                  ganeshaResourceRequestsMemory:
+                    description: GaneshaResourceRequestsMemory set memory for resource
                       requests
                     maxLength: 20
                     type: string
-                  serverTolerations:
-                    description: ServerTolerations defines any tolerations for Server
-                      pods.
+                  ganeshaTolerations:
+                    description: GaneshaTolerations defines any tolerations for Ganesha
+                      server pods.
                     items:
                       description: The pod this Toleration is attached to tolerates
                         any taint that matches the triple <key,value,effect> using
