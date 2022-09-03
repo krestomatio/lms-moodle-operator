@@ -1,9 +1,5 @@
 ## Changes
 
-### Code Refactoring
+### New Features
 
-* remove unneeded field (Job Céspedes Ortiz)
-
-### Chores
-
-* release: 0.1.5 (krestomatio-cibot)
+* m4e: add headers field to status notification (Job Céspedes Ortiz)
