@@ -10,7 +10,19 @@ resources:
 patchesStrategicMerge:
 - ../default/manager_auth_proxy_patch.yaml
 - manager_image.yaml
-- debug_logs_patch.yaml
 images:
 - name: testing
   newName: testing-operator
+patches:
+- patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/args/-
+      value: --zap-devel=true
+    - op: add
+      path: /spec/template/spec/containers/0/args/-
+      value: --zap-time-encoding=iso8601
+    - op: add
+      path: /spec/template/spec/containers/0/args/-
+      value: --zap-encoder==console
+  target:
+    kind: Deployment
