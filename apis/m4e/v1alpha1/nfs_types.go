@@ -42,30 +42,30 @@ type NfsSpec struct {
 	// +optional
 	GaneshaPvcDataStorageClassName string `json:"ganeshaPvcDataStorageClassName,omitempty"`
 
-	// GaneshaResourceRequests whether resource requests are set
+	// GaneshaResourceRequests whether ganesha resource requests are added. Default: true
 	// +optional
 	GaneshaResourceRequests bool `json:"ganeshaResourceRequests,omitempty"`
 
-	// GaneshaResourceRequestsCpu set cpu for resource requests
+	// GaneshaResourceRequestsCpu set ganesha resource requests cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	GaneshaResourceRequestsCpu string `json:"ganeshaResourceRequestsCpu,omitempty"`
 
-	// GaneshaResourceRequestsMemory set memory for resource requests
+	// GaneshaResourceRequestsMemory set ganesha resource requests memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	GaneshaResourceRequestsMemory string `json:"ganeshaResourceRequestsMemory,omitempty"`
 
-	// GaneshaResourceLimits whether resource limits are set
+	// GaneshaResourceLimits whether ganesha resource limits are added. Default: false
 	// +optional
 	GaneshaResourceLimits bool `json:"ganeshaResourceLimits,omitempty"`
 
-	// GaneshaResourceLimitsCpu set cpu for resource limits
+	// GaneshaResourceLimitsCpu set ganesha resource limits cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	GaneshaResourceLimitsCpu string `json:"ganeshaResourceLimitsCpu,omitempty"`
 
-	// GaneshaResourceLimitsMemory set memory for resource limits
+	// GaneshaResourceLimitsMemory set ganesha resource limits memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	GaneshaResourceLimitsMemory string `json:"ganeshaResourceLimitsMemory,omitempty"`
