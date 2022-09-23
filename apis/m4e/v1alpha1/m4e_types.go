@@ -242,22 +242,22 @@ type M4eSpec struct {
 	// +optional
 	NginxResourceLimitsMemory string `json:"nginxResourceLimitsMemory,omitempty"`
 
-	// PhpFpmSize defines Phpfpm number of replicas between 0 and 255
+	// PhpFpmSize defines php-fpm number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=255
 	// +optional
 	PhpFpmSize int32 `json:"phpFpmSize,omitempty"`
 
-	// PhpFpmImage defines image for Phpfpm container
+	// PhpFpmImage defines image for php-fpm container
 	// +kubebuilder:validation:MaxLength=255
 	// +optional
 	PhpFpmImage string `json:"phpFpmImage,omitempty"`
 
-	// PhpFpmIngressAnnotations defines Phpfpm annotations
+	// PhpFpmIngressAnnotations defines php-fpm annotations
 	// +optional
 	PhpFpmIngressAnnotations string `json:"phpFpmIngressAnnotations,omitempty"`
 
-	// PhpFpmTolerations defines any tolerations for Phpfpm pods.
+	// PhpFpmTolerations defines any tolerations for php-fpm pods.
 	// +optional
 	PhpFpmTolerations []corev1.Toleration `json:"phpFpmTolerations,omitempty"`
 
@@ -268,6 +268,30 @@ type M4eSpec struct {
 	// PhpFpmExtraConfig contains extra php-fpm config
 	// +optional
 	PhpFpmExtraConfig string `json:"phpFpmExtraConfig,omitempty"`
+
+	// PhpFpmResourceRequests whether php-fpm resource requests are added. Default: true
+	// +optional
+	PhpFpmResourceRequests bool `json:"phpFpmResourceRequests,omitempty"`
+
+	// PhpFpmResourceRequestsCpu set php-fpm resource requests cpu
+	// +optional
+	PhpFpmResourceRequestsCpu string `json:"phpFpmResourceRequestsCpu,omitempty"`
+
+	// PhpFpmResourceRequestsMemory set php-fpm resource requests memory
+	// +optional
+	PhpFpmResourceRequestsMemory string `json:"phpFpmResourceRequestsMemory,omitempty"`
+
+	// PhpFpmResourceLimits whether php-fpm resource limits are added. Default: false
+	// +optional
+	PhpFpmResourceLimits bool `json:"phpFpmResourceLimits,omitempty"`
+
+	// PhpFpmResourceLimitsCpu set php-fpm resource limits cpu
+	// +optional
+	PhpFpmResourceLimitsCpu string `json:"phpFpmResourceLimitsCpu,omitempty"`
+
+	// PhpFpmResourceLimitsMemory set php-fpm resource limits memory
+	// +optional
+	PhpFpmResourceLimitsMemory string `json:"phpFpmResourceLimitsMemory,omitempty"`
 
 	// MoodlePostgresMetaName defines Postgres CR name to use as database.
 	// +kubebuilder:validation:MaxLength=63
