@@ -218,6 +218,30 @@ type M4eSpec struct {
 	// +optional
 	NginxExtraConfig string `json:"nginxExtraConfig,omitempty"`
 
+	// NginxResourceRequests whether nginx resource requests are added. Default: true
+	// +optional
+	NginxResourceRequests bool `json:"nginxResourceRequests,omitempty"`
+
+	// NginxResourceRequestsCpu set nginx resource requests cpu
+	// +optional
+	NginxResourceRequestsCpu string `json:"nginxResourceRequestsCpu,omitempty"`
+
+	// NginxResourceRequestsMemory set nginx resource requests memory
+	// +optional
+	NginxResourceRequestsMemory string `json:"nginxResourceRequestsMemory,omitempty"`
+
+	// NginxResourceLimits whether nginx resource limits are added. Default: false
+	// +optional
+	NginxResourceLimits bool `json:"nginxResourceLimits,omitempty"`
+
+	// NginxResourceLimitsCpu set nginx resource limits cpu
+	// +optional
+	NginxResourceLimitsCpu string `json:"nginxResourceLimitsCpu,omitempty"`
+
+	// NginxResourceLimitsMemory set nginx resource limits memory
+	// +optional
+	NginxResourceLimitsMemory string `json:"nginxResourceLimitsMemory,omitempty"`
+
 	// PhpFpmSize defines Phpfpm number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=255
