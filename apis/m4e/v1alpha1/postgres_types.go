@@ -54,30 +54,30 @@ type PostgresSpec struct {
 	// +optional
 	PostgresPvcDataStorageClassName string `json:"postgresPvcDataStorageClassName,omitempty"`
 
-	// PostgresResourceRequests whether resource requests are set
+	// PostgresResourceRequests whether postgres resource requests are added. Default: true
 	// +optional
 	PostgresResourceRequests bool `json:"postgresResourceRequests,omitempty"`
 
-	// PostgresResourceRequestsCpu set cpu for resource requests
+	// PostgresResourceRequestsCpu set postgres resource requests cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PostgresResourceRequestsCpu string `json:"postgresResourceRequestsCpu,omitempty"`
 
-	// PostgresResourceRequestsMemory set memory for resource requests
+	// PostgresResourceRequestsMemory set postgres resource requests memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PostgresResourceRequestsMemory string `json:"postgresResourceRequestsMemory,omitempty"`
 
-	// PostgresResourceLimits whether resource limits are set
+	// PostgresResourceLimits whether postgres resource limits are added. Default: false
 	// +optional
 	PostgresResourceLimits bool `json:"postgresResourceLimits,omitempty"`
 
-	// PostgresResourceLimitsCpu set cpu for resource limits
+	// PostgresResourceLimitsCpu set postgres resource limits cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PostgresResourceLimitsCpu string `json:"postgresResourceLimitsCpu,omitempty"`
 
-	// PostgresResourceLimitsMemory set memory for resource limits
+	// PostgresResourceLimitsMemory set postgres resource limits memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PostgresResourceLimitsMemory string `json:"postgresResourceLimitsMemory,omitempty"`
@@ -106,30 +106,30 @@ type PostgresSpec struct {
 	// +optional
 	PostgresReadreplicasPvcDataStorageClassName string `json:"postgresReadreplicasPvcDataStorageClassName,omitempty"`
 
-	// PostgresReadreplicasResourceRequests whether resource requests are set
+	// PostgresReadreplicasResourceRequests whether postgres readreplicas resource requests are added. Default: true
 	// +optional
 	PostgresReadreplicasResourceRequests bool `json:"postgresReadreplicasResourceRequests,omitempty"`
 
-	// PostgresReadreplicasResourceRequestsCpu set cpu for resource requests
+	// PostgresReadreplicasResourceRequestsCpu set postgres readreplicas resource requests cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PostgresReadreplicasResourceRequestsCpu string `json:"postgresReadreplicasResourceRequestsCpu,omitempty"`
 
-	// PostgresReadreplicasResourceRequestsMemory set memory for resource requests
+	// PostgresReadreplicasResourceRequestsMemory set postgres readreplicas resource requests memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PostgresReadreplicasResourceRequestsMemory string `json:"postgresReadreplicasResourceRequestsMemory,omitempty"`
 
-	// PostgresReadreplicasResourceLimits whether resource limits are set
+	// PostgresReadreplicasResourceLimits whether postgres readreplicas resource limits are added. Default: false
 	// +optional
 	PostgresReadreplicasResourceLimits bool `json:"postgresReadreplicasResourceLimits,omitempty"`
 
-	// PostgresReadreplicasResourceLimitsCpu set cpu for resource limits
+	// PostgresReadreplicasResourceLimitsCpu set postgres readreplicas resource limits cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PostgresReadreplicasResourceLimitsCpu string `json:"postgresReadreplicasResourceLimitsCpu,omitempty"`
 
-	// PostgresReadreplicasResourceLimitsMemory set memory for resource limits
+	// PostgresReadreplicasResourceLimitsMemory set postgres readreplicas resource limits memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PostgresReadreplicasResourceLimitsMemory string `json:"postgresReadreplicasResourceLimitsMemory,omitempty"`
@@ -142,30 +142,30 @@ type PostgresSpec struct {
 	// +optional
 	PgbouncerExtraConfig string `json:"pgbouncerExtraConfig,omitempty"`
 
-	// PgbouncerResourceRequests whether resource requests are set
+	// PgbouncerResourceRequests whether pgbouncer resource requests are added. Default: true
 	// +optional
 	PgbouncerResourceRequests bool `json:"pgbouncerResourceRequests,omitempty"`
 
-	// PgbouncerResourceRequestsCpu set cpu for resource requests
+	// PgbouncerResourceRequestsCpu set pgbouncer resource requests cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PgbouncerResourceRequestsCpu string `json:"pgbouncerResourceRequestsCpu,omitempty"`
 
-	// PgbouncerResourceRequestsMemory set memory for resource requests
+	// PgbouncerResourceRequestsMemory set pgbouncer resource requests memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PgbouncerResourceRequestsMemory string `json:"pgbouncerResourceRequestsMemory,omitempty"`
 
-	// PgbouncerResourceLimits whether resource limits are set
+	// PgbouncerResourceLimits whether pgbouncer resource limits are added. Default: false
 	// +optional
 	PgbouncerResourceLimits bool `json:"pgbouncerResourceLimits,omitempty"`
 
-	// PgbouncerResourceLimitsCpu set cpu for resource limits
+	// PgbouncerResourceLimitsCpu set pgbouncer resource limits cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PgbouncerResourceLimitsCpu string `json:"pgbouncerResourceLimitsCpu,omitempty"`
 
-	// PgbouncerResourceLimitsMemory set memory for resource limits
+	// PgbouncerResourceLimitsMemory set pgbouncer resource limits memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PgbouncerResourceLimitsMemory string `json:"pgbouncerResourceLimitsMemory,omitempty"`
@@ -178,30 +178,30 @@ type PostgresSpec struct {
 	// +optional
 	PgbouncerReadonlyExtraConfig string `json:"pgbouncerReadonlyExtraConfig,omitempty"`
 
-	// PgbouncerReadonlyResourceRequests whether resource requests are set
+	// PgbouncerReadonlyResourceRequests whether pgbouncer readonly resource requests are added. Default: true
 	// +optional
 	PgbouncerReadonlyResourceRequests bool `json:"pgbouncerReadonlyResourceRequests,omitempty"`
 
-	// PgbouncerReadonlyResourceRequestsCpu set cpu for resource requests
+	// PgbouncerReadonlyResourceRequestsCpu set pgbouncer readonly resource requests cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PgbouncerReadonlyResourceRequestsCpu string `json:"pgbouncerReadonlyResourceRequestsCpu,omitempty"`
 
-	// PgbouncerReadonlyResourceRequestsMemory set memory for resource requests
+	// PgbouncerReadonlyResourceRequestsMemory set pgbouncer readonly resource requests memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PgbouncerReadonlyResourceRequestsMemory string `json:"pgbouncerReadonlyResourceRequestsMemory,omitempty"`
 
-	// PgbouncerReadonlyResourceLimits whether resource limits are set
+	// PgbouncerReadonlyResourceLimits whether pgbouncer readonly resource limits are added. Default: false
 	// +optional
 	PgbouncerReadonlyResourceLimits bool `json:"pgbouncerReadonlyResourceLimits,omitempty"`
 
-	// PgbouncerReadonlyResourceLimitsCpu set cpu for resource limits
+	// PgbouncerReadonlyResourceLimitsCpu set pgbouncer readonly resource limits cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PgbouncerReadonlyResourceLimitsCpu string `json:"pgbouncerReadonlyResourceLimitsCpu,omitempty"`
 
-	// PgbouncerReadonlyResourceLimitsMemory set memory for resource limits
+	// PgbouncerReadonlyResourceLimitsMemory set pgbouncer readonly resource limits memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PgbouncerReadonlyResourceLimitsMemory string `json:"pgbouncerReadonlyResourceLimitsMemory,omitempty"`
