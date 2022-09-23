@@ -109,6 +109,76 @@ type M4eSpec struct {
 	// +optional
 	MoodleCronjobTolerations []corev1.Toleration `json:"moodleCronjobTolerations,omitempty"`
 
+	// MoodleCronjobResourceRequests whether moodle cronjob resource requests are added. Default: true
+	// +optional
+	MoodleCronjobResourceRequests bool `json:"moodleCronjobResourceRequests,omitempty"`
+
+	// MoodleCronjobResourceRequestsCpu set moodle cronjob resource requests cpu
+	// +optional
+	MoodleCronjobResourceRequestsCpu string `json:"moodleCronjobResourceRequestsCpu,omitempty"`
+
+	// MoodleCronjobResourceRequestsMemory set moodle cronjob resource requests memory
+	// +optional
+	MoodleCronjobResourceRequestsMemory string `json:"moodleCronjobResourceRequestsMemory,omitempty"`
+
+	// MoodleCronjobResourceLimits whether moodle cronjob resource limits are added. Default: false
+	// +optional
+	MoodleCronjobResourceLimits bool `json:"moodleCronjobResourceLimits,omitempty"`
+
+	// MoodleCronjobResourceLimitsCpu set moodle cronjob resource limits cpu
+	// +optional
+	MoodleCronjobResourceLimitsCpu string `json:"moodleCronjobResourceLimitsCpu,omitempty"`
+
+	// MoodleCronjobResourceLimitsMemory set moodle cronjob resource limits memory
+	// +optional
+	MoodleCronjobResourceLimitsMemory string `json:"moodleCronjobResourceLimitsMemory,omitempty"`
+
+	// MoodleUpdateJobResourceRequests whether moodle update job resource requests are added. Default: true
+	// +optional
+	MoodleUpdateJobResourceRequests bool `json:"moodleUpdateJobResourceRequests,omitempty"`
+
+	// MoodleUpdateJobResourceRequestsCpu set moodle update job resource requests cpu
+	// +optional
+	MoodleUpdateJobResourceRequestsCpu string `json:"moodleUpdateJobResourceRequestsCpu,omitempty"`
+
+	// MoodleUpdateJobResourceRequestsMemory set moodle update job resource requests memory
+	// +optional
+	MoodleUpdateJobResourceRequestsMemory string `json:"moodleUpdateJobResourceRequestsMemory,omitempty"`
+
+	// MoodleUpdateJobResourceLimits whether moodle update job resource limits are added. Default: false
+	// +optional
+	MoodleUpdateJobResourceLimits bool `json:"moodleUpdateJobResourceLimits,omitempty"`
+
+	// MoodleUpdateJobResourceLimitsCpu set moodle update job resource limits cpu
+	// +optional
+	MoodleUpdateJobResourceLimitsCpu string `json:"moodleUpdateJobResourceLimitsCpu,omitempty"`
+
+	// MoodleUpdateJobResourceLimitsMemory set moodle cronjob resource limits memory
+	// +optional
+	MoodleUpdateJobResourceLimitsMemory string `json:"moodleUpdateJobResourceLimitsMemory,omitempty"`
+
+	// MoodleNewInstanceJobResourceRequests whether moodle new instance job resource requests are added. Default: true
+	// +optional
+	MoodleNewInstanceJobResourceRequests bool `json:"moodleNewInstanceJobResourceRequests,omitempty"`
+
+	// MoodleNewInstanceJobResourceRequestsCpu set moodle new instance job resource requests cpu
+	// +optional
+	MoodleNewInstanceJobResourceRequestsCpu string `json:"moodleNewInstanceJobResourceRequestsCpu,omitempty"`
+
+	// MoodleNewInstanceJobResourceRequestsMemory set moodle new instance job resource requests memory
+	// +optional
+	MoodleNewInstanceJobResourceRequestsMemory string `json:"moodleNewInstanceJobResourceRequestsMemory,omitempty"`
+
+	// MoodleNewInstanceJobResourceLimits whether moodle new instance job resource limits are added. Default: false
+	// +optional
+	MoodleNewInstanceJobResourceLimits bool `json:"moodleNewInstanceJobResourceLimits,omitempty"`
+	// MoodleNewInstanceJobResourceLimitsCpu set moodle new instance job resource limits cpu
+	// +optional
+	MoodleNewInstanceJobResourceLimitsCpu string `json:"moodleNewInstanceJobResourceLimitsCpu,omitempty"`
+	// MoodleNewInstanceJobResourceLimitsMemory set moodle new instance job resource limits memory
+	// +optional
+	MoodleNewInstanceJobResourceLimitsMemory string `json:"moodleNewInstanceJobResourceLimitsMemory,omitempty"`
+
 	// MoodleConfigAdditionalCfg defines moodle extra config properties in config.php
 	// +optional
 	MoodleConfigAdditionalCfg MoodleConfigProperty `json:"moodleConfigAdditionalCfg,omitempty"`
