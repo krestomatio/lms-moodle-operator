@@ -114,10 +114,12 @@ type M4eSpec struct {
 	MoodleCronjobResourceRequests bool `json:"moodleCronjobResourceRequests,omitempty"`
 
 	// MoodleCronjobResourceRequestsCpu set moodle cronjob resource requests cpu
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleCronjobResourceRequestsCpu string `json:"moodleCronjobResourceRequestsCpu,omitempty"`
 
 	// MoodleCronjobResourceRequestsMemory set moodle cronjob resource requests memory
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleCronjobResourceRequestsMemory string `json:"moodleCronjobResourceRequestsMemory,omitempty"`
 
@@ -126,10 +128,12 @@ type M4eSpec struct {
 	MoodleCronjobResourceLimits bool `json:"moodleCronjobResourceLimits,omitempty"`
 
 	// MoodleCronjobResourceLimitsCpu set moodle cronjob resource limits cpu
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleCronjobResourceLimitsCpu string `json:"moodleCronjobResourceLimitsCpu,omitempty"`
 
 	// MoodleCronjobResourceLimitsMemory set moodle cronjob resource limits memory
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleCronjobResourceLimitsMemory string `json:"moodleCronjobResourceLimitsMemory,omitempty"`
 
@@ -138,10 +142,12 @@ type M4eSpec struct {
 	MoodleUpdateJobResourceRequests bool `json:"moodleUpdateJobResourceRequests,omitempty"`
 
 	// MoodleUpdateJobResourceRequestsCpu set moodle update job resource requests cpu
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleUpdateJobResourceRequestsCpu string `json:"moodleUpdateJobResourceRequestsCpu,omitempty"`
 
 	// MoodleUpdateJobResourceRequestsMemory set moodle update job resource requests memory
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleUpdateJobResourceRequestsMemory string `json:"moodleUpdateJobResourceRequestsMemory,omitempty"`
 
@@ -150,10 +156,12 @@ type M4eSpec struct {
 	MoodleUpdateJobResourceLimits bool `json:"moodleUpdateJobResourceLimits,omitempty"`
 
 	// MoodleUpdateJobResourceLimitsCpu set moodle update job resource limits cpu
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleUpdateJobResourceLimitsCpu string `json:"moodleUpdateJobResourceLimitsCpu,omitempty"`
 
 	// MoodleUpdateJobResourceLimitsMemory set moodle cronjob resource limits memory
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleUpdateJobResourceLimitsMemory string `json:"moodleUpdateJobResourceLimitsMemory,omitempty"`
 
@@ -162,10 +170,12 @@ type M4eSpec struct {
 	MoodleNewInstanceJobResourceRequests bool `json:"moodleNewInstanceJobResourceRequests,omitempty"`
 
 	// MoodleNewInstanceJobResourceRequestsCpu set moodle new instance job resource requests cpu
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleNewInstanceJobResourceRequestsCpu string `json:"moodleNewInstanceJobResourceRequestsCpu,omitempty"`
 
 	// MoodleNewInstanceJobResourceRequestsMemory set moodle new instance job resource requests memory
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleNewInstanceJobResourceRequestsMemory string `json:"moodleNewInstanceJobResourceRequestsMemory,omitempty"`
 
@@ -173,9 +183,11 @@ type M4eSpec struct {
 	// +optional
 	MoodleNewInstanceJobResourceLimits bool `json:"moodleNewInstanceJobResourceLimits,omitempty"`
 	// MoodleNewInstanceJobResourceLimitsCpu set moodle new instance job resource limits cpu
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleNewInstanceJobResourceLimitsCpu string `json:"moodleNewInstanceJobResourceLimitsCpu,omitempty"`
 	// MoodleNewInstanceJobResourceLimitsMemory set moodle new instance job resource limits memory
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleNewInstanceJobResourceLimitsMemory string `json:"moodleNewInstanceJobResourceLimitsMemory,omitempty"`
 
@@ -235,10 +247,12 @@ type M4eSpec struct {
 	NginxResourceLimits bool `json:"nginxResourceLimits,omitempty"`
 
 	// NginxResourceLimitsCpu set nginx resource limits cpu
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	NginxResourceLimitsCpu string `json:"nginxResourceLimitsCpu,omitempty"`
 
 	// NginxResourceLimitsMemory set nginx resource limits memory
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	NginxResourceLimitsMemory string `json:"nginxResourceLimitsMemory,omitempty"`
 
@@ -274,10 +288,12 @@ type M4eSpec struct {
 	PhpFpmResourceRequests bool `json:"phpFpmResourceRequests,omitempty"`
 
 	// PhpFpmResourceRequestsCpu set php-fpm resource requests cpu
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PhpFpmResourceRequestsCpu string `json:"phpFpmResourceRequestsCpu,omitempty"`
 
 	// PhpFpmResourceRequestsMemory set php-fpm resource requests memory
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PhpFpmResourceRequestsMemory string `json:"phpFpmResourceRequestsMemory,omitempty"`
 
@@ -286,10 +302,12 @@ type M4eSpec struct {
 	PhpFpmResourceLimits bool `json:"phpFpmResourceLimits,omitempty"`
 
 	// PhpFpmResourceLimitsCpu set php-fpm resource limits cpu
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PhpFpmResourceLimitsCpu string `json:"phpFpmResourceLimitsCpu,omitempty"`
 
 	// PhpFpmResourceLimitsMemory set php-fpm resource limits memory
+	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PhpFpmResourceLimitsMemory string `json:"phpFpmResourceLimitsMemory,omitempty"`
 
