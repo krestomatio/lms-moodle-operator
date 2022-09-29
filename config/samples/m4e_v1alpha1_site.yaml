@@ -14,4 +14,4 @@ spec:
     moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
   ## Override flavor nfs spec, if any
   # nfsSpec:
-    # ganeshaPvcAutoexpansion: false
+    # ganeshaPvcDataAutoexpansion: false

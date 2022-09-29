@@ -87,17 +87,17 @@ type NfsSpec struct {
 	// +optional
 	GaneshaExportMode string `json:"ganeshaExportMode,omitempty"`
 
-	// GaneshaPvcAutoexpansion enables autoexpansion
+	// GaneshaPvcDataAutoexpansion enables autoexpansion
 	// +optional
-	GaneshaPvcAutoexpansion bool `json:"ganeshaPvcAutoexpansion,omitempty"`
+	GaneshaPvcDataAutoexpansion bool `json:"ganeshaPvcDataAutoexpansion,omitempty"`
 
-	// GaneshaPvcAutoexpansionIncrementGib defines Gib to increment
+	// GaneshaPvcDataAutoexpansionIncrementGib defines Gib to increment
 	// +optional
-	GaneshaPvcAutoexpansionIncrementGib int32 `json:"ganeshaPvcAutoexpansionIncrementGib,omitempty"`
+	GaneshaPvcDataAutoexpansionIncrementGib int32 `json:"ganeshaPvcDataAutoexpansionIncrementGib,omitempty"`
 
-	// GaneshaPvcAutoexpansionCapGib defines limit for autoexpansion increments
+	// GaneshaPvcDataAutoexpansionCapGib defines limit for autoexpansion increments
 	// +optional
-	GaneshaPvcAutoexpansionCapGib int32 `json:"ganeshaPvcAutoexpansionCapGib,omitempty"`
+	GaneshaPvcDataAutoexpansionCapGib int32 `json:"ganeshaPvcDataAutoexpansionCapGib,omitempty"`
 
 	// GaneshaExtraBlockConfig contains extra block in ganesha server ganesha config
 	// +optional

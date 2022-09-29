@@ -585,16 +585,16 @@ spec:
                     description: GaneshaImage defines image for ganesha server container
                     maxLength: 255
                     type: string
-                  ganeshaPvcAutoexpansion:
-                    description: GaneshaPvcAutoexpansion enables autoexpansion
+                  ganeshaPvcDataAutoexpansion:
+                    description: GaneshaPvcDataAutoexpansion enables autoexpansion
                     type: boolean
-                  ganeshaPvcAutoexpansionCapGib:
-                    description: GaneshaPvcAutoexpansionCapGib defines limit for autoexpansion
+                  ganeshaPvcDataAutoexpansionCapGib:
+                    description: GaneshaPvcDataAutoexpansionCapGib defines limit for autoexpansion
                       increments
                     format: int32
                     type: integer
-                  ganeshaPvcAutoexpansionIncrementGib:
-                    description: GaneshaPvcAutoexpansionIncrementGib defines Gib to
+                  ganeshaPvcDataAutoexpansionIncrementGib:
+                    description: GaneshaPvcDataAutoexpansionIncrementGib defines Gib to
                       increment
                     format: int32
                     type: integer
