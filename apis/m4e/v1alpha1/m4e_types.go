@@ -382,6 +382,10 @@ type M4eSpec struct {
 	// RoutineStatusCrNotify specification using ansible URI module
 	// +optional
 	RoutineStatusCrNotify RoutineStatusCrNotify `json:"routineStatusCrNotify,omitempty"`
+
+	// RoutineStatusCrNotifyTermination specification using ansible URI module
+	// +optional
+	RoutineStatusCrNotifyTermination RoutineStatusCrNotify `json:"routineStatusCrNotifyTermination,omitempty"`
 }
 
 // StorageAccessMode describes storage access modes
