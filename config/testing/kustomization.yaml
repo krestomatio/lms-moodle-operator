@@ -23,6 +23,6 @@ patches:
       value: --zap-time-encoding=iso8601
     - op: add
       path: /spec/template/spec/containers/0/args/-
-      value: --zap-encoder==console
+      value: --zap-encoder=console
   target:
     kind: Deployment
