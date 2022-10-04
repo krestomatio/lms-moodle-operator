@@ -3,7 +3,7 @@ kind: Flavor
 metadata:
   name: flavor-sample
 spec:
-  m4eSpec:
+  moodleSpec:
     ## Moodle new instance
     moodleNewInstanceAgreeLicense: true
     moodleNewInstanceFullname: Demo site

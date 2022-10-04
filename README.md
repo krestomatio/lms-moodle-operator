@@ -2,7 +2,7 @@
 Kio operator is a meta operator for Moodle sites.
 
 ## Description
-Kio operator is a meta operator for Moodle sites. It handles the stack required to run them: postgres, keydb, nfs, and M4e. Those components have their own operators. In addition, a Flavor is like a template to reuse when creating Moodle sites.
+Kio operator is a meta operator for Moodle sites. It handles the stack required to run them: postgres, keydb, nfs, and moodle. Those components have their own operators. In addition, a Flavor is like a template to reuse when creating Moodle sites.
 
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.

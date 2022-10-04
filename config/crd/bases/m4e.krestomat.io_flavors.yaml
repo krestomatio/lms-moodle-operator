@@ -81,28 +81,31 @@ spec:
                     minLength: 2
                     type: string
                   keydbResourceLimits:
-                    description: KeydbResourceLimits whether resource limits are set
+                    description: 'KeydbResourceLimits whether keydb resource limits
+                      are added. Default: false'
                     type: boolean
                   keydbResourceLimitsCpu:
-                    description: KeydbResourceLimitsCpu set cpu for resource limits
+                    description: KeydbResourceLimitsCpu set keydb resource limits
+                      cpu
                     maxLength: 20
                     type: string
                   keydbResourceLimitsMemory:
-                    description: KeydbResourceLimitsMemory set memory for resource
-                      limits
+                    description: KeydbResourceLimitsMemory set keydb resource limits
+                      memory
                     maxLength: 20
                     type: string
                   keydbResourceRequests:
-                    description: KeydbResourceRequests whether resource requests are
-                      set
+                    description: 'KeydbResourceRequests whether keydb resource requests
+                      are added. Default: true'
                     type: boolean
                   keydbResourceRequestsCpu:
-                    description: KeydbResourceRequestsCpu set cpu for resource requests
+                    description: KeydbResourceRequestsCpu set keydb resource requests
+                      cpu
                     maxLength: 20
                     type: string
                   keydbResourceRequestsMemory:
-                    description: KeydbResourceRequestsMemory set memory for resource
-                      requests
+                    description: KeydbResourceRequestsMemory set keydb resource requests
+                      memory
                     maxLength: 20
                     type: string
                   keydbSize:
@@ -152,8 +155,8 @@ spec:
                       type: object
                     type: array
                 type: object
-              m4eSpec:
-                description: M4eSpec defines M4e spec
+              moodleSpec:
+                description: MoodleSpec defines Moodle spec
                 properties:
                   moodleConfigAdditionalBlock:
                     description: MoodleConfigAdditionalBlock defines moodle extra
@@ -180,6 +183,34 @@ spec:
                     description: 'MoodleConfigSessionRedisSerializerUseIgbinary whether
                       igbinary is used for redis session. Default: false'
                     type: boolean
+                  moodleCronjobResourceLimits:
+                    description: 'MoodleCronjobResourceLimits whether moodle cronjob
+                      resource limits are added. Default: false'
+                    type: boolean
+                  moodleCronjobResourceLimitsCpu:
+                    description: MoodleCronjobResourceLimitsCpu set moodle cronjob
+                      resource limits cpu
+                    maxLength: 20
+                    type: string
+                  moodleCronjobResourceLimitsMemory:
+                    description: MoodleCronjobResourceLimitsMemory set moodle cronjob
+                      resource limits memory
+                    maxLength: 20
+                    type: string
+                  moodleCronjobResourceRequests:
+                    description: 'MoodleCronjobResourceRequests whether moodle cronjob
+                      resource requests are added. Default: true'
+                    type: boolean
+                  moodleCronjobResourceRequestsCpu:
+                    description: MoodleCronjobResourceRequestsCpu set moodle cronjob
+                      resource requests cpu
+                    maxLength: 20
+                    type: string
+                  moodleCronjobResourceRequestsMemory:
+                    description: MoodleCronjobResourceRequestsMemory set moodle cronjob
+                      resource requests memory
+                    maxLength: 20
+                    type: string
                   moodleCronjobTolerations:
                     description: MoodleCronjobTolerations defines any tolerations
                       for Moodle cronjob pods.
@@ -268,6 +299,34 @@ spec:
                     type: boolean
                   moodleNewInstanceFullname:
                     maxLength: 100
+                    type: string
+                  moodleNewInstanceJobResourceLimits:
+                    description: 'MoodleNewInstanceJobResourceLimits whether moodle
+                      new instance job resource limits are added. Default: false'
+                    type: boolean
+                  moodleNewInstanceJobResourceLimitsCpu:
+                    description: MoodleNewInstanceJobResourceLimitsCpu set moodle
+                      new instance job resource limits cpu
+                    maxLength: 20
+                    type: string
+                  moodleNewInstanceJobResourceLimitsMemory:
+                    description: MoodleNewInstanceJobResourceLimitsMemory set moodle
+                      new instance job resource limits memory
+                    maxLength: 20
+                    type: string
+                  moodleNewInstanceJobResourceRequests:
+                    description: 'MoodleNewInstanceJobResourceRequests whether moodle
+                      new instance job resource requests are added. Default: true'
+                    type: boolean
+                  moodleNewInstanceJobResourceRequestsCpu:
+                    description: MoodleNewInstanceJobResourceRequestsCpu set moodle
+                      new instance job resource requests cpu
+                    maxLength: 20
+                    type: string
+                  moodleNewInstanceJobResourceRequestsMemory:
+                    description: MoodleNewInstanceJobResourceRequestsMemory set moodle
+                      new instance job resource requests memory
+                    maxLength: 20
                     type: string
                   moodleNewInstanceShortname:
                     maxLength: 100
@@ -360,6 +419,34 @@ spec:
                     maxLength: 100
                     minLength: 2
                     type: string
+                  moodleUpdateJobResourceLimits:
+                    description: 'MoodleUpdateJobResourceLimits whether moodle update
+                      job resource limits are added. Default: false'
+                    type: boolean
+                  moodleUpdateJobResourceLimitsCpu:
+                    description: MoodleUpdateJobResourceLimitsCpu set moodle update
+                      job resource limits cpu
+                    maxLength: 20
+                    type: string
+                  moodleUpdateJobResourceLimitsMemory:
+                    description: MoodleUpdateJobResourceLimitsMemory set moodle cronjob
+                      resource limits memory
+                    maxLength: 20
+                    type: string
+                  moodleUpdateJobResourceRequests:
+                    description: 'MoodleUpdateJobResourceRequests whether moodle update
+                      job resource requests are added. Default: true'
+                    type: boolean
+                  moodleUpdateJobResourceRequestsCpu:
+                    description: MoodleUpdateJobResourceRequestsCpu set moodle update
+                      job resource requests cpu
+                    maxLength: 20
+                    type: string
+                  moodleUpdateJobResourceRequestsMemory:
+                    description: MoodleUpdateJobResourceRequestsMemory set moodle
+                      update job resource requests memory
+                    maxLength: 20
+                    type: string
                   moodleUpdateMajor:
                     description: 'MoodleUpdateMajor whether major updates are automatically
                       applied. Default: false'
@@ -377,6 +464,32 @@ spec:
                     type: string
                   nginxIngressAnnotations:
                     description: NginxIngressAnnotations defines nginx annotations
+                    type: string
+                  nginxResourceLimits:
+                    description: 'NginxResourceLimits whether nginx resource limits
+                      are added. Default: false'
+                    type: boolean
+                  nginxResourceLimitsCpu:
+                    description: NginxResourceLimitsCpu set nginx resource limits
+                      cpu
+                    maxLength: 20
+                    type: string
+                  nginxResourceLimitsMemory:
+                    description: NginxResourceLimitsMemory set nginx resource limits
+                      memory
+                    maxLength: 20
+                    type: string
+                  nginxResourceRequests:
+                    description: 'NginxResourceRequests whether nginx resource requests
+                      are added. Default: true'
+                    type: boolean
+                  nginxResourceRequestsCpu:
+                    description: NginxResourceRequestsCpu set nginx resource requests
+                      cpu
+                    type: string
+                  nginxResourceRequestsMemory:
+                    description: NginxResourceRequestsMemory set nginx resource requests
+                      memory
                     type: string
                   nginxSize:
                     description: NginxSize defines nginx number of replicas between
@@ -431,24 +544,52 @@ spec:
                     description: PhpFpmExtraConfig contains extra php-fpm config
                     type: string
                   phpFpmImage:
-                    description: PhpFpmImage defines image for Phpfpm container
+                    description: PhpFpmImage defines image for php-fpm container
                     maxLength: 255
                     type: string
                   phpFpmIngressAnnotations:
-                    description: PhpFpmIngressAnnotations defines Phpfpm annotations
+                    description: PhpFpmIngressAnnotations defines php-fpm annotations
                     type: string
                   phpFpmPhpExtraIni:
                     description: PhpFpmPhpExtraIni contains extra php ini config
                     type: string
+                  phpFpmResourceLimits:
+                    description: 'PhpFpmResourceLimits whether php-fpm resource limits
+                      are added. Default: false'
+                    type: boolean
+                  phpFpmResourceLimitsCpu:
+                    description: PhpFpmResourceLimitsCpu set php-fpm resource limits
+                      cpu
+                    maxLength: 20
+                    type: string
+                  phpFpmResourceLimitsMemory:
+                    description: PhpFpmResourceLimitsMemory set php-fpm resource limits
+                      memory
+                    maxLength: 20
+                    type: string
+                  phpFpmResourceRequests:
+                    description: 'PhpFpmResourceRequests whether php-fpm resource
+                      requests are added. Default: true'
+                    type: boolean
+                  phpFpmResourceRequestsCpu:
+                    description: PhpFpmResourceRequestsCpu set php-fpm resource requests
+                      cpu
+                    maxLength: 20
+                    type: string
+                  phpFpmResourceRequestsMemory:
+                    description: PhpFpmResourceRequestsMemory set php-fpm resource
+                      requests memory
+                    maxLength: 20
+                    type: string
                   phpFpmSize:
-                    description: PhpFpmSize defines Phpfpm number of replicas between
+                    description: PhpFpmSize defines php-fpm number of replicas between
                       0 and 255
                     format: int32
                     maximum: 255
                     minimum: 0
                     type: integer
                   phpFpmTolerations:
-                    description: PhpFpmTolerations defines any tolerations for Phpfpm
+                    description: PhpFpmTolerations defines any tolerations for php-fpm
                       pods.
                     items:
                       description: The pod this Toleration is attached to tolerates
@@ -492,6 +633,39 @@ spec:
                   routineStatusCrNotify:
                     description: RoutineStatusCrNotify specification using ansible
                       URI module
+                    properties:
+                      headers:
+                        description: Headers used when notifying status to an endpoint
+                        type: object
+                      method:
+                        description: Method The HTTP method of the request or response.
+                        enum:
+                        - GET
+                        - POST
+                        - PUT
+                        - PATCH
+                        - DELETE
+                        type: string
+                      statusCode:
+                        description: StatusCode A list of valid, numeric, HTTP status
+                          codes that signifies success of the request.
+                        items:
+                          type: integer
+                        type: array
+                      url:
+                        description: HTTP or HTTPS URL in the form (http|https)://host.domain[:port]/path
+                        type: string
+                      uuid:
+                        description: UUID used when notifying status to an endpoint
+                        maxLength: 36
+                        minLength: 36
+                        type: string
+                    required:
+                    - url
+                    type: object
+                  routineStatusCrNotifyTermination:
+                    description: RoutineStatusCrNotifyTermination specification using
+                      ansible URI module
                     properties:
                       headers:
                         description: Headers used when notifying status to an endpoint
@@ -571,13 +745,13 @@ spec:
                     description: GaneshaPvcDataAutoexpansion enables autoexpansion
                     type: boolean
                   ganeshaPvcDataAutoexpansionCapGib:
-                    description: GaneshaPvcDataAutoexpansionCapGib defines limit for autoexpansion
-                      increments
+                    description: GaneshaPvcDataAutoexpansionCapGib defines limit for
+                      autoexpansion increments
                     format: int32
                     type: integer
                   ganeshaPvcDataAutoexpansionIncrementGib:
-                    description: GaneshaPvcDataAutoexpansionIncrementGib defines Gib to
-                      increment
+                    description: GaneshaPvcDataAutoexpansionIncrementGib defines Gib
+                      to increment
                     format: int32
                     type: integer
                   ganeshaPvcDataSize:
@@ -601,29 +775,31 @@ spec:
                     minLength: 2
                     type: string
                   ganeshaResourceLimits:
-                    description: GaneshaResourceLimits whether resource limits are
-                      set
+                    description: 'GaneshaResourceLimits whether ganesha resource limits
+                      are added. Default: false'
                     type: boolean
                   ganeshaResourceLimitsCpu:
-                    description: GaneshaResourceLimitsCpu set cpu for resource limits
+                    description: GaneshaResourceLimitsCpu set ganesha resource limits
+                      cpu
                     maxLength: 20
                     type: string
                   ganeshaResourceLimitsMemory:
-                    description: GaneshaResourceLimitsMemory set memory for resource
-                      limits
+                    description: GaneshaResourceLimitsMemory set ganesha resource
+                      limits memory
                     maxLength: 20
                     type: string
                   ganeshaResourceRequests:
-                    description: GaneshaResourceRequests whether resource requests
-                      are set
+                    description: 'GaneshaResourceRequests whether ganesha resource
+                      requests are added. Default: true'
                     type: boolean
                   ganeshaResourceRequestsCpu:
-                    description: GaneshaResourceRequestsCpu set cpu for resource requests
+                    description: GaneshaResourceRequestsCpu set ganesha resource requests
+                      cpu
                     maxLength: 20
                     type: string
                   ganeshaResourceRequestsMemory:
-                    description: GaneshaResourceRequestsMemory set memory for resource
-                      requests
+                    description: GaneshaResourceRequestsMemory set ganesha resource
+                      requests memory
                     maxLength: 20
                     type: string
                   ganeshaTolerations:
@@ -680,31 +856,31 @@ spec:
                       config
                     type: string
                   pgbouncerReadonlyResourceLimits:
-                    description: PgbouncerReadonlyResourceLimits whether resource
-                      limits are set
+                    description: 'PgbouncerReadonlyResourceLimits whether pgbouncer
+                      readonly resource limits are added. Default: false'
                     type: boolean
                   pgbouncerReadonlyResourceLimitsCpu:
-                    description: PgbouncerReadonlyResourceLimitsCpu set cpu for resource
-                      limits
+                    description: PgbouncerReadonlyResourceLimitsCpu set pgbouncer
+                      readonly resource limits cpu
                     maxLength: 20
                     type: string
                   pgbouncerReadonlyResourceLimitsMemory:
-                    description: PgbouncerReadonlyResourceLimitsMemory set memory
-                      for resource limits
+                    description: PgbouncerReadonlyResourceLimitsMemory set pgbouncer
+                      readonly resource limits memory
                     maxLength: 20
                     type: string
                   pgbouncerReadonlyResourceRequests:
-                    description: PgbouncerReadonlyResourceRequests whether resource
-                      requests are set
+                    description: 'PgbouncerReadonlyResourceRequests whether pgbouncer
+                      readonly resource requests are added. Default: true'
                     type: boolean
                   pgbouncerReadonlyResourceRequestsCpu:
-                    description: PgbouncerReadonlyResourceRequestsCpu set cpu for
-                      resource requests
+                    description: PgbouncerReadonlyResourceRequestsCpu set pgbouncer
+                      readonly resource requests cpu
                     maxLength: 20
                     type: string
                   pgbouncerReadonlyResourceRequestsMemory:
-                    description: PgbouncerReadonlyResourceRequestsMemory set memory
-                      for resource requests
+                    description: PgbouncerReadonlyResourceRequestsMemory set pgbouncer
+                      readonly resource requests memory
                     maxLength: 20
                     type: string
                   pgbouncerReadonlyTolerations:
@@ -750,30 +926,31 @@ spec:
                       type: object
                     type: array
                   pgbouncerResourceLimits:
-                    description: PgbouncerResourceLimits whether resource limits are
-                      set
+                    description: 'PgbouncerResourceLimits whether pgbouncer resource
+                      limits are added. Default: false'
                     type: boolean
                   pgbouncerResourceLimitsCpu:
-                    description: PgbouncerResourceLimitsCpu set cpu for resource limits
+                    description: PgbouncerResourceLimitsCpu set pgbouncer resource
+                      limits cpu
                     maxLength: 20
                     type: string
                   pgbouncerResourceLimitsMemory:
-                    description: PgbouncerResourceLimitsMemory set memory for resource
-                      limits
+                    description: PgbouncerResourceLimitsMemory set pgbouncer resource
+                      limits memory
                     maxLength: 20
                     type: string
                   pgbouncerResourceRequests:
-                    description: PgbouncerResourceRequests whether resource requests
-                      are set
+                    description: 'PgbouncerResourceRequests whether pgbouncer resource
+                      requests are added. Default: true'
                     type: boolean
                   pgbouncerResourceRequestsCpu:
-                    description: PgbouncerResourceRequestsCpu set cpu for resource
-                      requests
+                    description: PgbouncerResourceRequestsCpu set pgbouncer resource
+                      requests cpu
                     maxLength: 20
                     type: string
                   pgbouncerResourceRequestsMemory:
-                    description: PgbouncerResourceRequestsMemory set memory for resource
-                      requests
+                    description: PgbouncerResourceRequestsMemory set pgbouncer resource
+                      requests memory
                     maxLength: 20
                     type: string
                   pgbouncerTolerations:
@@ -871,31 +1048,31 @@ spec:
                     minLength: 2
                     type: string
                   postgresReadreplicasResourceLimits:
-                    description: PostgresReadreplicasResourceLimits whether resource
-                      limits are set
+                    description: 'PostgresReadreplicasResourceLimits whether postgres
+                      readreplicas resource limits are added. Default: false'
                     type: boolean
                   postgresReadreplicasResourceLimitsCpu:
-                    description: PostgresReadreplicasResourceLimitsCpu set cpu for
-                      resource limits
+                    description: PostgresReadreplicasResourceLimitsCpu set postgres
+                      readreplicas resource limits cpu
                     maxLength: 20
                     type: string
                   postgresReadreplicasResourceLimitsMemory:
-                    description: PostgresReadreplicasResourceLimitsMemory set memory
-                      for resource limits
+                    description: PostgresReadreplicasResourceLimitsMemory set postgres
+                      readreplicas resource limits memory
                     maxLength: 20
                     type: string
                   postgresReadreplicasResourceRequests:
-                    description: PostgresReadreplicasResourceRequests whether resource
-                      requests are set
+                    description: 'PostgresReadreplicasResourceRequests whether postgres
+                      readreplicas resource requests are added. Default: true'
                     type: boolean
                   postgresReadreplicasResourceRequestsCpu:
-                    description: PostgresReadreplicasResourceRequestsCpu set cpu for
-                      resource requests
+                    description: PostgresReadreplicasResourceRequestsCpu set postgres
+                      readreplicas resource requests cpu
                     maxLength: 20
                     type: string
                   postgresReadreplicasResourceRequestsMemory:
-                    description: PostgresReadreplicasResourceRequestsMemory set memory
-                      for resource requests
+                    description: PostgresReadreplicasResourceRequestsMemory set postgres
+                      readreplicas resource requests memory
                     maxLength: 20
                     type: string
                   postgresReadreplicasSize:
@@ -946,30 +1123,31 @@ spec:
                       type: object
                     type: array
                   postgresResourceLimits:
-                    description: PostgresResourceLimits whether resource limits are
-                      set
+                    description: 'PostgresResourceLimits whether postgres resource
+                      limits are added. Default: false'
                     type: boolean
                   postgresResourceLimitsCpu:
-                    description: PostgresResourceLimitsCpu set cpu for resource limits
+                    description: PostgresResourceLimitsCpu set postgres resource limits
+                      cpu
                     maxLength: 20
                     type: string
                   postgresResourceLimitsMemory:
-                    description: PostgresResourceLimitsMemory set memory for resource
-                      limits
+                    description: PostgresResourceLimitsMemory set postgres resource
+                      limits memory
                     maxLength: 20
                     type: string
                   postgresResourceRequests:
-                    description: PostgresResourceRequests whether resource requests
-                      are set
+                    description: 'PostgresResourceRequests whether postgres resource
+                      requests are added. Default: true'
                     type: boolean
                   postgresResourceRequestsCpu:
-                    description: PostgresResourceRequestsCpu set cpu for resource
-                      requests
+                    description: PostgresResourceRequestsCpu set postgres resource
+                      requests cpu
                     maxLength: 20
                     type: string
                   postgresResourceRequestsMemory:
-                    description: PostgresResourceRequestsMemory set memory for resource
-                      requests
+                    description: PostgresResourceRequestsMemory set postgres resource
+                      requests memory
                     maxLength: 20
                     type: string
                   postgresSize:
@@ -1020,7 +1198,7 @@ spec:
                     type: array
                 type: object
             required:
-            - m4eSpec
+            - moodleSpec
             type: object
           status:
             description: FlavorStatus defines the observed state of Flavor

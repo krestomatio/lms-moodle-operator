@@ -125,15 +125,15 @@ func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err er
 	log := log.FromContext(ctx)
 	log.Info("Finalizing")
 
-	// Delete m4e and inmediately requeue in order to wait for it to be completely be removed.
+	// Delete moodle and inmediately requeue in order to wait for it to be completely be removed.
 	// By doing so, any dependant CR removal will be done after, and removal
 	// conflicts will be avoided
-	log.Info("Deleting M4e", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
-	if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.m4e); err == nil {
-		log.V(1).Info("Set for requeue after M4e deletion", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
+	log.Info("Deleting Moodle", "Moodle.Namespace", r.siteCtx.moodle.GetNamespace(), "Moodle.Name", r.siteCtx.moodle.GetName())
+	if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.moodle); err == nil {
+		log.V(1).Info("Set for requeue after Moodle deletion", "Moodle.Namespace", r.siteCtx.moodle.GetNamespace(), "Moodle.Name", r.siteCtx.moodle.GetName())
 		return true, nil
 	} else if !errors.IsNotFound(err) {
-		log.Error(err, "M4e not deleted", "M4e.Namespace", r.siteCtx.m4e.GetNamespace(), "M4e.Name", r.siteCtx.m4e.GetName())
+		log.Error(err, "Moodle not deleted", "Moodle.Namespace", r.siteCtx.moodle.GetNamespace(), "Moodle.Name", r.siteCtx.moodle.GetName())
 		return false, err
 	}
 
@@ -219,16 +219,16 @@ func (r *SiteReconciler) updateSiteState(ctx context.Context) error {
 		return readyConditionErr
 	}
 
-	// get M4e ready condition
-	m4eReadyCondition, m4eReadyConditionFound, m4eReadyConditionErr := getConditionByType(r.siteCtx.site, M4eReadyConditionType)
+	// get Moodle ready condition
+	moodleReadyCondition, moodleReadyConditionFound, moodleReadyConditionErr := getConditionByType(r.siteCtx.site, MoodleReadyConditionType)
 
-	if m4eReadyConditionErr != nil {
-		log.Error(m4eReadyConditionErr, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
-		return m4eReadyConditionErr
+	if moodleReadyConditionErr != nil {
+		log.Error(moodleReadyConditionErr, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
+		return moodleReadyConditionErr
 	}
 
-	if readyConditionFound && m4eReadyConditionFound {
-		state = r.setSiteState(readyCondition, m4eReadyCondition)
+	if readyConditionFound && moodleReadyConditionFound {
+		state = r.setSiteState(readyCondition, moodleReadyCondition)
 	} else {
 		state = string(m4ev1alpha1.SettingUpState)
 	}
@@ -286,28 +286,28 @@ func (r *FlavorReconciler) updateFlavorState(ctx context.Context) error {
 
 // setSiteState defines Site state value from ready condition
 // return state string
-func (r *SiteReconciler) setSiteState(readyCondition map[string]interface{}, m4eReadyCondition map[string]interface{}) string {
+func (r *SiteReconciler) setSiteState(readyCondition map[string]interface{}, moodleReadyCondition map[string]interface{}) string {
 	status := readyCondition["status"]
-	m4eStatus := m4eReadyCondition["status"]
-	m4eReason := m4eReadyCondition["reason"]
+	moodleStatus := moodleReadyCondition["status"]
+	moodleReason := moodleReadyCondition["reason"]
 
 	// Terminating
 	if r.siteCtx.markedToBeDeleted {
 		return string(m4ev1alpha1.TerminatingState)
 	}
 
-	if status == "False" || m4eStatus == "False" {
+	if status == "False" || moodleStatus == "False" {
 		// Failed
-		if m4eReason == "Error" {
+		if moodleReason == "Error" {
 			return string(m4ev1alpha1.FailedState)
 		}
 		// Creating
-		if m4eReason == "NotInstantiated" || m4eReason == "Instantiated" || m4eReason == "NotCreated" {
+		if moodleReason == "NotInstantiated" || moodleReason == "Instantiated" || moodleReason == "NotCreated" {
 			return string(m4ev1alpha1.CreatingState)
 		}
 	}
 	// Ready
-	if m4eStatus == "True" {
+	if moodleStatus == "True" {
 		return string(m4ev1alpha1.ReadyState)
 	}
 
@@ -315,16 +315,16 @@ func (r *SiteReconciler) setSiteState(readyCondition map[string]interface{}, m4e
 }
 
 // setNotifyUUID defines site uuid if notifying status to an endpoint
-// Should be used once combinedM4eSpec is set
+// Should be used once combinedMoodleSpec is set
 // By default, site name is used as UUID
 func (r *SiteReconciler) setNotifyUUID() error {
 	// whether it has to notify status to a url
-	_, m4eSiteRoutineStatusCrNotifyFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "routineStatusCrNotify")
-	if m4eSiteRoutineStatusCrNotifyFound {
-		_, m4eSiteRoutineStatusCrNotifyUuidFound, _ := unstructured.NestedMap(r.siteCtx.combinedM4eSpec, "routineStatusCrNotify", "uuid")
-		if !m4eSiteRoutineStatusCrNotifyUuidFound {
+	_, moodleSiteRoutineStatusCrNotifyFound, _ := unstructured.NestedMap(r.siteCtx.combinedMoodleSpec, "routineStatusCrNotify")
+	if moodleSiteRoutineStatusCrNotifyFound {
+		_, moodleSiteRoutineStatusCrNotifyUuidFound, _ := unstructured.NestedMap(r.siteCtx.combinedMoodleSpec, "routineStatusCrNotify", "uuid")
+		if !moodleSiteRoutineStatusCrNotifyUuidFound {
 			// set uuid to notify about
-			if err := unstructured.SetNestedField(r.siteCtx.combinedM4eSpec, r.siteCtx.name, "routineStatusCrNotify", "uuid"); err != nil {
+			if err := unstructured.SetNestedField(r.siteCtx.combinedMoodleSpec, r.siteCtx.name, "routineStatusCrNotify", "uuid"); err != nil {
 				return err
 			}
 		}

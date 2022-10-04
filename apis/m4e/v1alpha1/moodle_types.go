@@ -20,8 +20,8 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-// M4eSpec defines the desired state of M4e
-type M4eSpec struct {
+// MoodleSpec defines the desired state of Moodle
+type MoodleSpec struct {
 	// MoodleImage defines image for moodle container
 	// +kubebuilder:validation:MaxLength=255
 	// +optional

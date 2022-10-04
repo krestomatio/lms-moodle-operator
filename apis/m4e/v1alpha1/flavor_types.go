@@ -28,8 +28,8 @@ type FlavorSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// M4eSpec defines M4e spec
-	M4eSpec M4eSpec `json:"m4eSpec"`
+	// MoodleSpec defines Moodle spec
+	MoodleSpec MoodleSpec `json:"moodleSpec"`
 
 	// PostgresSpec defines Postgres spec to deploy optionally
 	// +optional

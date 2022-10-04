@@ -55,7 +55,7 @@ rules:
 - apiGroups:
   - m4e.krestomat.io
   resources:
-  - m4es
+  - moodles
   verbs:
   - create
   - delete

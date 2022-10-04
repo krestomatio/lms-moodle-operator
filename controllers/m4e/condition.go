@@ -11,7 +11,7 @@ import (
 
 const (
 	ReadyConditionType         string = "Ready"
-	M4eReadyConditionType      string = "M4eReady"
+	MoodleReadyConditionType   string = "MoodleReady"
 	NfsReadyConditionType      string = "NfsReady"
 	KeydbReadyConditionType    string = "KeydbReady"
 	PostgresReadyConditionType string = "PostgresReady"
@@ -54,10 +54,10 @@ func (r *SiteReconciler) SetReadyCondition(ctx context.Context, site *unstructur
 	}
 }
 
-// SetM4eReadyCondition set ready condition depending on ready status of M4e
+// SetMoodleReadyCondition set ready condition depending on ready status of Moodle
 // and returns bool flag which indicates ready condition status of that dependant object
-func (r *SiteReconciler) SetM4eReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
-	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, M4eReadyConditionType, ReadyConditionType)
+func (r *SiteReconciler) SetMoodleReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
+	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, MoodleReadyConditionType, ReadyConditionType)
 }
 
 // SetPostgresReadyCondition set ready condition depending on ready status of Postgres
