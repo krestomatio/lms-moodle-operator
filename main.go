@@ -42,10 +42,10 @@ var (
 	setupLog = ctrl.Log.WithName("setup")
 
 	// types from ansible operators
-	m4eGvk = schema.GroupVersionKind{
+	moodleGvk = schema.GroupVersionKind{
 		Group:   "m4e.krestomat.io",
 		Version: "v1alpha1",
-		Kind:    "M4e",
+		Kind:    "Moodle",
 	}
 	nfsGvk = schema.GroupVersionKind{
 		Group:   "nfs.krestomat.io",
@@ -104,7 +104,7 @@ func main() {
 	if err = (&m4econtrollers.SiteReconciler{
 		Client:      mgr.GetClient(),
 		Scheme:      mgr.GetScheme(),
-		M4eGVK:      m4eGvk,
+		MoodleGVK:   moodleGvk,
 		NfsGVK:      nfsGvk,
 		KeydbGVK:    keydbGvk,
 		PostgresGVK: postgresGvk,

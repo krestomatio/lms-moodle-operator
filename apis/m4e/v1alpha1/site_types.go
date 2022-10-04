@@ -28,14 +28,14 @@ type SiteSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Flavor defines what M4e flavor to use
+	// Flavor defines what Moodle flavor to use
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=255
 	Flavor string `json:"flavor"`
 
-	// M4eSpec defines M4e spec to override Flavor
+	// MoodleSpec defines Moodle spec to override Flavor
 	// +optional
-	M4eSpec M4eSpec `json:"m4eSpec,omitempty"`
+	MoodleSpec MoodleSpec `json:"moodleSpec,omitempty"`
 
 	// NfsSpec defines NFS Ganesha server spec to override Flavor
 	// +optional
@@ -96,7 +96,7 @@ const (
 //+kubebuilder:printcolumn:name="STATUS",type="string",description="Site status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
 //+kubebuilder:printcolumn:name="SINCE",type="date",JSONPath=".status.conditions[?(@.type=='Ready')].lastTransitionTime",description="Time of latest transition",priority=0
 //+kubebuilder:printcolumn:name="FLAVOR",type="string",description="Flavor name",JSONPath=".spec.flavor",priority=0
-//+kubebuilder:printcolumn:name="HOST",type="string",JSONPath=".spec.m4eSpec.moodleHost",description="Site URL",priority=0
+//+kubebuilder:printcolumn:name="HOST",type="string",JSONPath=".spec.moodleSpec.moodleHost",description="Site URL",priority=0
 
 // Site is the Schema for the sites API
 type Site struct {

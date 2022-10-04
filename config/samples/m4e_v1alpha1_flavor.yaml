@@ -3,7 +3,7 @@ kind: Flavor
 metadata:
   name: flavor-sample
 spec:
-  m4eSpec:
+  moodleSpec:
     ## Moodle new instance
     moodleNewInstanceAgreeLicense: true
     moodleNewInstanceFullname: Demo site
@@ -50,17 +50,17 @@ spec:
     ## Set export folder permissions to 775
     ganeshaExportMode: "0755"
 
-    # Autoexpansion: if storage available is less than 20% or 'ganeshaPvcAutoexpansionIncrementGib', adjust PVC storage size according to 'ganeshaPvcAutoexpansionIncrementGib' and 'ganeshaPvcAutoexpansionCapGib':
+    # Autoexpansion: if storage available is less than 20% or 'ganeshaPvcDataAutoexpansionIncrementGib', adjust PVC storage size according to 'ganeshaPvcDataAutoexpansionIncrementGib' and 'ganeshaPvcDataAutoexpansionCapGib':
     # * Kubernetes cluster and PVC must support expansion of volumes
     # * In older cluster versions, pods require restart when autoexpanding if Kubernetes feature gate
     #   'ExpandInUsePersistentVolumes' is false. See:
     #   https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/
     ## Enable autoexpansion
-    # ganeshaPvcAutoexpansion: true
+    # ganeshaPvcDataAutoexpansion: true
     ## Every time autoexpansion is required, increment 1 GiB
-    # ganeshaPvcAutoexpansionIncrementGib: 1
+    # ganeshaPvcDataAutoexpansionIncrementGib: 1
     ## But no more than 5 GiB
-    # ganeshaPvcAutoexpansionCapGib: 5
+    # ganeshaPvcDataAutoexpansionCapGib: 5
 
     ## Storage class name to be used by this (NFS) Ganesha
     ganeshaPvcDataStorageClassName: standard

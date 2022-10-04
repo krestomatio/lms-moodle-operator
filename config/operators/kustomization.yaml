@@ -5,5 +5,5 @@ resources:
 - postgres
 - nfs
 - keydb
-- m4e
+- moodle
 - ../default

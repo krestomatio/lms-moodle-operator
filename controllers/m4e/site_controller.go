@@ -49,7 +49,7 @@ type SiteReconcilerContext struct {
 	hasKeydb                bool
 	hasPostgres             bool
 	markedToBeDeleted       bool
-	m4eSpecFound            bool
+	moodleSpecFound         bool
 	nfsSpecFound            bool
 	keydbSpecFound          bool
 	postgresSpecFound       bool
@@ -59,28 +59,28 @@ type SiteReconcilerContext struct {
 	name                    string
 	flavorName              string
 	namespaceName           string
-	m4eName                 string
+	moodleName              string
 	nfsName                 string
 	keydbName               string
 	postgresName            string
 	commonLabels            string
 	site                    *unstructured.Unstructured
 	flavor                  *unstructured.Unstructured
-	m4e                     *unstructured.Unstructured
+	moodle                  *unstructured.Unstructured
 	nfs                     *unstructured.Unstructured
 	keydb                   *unstructured.Unstructured
 	postgres                *unstructured.Unstructured
 	spec                    map[string]interface{}
-	m4eSpec                 map[string]interface{}
+	moodleSpec              map[string]interface{}
 	nfsSpec                 map[string]interface{}
 	keydbSpec               map[string]interface{}
 	postgresSpec            map[string]interface{}
 	flavorSpec              map[string]interface{}
-	flavorM4eSpec           map[string]interface{}
+	flavorMoodleSpec        map[string]interface{}
 	flavorNfsSpec           map[string]interface{}
 	flavorKeydbSpec         map[string]interface{}
 	flavorPostgresSpec      map[string]interface{}
-	combinedM4eSpec         map[string]interface{}
+	combinedMoodleSpec      map[string]interface{}
 	combinedNfsSpec         map[string]interface{}
 	combinedKeydbSpec       map[string]interface{}
 	combinedPostgresSpec    map[string]interface{}
@@ -98,15 +98,15 @@ func (f *FlavorNotFoundError) Error() string {
 // SiteReconciler reconciles a Site object
 type SiteReconciler struct {
 	client.Client
-	Scheme                                *runtime.Scheme
-	M4eGVK, NfsGVK, KeydbGVK, PostgresGVK schema.GroupVersionKind
-	siteCtx                               SiteReconcilerContext
+	Scheme                                   *runtime.Scheme
+	MoodleGVK, NfsGVK, KeydbGVK, PostgresGVK schema.GroupVersionKind
+	siteCtx                                  SiteReconcilerContext
 }
 
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=sites,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=sites/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=m4e.krestomat.io,resources=sites/finalizers,verbs=update
-//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=m4es,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=moodles,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=nfs.krestomat.io,resources=ganeshas,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=keydb.krestomat.io,resources=keydbs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=postgres.krestomat.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
@@ -163,8 +163,8 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	}
 	// set namespace name. It must start with an alphabetic character
 	r.siteCtx.namespaceName = baseNamespace
-	// set M4e name. It must start with an alphabetic character
-	r.siteCtx.m4eName = baseName
+	// set Moodle name. It must start with an alphabetic character
+	r.siteCtx.moodleName = baseName
 	// set Postgres name. It must start with an alphabetic character
 	r.siteCtx.postgresName = baseName
 	// set NFS Ganesha server name and namespace. It must start with an alphabetic character
@@ -175,13 +175,13 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.namespace = &corev1.Namespace{}
 	r.siteCtx.namespace.SetName(r.siteCtx.namespaceName)
 	// dependant components
-	r.siteCtx.m4e = newUnstructuredObject(r.M4eGVK)
+	r.siteCtx.moodle = newUnstructuredObject(r.MoodleGVK)
 	r.siteCtx.postgres = newUnstructuredObject(r.PostgresGVK)
 	r.siteCtx.nfs = newUnstructuredObject(r.NfsGVK)
 	r.siteCtx.keydb = newUnstructuredObject(r.KeydbGVK)
 	// namespaces and names
-	r.siteCtx.m4e.SetName(r.siteCtx.m4eName)
-	r.siteCtx.m4e.SetNamespace(r.siteCtx.namespaceName)
+	r.siteCtx.moodle.SetName(r.siteCtx.moodleName)
+	r.siteCtx.moodle.SetNamespace(r.siteCtx.namespaceName)
 
 	// Fetch Site instance
 	r.siteCtx.site = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Site"))
@@ -193,7 +193,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		r.siteCtx.markedToBeDeleted = r.siteCtx.site.GetDeletionTimestamp() != nil
 	}
 	r.siteCtx.spec, _, _ = unstructured.NestedMap(r.siteCtx.site.UnstructuredContent(), "spec")
-	r.siteCtx.m4eSpec, r.siteCtx.m4eSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "m4eSpec")
+	r.siteCtx.moodleSpec, r.siteCtx.moodleSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "moodleSpec")
 	r.siteCtx.postgresSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "postgresSpec")
 	r.siteCtx.nfsSpec, r.siteCtx.nfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "nfsSpec")
 	r.siteCtx.keydbSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "keydbSpec")
@@ -210,7 +210,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	}
 
 	r.siteCtx.flavorSpec, _, _ = unstructured.NestedMap(r.siteCtx.flavor.UnstructuredContent(), "spec")
-	r.siteCtx.flavorM4eSpec, _, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "m4eSpec")
+	r.siteCtx.flavorMoodleSpec, _, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "moodleSpec")
 	r.siteCtx.flavorPostgresSpec, r.siteCtx.flavorPostgresSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "postgresSpec")
 	r.siteCtx.flavorNfsSpec, r.siteCtx.flavorNfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "nfsSpec")
 	r.siteCtx.flavorKeydbSpec, r.siteCtx.flavorKeydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "keydbSpec")
@@ -235,12 +235,12 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 
 	// Postgres kind from Postgres ansible operator
 	if r.siteCtx.hasPostgres {
-		// Set Postgres host and secret, if not already present in M4e spec
-		postgresRelatedM4eSpec := map[string]interface{}{
+		// Set Postgres host and secret, if not already present in Moodle spec
+		postgresRelatedMoodleSpec := map[string]interface{}{
 			"moodlePostgresMetaName": r.siteCtx.postgresName,
 		}
-		// Merge M4e related postgres spec with flavor M4e spec
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorM4eSpec, postgresRelatedM4eSpec); err != nil {
+		// Merge Moodle related postgres spec with flavor Moodle spec
+		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, postgresRelatedMoodleSpec); err != nil {
 			log.Error(err, "Couldn't merge spec")
 			return err
 		}
@@ -266,10 +266,10 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	// Ganesha server kind from NFS ansible operator
 	if r.siteCtx.hasNfs {
 		// Set NFS storage class name and access modes when using NFS operator
-		nfsRelatedM4eSpec := map[string]interface{}{
+		nfsRelatedMoodleSpec := map[string]interface{}{
 			"moodleNfsMetaName": r.siteCtx.nfsName,
 		}
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorM4eSpec, nfsRelatedM4eSpec); err != nil {
+		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, nfsRelatedMoodleSpec); err != nil {
 			log.Error(err, "Couldn't merge spec")
 			return err
 		}
@@ -294,12 +294,12 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 
 	// Keydb kind from Keydb ansible operator
 	if r.siteCtx.hasKeydb {
-		// Set Keydb host and secret, if not already present in M4e spec
-		keydbRelatedM4eSpec := map[string]interface{}{
+		// Set Keydb host and secret, if not already present in Moodle spec
+		keydbRelatedMoodleSpec := map[string]interface{}{
 			"moodleKeydbMetaName": r.siteCtx.keydbName,
 		}
-		// Merge M4e related keydb spec with flavor M4e spec
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorM4eSpec, keydbRelatedM4eSpec); err != nil {
+		// Merge Moodle related keydb spec with flavor Moodle spec
+		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, keydbRelatedMoodleSpec); err != nil {
 			log.Error(err, "Couldn't merge spec")
 			return err
 		}
@@ -322,23 +322,23 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		r.siteCtx.combinedKeydbSpec = r.siteCtx.flavorKeydbSpec
 	}
 
-	// Merge M4e spec if set on site Spec
-	if r.siteCtx.m4eSpecFound {
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorM4eSpec, r.siteCtx.m4eSpec); err != nil {
+	// Merge Moodle spec if set on site Spec
+	if r.siteCtx.moodleSpecFound {
+		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, r.siteCtx.moodleSpec); err != nil {
 			log.Error(err, "Couldn't merge spec")
 			return err
 		}
 	}
-	// Set site labels to M4e
-	flavorM4eSpecCommonLabelsString, flavorM4eSpecCommonLabelsFound, _ := unstructured.NestedString(r.siteCtx.flavorM4eSpec, "commonLabels")
-	if flavorM4eSpecCommonLabelsFound {
-		r.siteCtx.flavorM4eSpec["commonLabels"] = r.siteCtx.commonLabels + "\n" + flavorM4eSpecCommonLabelsString
+	// Set site labels to Moodle
+	flavorMoodleSpecCommonLabelsString, flavorMoodleSpecCommonLabelsFound, _ := unstructured.NestedString(r.siteCtx.flavorMoodleSpec, "commonLabels")
+	if flavorMoodleSpecCommonLabelsFound {
+		r.siteCtx.flavorMoodleSpec["commonLabels"] = r.siteCtx.commonLabels + "\n" + flavorMoodleSpecCommonLabelsString
 	} else {
-		r.siteCtx.flavorM4eSpec["commonLabels"] = r.siteCtx.commonLabels
+		r.siteCtx.flavorMoodleSpec["commonLabels"] = r.siteCtx.commonLabels
 	}
-	// save m4e spec
-	r.siteCtx.combinedM4eSpec = make(map[string]interface{})
-	r.siteCtx.combinedM4eSpec = r.siteCtx.flavorM4eSpec
+	// save moodle spec
+	r.siteCtx.combinedMoodleSpec = make(map[string]interface{})
+	r.siteCtx.combinedMoodleSpec = r.siteCtx.flavorMoodleSpec
 
 	// set UUID when it has to notify status to a url
 	if err := r.setNotifyUUID(); err != nil {
@@ -397,7 +397,7 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 	log.V(1).Info("Reconcile persist")
 
 	// Vars
-	m4eReady := false
+	moodleReady := false
 	nfsReady := !r.siteCtx.hasNfs
 	keydbReady := !r.siteCtx.hasKeydb
 	postgresReady := !r.siteCtx.hasPostgres
@@ -448,17 +448,17 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 		}
 	}
 
-	// Save M4e spec
-	r.siteCtx.m4e.Object["spec"] = r.siteCtx.combinedM4eSpec
-	// Apply M4e resource
-	if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.m4e); err != nil {
+	// Save Moodle spec
+	r.siteCtx.moodle.Object["spec"] = r.siteCtx.combinedMoodleSpec
+	// Apply Moodle resource
+	if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.moodle); err != nil {
 		return false, err
 	}
-	// Update site status about M4e
-	m4eReady = r.SetM4eReadyCondition(ctx, r.siteCtx.site, r.siteCtx.m4e)
+	// Update site status about Moodle
+	moodleReady = r.SetMoodleReadyCondition(ctx, r.siteCtx.site, r.siteCtx.moodle)
 
 	// Set site ready contidion status and state
-	if nfsReady && m4eReady && keydbReady && postgresReady {
+	if nfsReady && moodleReady && keydbReady && postgresReady {
 		r.SetReadyCondition(ctx, r.siteCtx.site)
 	}
 
@@ -477,8 +477,8 @@ func ignoreDeletionPredicate() predicate.Predicate {
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	mgr.GetScheme().AddKnownTypeWithName(r.M4eGVK, &unstructured.Unstructured{})
-	metav1.AddToGroupVersion(mgr.GetScheme(), r.M4eGVK.GroupVersion())
+	mgr.GetScheme().AddKnownTypeWithName(r.MoodleGVK, &unstructured.Unstructured{})
+	metav1.AddToGroupVersion(mgr.GetScheme(), r.MoodleGVK.GroupVersion())
 
 	// Add spec.flavor index
 	if err := mgr.GetFieldIndexer().IndexField(context.Background(), &m4ev1alpha1.Site{}, FlavorNameIndex, func(obj client.Object) []string {
@@ -494,7 +494,7 @@ func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&m4ev1alpha1.Site{}).
 		WithEventFilter(ignoreDeletionPredicate()).
-		Owns(newUnstructuredObject(r.M4eGVK)).
+		Owns(newUnstructuredObject(r.MoodleGVK)).
 		Owns(newUnstructuredObject(r.NfsGVK)).
 		Owns(newUnstructuredObject(r.KeydbGVK)).
 		Owns(newUnstructuredObject(r.PostgresGVK)).

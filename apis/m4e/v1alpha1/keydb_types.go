@@ -54,30 +54,30 @@ type KeydbSpec struct {
 	// +optional
 	KeydbPvcDataStorageClassName string `json:"keydbPvcDataStorageClassName,omitempty"`
 
-	// KeydbResourceRequests whether resource requests are set
+	// KeydbResourceRequests whether keydb resource requests are added. Default: true
 	// +optional
 	KeydbResourceRequests bool `json:"keydbResourceRequests,omitempty"`
 
-	// KeydbResourceRequestsCpu set cpu for resource requests
+	// KeydbResourceRequestsCpu set keydb resource requests cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	KeydbResourceRequestsCpu string `json:"keydbResourceRequestsCpu,omitempty"`
 
-	// KeydbResourceRequestsMemory set memory for resource requests
+	// KeydbResourceRequestsMemory set keydb resource requests memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	KeydbResourceRequestsMemory string `json:"keydbResourceRequestsMemory,omitempty"`
 
-	// KeydbResourceLimits whether resource limits are set
+	// KeydbResourceLimits whether keydb resource limits are added. Default: false
 	// +optional
 	KeydbResourceLimits bool `json:"keydbResourceLimits,omitempty"`
 
-	// KeydbResourceLimitsCpu set cpu for resource limits
+	// KeydbResourceLimitsCpu set keydb resource limits cpu
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	KeydbResourceLimitsCpu string `json:"keydbResourceLimitsCpu,omitempty"`
 
-	// KeydbResourceLimitsMemory set memory for resource limits
+	// KeydbResourceLimitsMemory set keydb resource limits memory
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	KeydbResourceLimitsMemory string `json:"keydbResourceLimitsMemory,omitempty"`
