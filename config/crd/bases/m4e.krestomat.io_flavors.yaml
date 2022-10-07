@@ -637,6 +637,10 @@ spec:
                       headers:
                         description: Headers used when notifying status to an endpoint
                         type: object
+                      jwtSecretEnvName:
+                        description: JwtSecretEnvName environment variable name that
+                          holds secret to generate jwt tokens
+                        type: object
                       method:
                         description: Method The HTTP method of the request or response.
                         enum:
@@ -669,6 +673,10 @@ spec:
                     properties:
                       headers:
                         description: Headers used when notifying status to an endpoint
+                        type: object
+                      jwtSecretEnvName:
+                        description: JwtSecretEnvName environment variable name that
+                          holds secret to generate jwt tokens
                         type: object
                       method:
                         description: Method The HTTP method of the request or response.
