@@ -441,4 +441,7 @@ type RoutineStatusCrNotify struct {
 	// Headers used when notifying status to an endpoint
 	// +optional
 	Headers RoutineStatusCrNotifyHeaders `json:"headers,omitempty"`
+	// JwtSecretEnvName environment variable name that holds secret to generate jwt tokens
+	// +optional
+	JwtSecretEnvName RoutineStatusCrNotifyHeaders `json:"jwtSecretEnvName,omitempty"`
 }
