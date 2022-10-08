@@ -34,6 +34,13 @@ type MoodleSpec struct {
 	// MoodleNewInstanceAgreeLicense whether agree to Moodle license. Required
 	MoodleNewInstanceAgreeLicense bool `json:"moodleNewInstanceAgreeLicense"`
 
+	// MoodleNewInstanceLang set moodle language code
+	// +kubebuilder:validation:Pattern="^[a-z_]+$"
+	// +kubebuilder:validation:MinLength=2
+	// +kubebuilder:validation:MaxLength=15
+	// +optional
+	MoodleNewInstanceLang string `json:"moodleNewInstanceLang"`
+
 	// +kubebuilder:validation:MaxLength=100
 	// +optional
 	MoodleNewInstanceFullname string `json:"moodleNewInstanceFullname,omitempty"`

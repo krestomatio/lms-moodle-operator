@@ -328,6 +328,12 @@ spec:
                       new instance job resource requests memory
                     maxLength: 20
                     type: string
+                  moodleNewInstanceLang:
+                    description: MoodleNewInstanceLang set moodle language code
+                    maxLength: 15
+                    minLength: 2
+                    pattern: ^[a-z_]+$
+                    type: string
                   moodleNewInstanceShortname:
                     maxLength: 100
                     type: string
