@@ -1,5 +1,5 @@
 ## Changes
 
-### New Features
+### Code Refactoring
 
-* moodle: add lang field (Job Céspedes Ortiz)
+* moodle: make moodleSpec required (Job Céspedes Ortiz)
