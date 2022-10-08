@@ -34,8 +34,7 @@ type SiteSpec struct {
 	Flavor string `json:"flavor"`
 
 	// MoodleSpec defines Moodle spec to override Flavor
-	// +optional
-	MoodleSpec MoodleSpec `json:"moodleSpec,omitempty"`
+	MoodleSpec MoodleSpec `json:"moodleSpec"`
 
 	// NfsSpec defines NFS Ganesha server spec to override Flavor
 	// +optional

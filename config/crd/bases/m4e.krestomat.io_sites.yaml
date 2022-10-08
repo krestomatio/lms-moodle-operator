@@ -879,6 +879,7 @@ spec:
                 type: object
             required:
             - flavor
+            - moodleSpec
             type: object
           status:
             description: SiteStatus defines the observed state of Site
