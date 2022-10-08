@@ -2,4 +2,4 @@
 
 ### New Features
 
-* moodle: add alternative jwt env name (Job Céspedes Ortiz)
+* moodle: add lang field (Job Céspedes Ortiz)
