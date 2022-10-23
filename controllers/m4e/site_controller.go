@@ -24,6 +24,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -31,8 +32,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/imdario/mergo"
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
@@ -475,6 +479,32 @@ func ignoreDeletionPredicate() predicate.Predicate {
 	}
 }
 
+// sitesByFlavor select sites that are using a flavor
+// It returns a list of reconcile.Request
+func (r *SiteReconciler) sitesByFlavor(flavor client.Object) []reconcile.Request {
+	SiteList := &m4ev1alpha1.SiteList{}
+
+	// Filter the list of sites by the ones using the flavor name
+	listOps := &client.ListOptions{
+		FieldSelector: fields.OneTermEqualSelector(FlavorNameIndex, flavor.GetName()),
+	}
+
+	err := r.Client.List(context.Background(), SiteList, listOps)
+	if err != nil {
+		return []reconcile.Request{}
+	}
+
+	reconcileRequests := make([]reconcile.Request, len(SiteList.Items))
+	for i, site := range SiteList.Items {
+		reconcileRequests[i] = reconcile.Request{
+			NamespacedName: types.NamespacedName{
+				Name: site.Name,
+			},
+		}
+	}
+	return reconcileRequests
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	mgr.GetScheme().AddKnownTypeWithName(r.MoodleGVK, &unstructured.Unstructured{})
@@ -498,5 +528,6 @@ func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(newUnstructuredObject(r.NfsGVK)).
 		Owns(newUnstructuredObject(r.KeydbGVK)).
 		Owns(newUnstructuredObject(r.PostgresGVK)).
+		Watches(&source.Kind{Type: &m4ev1alpha1.Flavor{}}, handler.EnqueueRequestsFromMapFunc(r.sitesByFlavor)).
 		Complete(r)
 }
