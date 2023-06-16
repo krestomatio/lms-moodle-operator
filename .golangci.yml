@@ -1,0 +1,20 @@
+run:
+  timeout: 5m
+linters:
+  enable:
+    - nakedret
+    - misspell
+    - ineffassign
+    - ginkgolinter
+    - goconst
+    # - goimports
+    - errcheck
+    # - dupl
+    - unparam
+    # - revive
+    - staticcheck
+    - unused
+    - gosimple
+    # - unconvert
+    - gocyclo
+    - gosec
