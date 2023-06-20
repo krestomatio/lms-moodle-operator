@@ -3,26 +3,28 @@ kind: TriggerConfig
 spec:
   presubmits:
   - name: k8s
+    max_concurrency: 1
     context: "k8s"
     always_run: false
     require_run: true
     trigger: (?m)^/test( all| group| k8s),?(s+|$)
     rerun_command: /test k8s
-    source: "pullrequest.yaml"
+    source: "k8s.yaml"
   - name: test
     context: "test"
     always_run: true
     trigger: (?m)^/test( all| test),?(s+|$)
     rerun_command: /test test
-    source: "go-toolset.yaml"
+    source: "go-task.yaml"
   - name: lint
     context: "lint"
     always_run: true
     trigger: (?m)^/test( all| lint),?(s+|$)
     rerun_command: /test lint
-    source: "go-toolset.yaml"
+    source: "go-task.yaml"
   postsubmits:
   - name: release
+    max_concurrency: 1
     context: "release"
     source: "release.yaml"
     branches:
