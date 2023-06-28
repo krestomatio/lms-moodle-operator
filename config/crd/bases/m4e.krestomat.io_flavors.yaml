@@ -646,7 +646,7 @@ spec:
                       jwtSecretEnvName:
                         description: JwtSecretEnvName environment variable name that
                           holds secret to generate jwt tokens
-                        type: object
+                        type: string
                       method:
                         description: Method The HTTP method of the request or response.
                         enum:
@@ -683,7 +683,7 @@ spec:
                       jwtSecretEnvName:
                         description: JwtSecretEnvName environment variable name that
                           holds secret to generate jwt tokens
-                        type: object
+                        type: string
                       method:
                         description: Method The HTTP method of the request or response.
                         enum:
