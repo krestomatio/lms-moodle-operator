@@ -118,7 +118,8 @@ type MoodleSpec struct {
 
 	// MoodleCronjobNodeSelector defines any node labels selectors for Moodle cronjob pods.
 	// +optional
-	MoodleCronjobNodeSelector *corev1.NodeSelector `json:"moodleCronjobNodeSelector,omitempty"`
+	// +mapType=atomic
+	MoodleCronjobNodeSelector map[string]string `json:"moodleCronjobNodeSelector,omitempty"`
 
 	// MoodleCronjobAffinity defines any affinity rules for Moodle cronjob pods.
 	// +optional
@@ -158,7 +159,8 @@ type MoodleSpec struct {
 
 	// MoodleUpdateJobNodeSelector defines any node labels selectors for Moodle cronjob pods.
 	// +optional
-	MoodleUpdateJobNodeSelector *corev1.NodeSelector `json:"moodleUpdateJobNodeSelector,omitempty"`
+	// +mapType=atomic
+	MoodleUpdateJobNodeSelector map[string]string `json:"moodleUpdateJobNodeSelector,omitempty"`
 
 	// MoodleUpdateJobAffinity defines any affinity rules for Moodle cronjob pods.
 	// +optional
@@ -198,7 +200,8 @@ type MoodleSpec struct {
 
 	// MoodleNewInstanceJobNodeSelector defines any node labels selectors for Moodle cronjob pods.
 	// +optional
-	MoodleNewInstanceJobNodeSelector *corev1.NodeSelector `json:"moodleNewInstanceJobNodeSelector,omitempty"`
+	// +mapType=atomic
+	MoodleNewInstanceJobNodeSelector map[string]string `json:"moodleNewInstanceJobNodeSelector,omitempty"`
 
 	// MoodleNewInstanceJobAffinity defines any affinity rules for Moodle cronjob pods.
 	// +optional
@@ -267,7 +270,8 @@ type MoodleSpec struct {
 
 	// NginxNodeSelector defines any node labels selectors for Nginx pods.
 	// +optional
-	NginxNodeSelector *corev1.NodeSelector `json:"nginxNodeSelector,omitempty"`
+	// +mapType=atomic
+	NginxNodeSelector map[string]string `json:"nginxNodeSelector,omitempty"`
 
 	// NginxAffinity defines any affinity rules for Nginx pods.
 	// +optional
@@ -324,7 +328,8 @@ type MoodleSpec struct {
 
 	// PhpFpmNodeSelector defines any node labels selectors for PhpFpm pods.
 	// +optional
-	PhpFpmNodeSelector *corev1.NodeSelector `json:"phpFpmNodeSelector,omitempty"`
+	// +mapType=atomic
+	PhpFpmNodeSelector map[string]string `json:"phpFpmNodeSelector,omitempty"`
 
 	// PhpFpmAffinity defines any affinity rules for PhpFpm pods.
 	// +optional

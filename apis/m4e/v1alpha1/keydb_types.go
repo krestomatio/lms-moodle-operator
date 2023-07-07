@@ -88,7 +88,8 @@ type KeydbSpec struct {
 
 	// KeydbNodeSelector defines any node labels selectors for Keydb pods.
 	// +optional
-	KeydbNodeSelector *corev1.NodeSelector `json:"keydbNodeSelector,omitempty"`
+	// +mapType=atomic
+	KeydbNodeSelector map[string]string `json:"keydbNodeSelector,omitempty"`
 
 	// KeydbAffinity defines any affinity rules for Keydb pods.
 	// +optional

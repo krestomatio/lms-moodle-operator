@@ -76,7 +76,8 @@ type NfsSpec struct {
 
 	// GaneshaNodeSelector defines any node labels selectors for Ganesha pods.
 	// +optional
-	GaneshaNodeSelector *corev1.NodeSelector `json:"ganeshaNodeSelector,omitempty"`
+	// +mapType=atomic
+	GaneshaNodeSelector map[string]string `json:"ganeshaNodeSelector,omitempty"`
 
 	// GaneshaAffinity defines any affinity rules for Ganesha pods.
 	// +optional
