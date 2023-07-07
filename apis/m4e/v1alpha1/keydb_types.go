@@ -85,6 +85,14 @@ type KeydbSpec struct {
 	// KeydbTolerations defines any tolerations for Keydb pods.
 	// +optional
 	KeydbTolerations []corev1.Toleration `json:"keydbTolerations,omitempty"`
+
+	// KeydbNodeSelector defines any node labels selectors for Keydb pods.
+	// +optional
+	KeydbNodeSelector *corev1.NodeSelector `json:"keydbNodeSelector,omitempty"`
+
+	// KeydbAffinity defines any affinity rules for Keydb pods.
+	// +optional
+	KeydbAffinity *corev1.Affinity `json:"keydbAffinity,omitempty"`
 }
 
 // KeydbMode describes mode keydb runs
