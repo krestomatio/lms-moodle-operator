@@ -116,6 +116,14 @@ type MoodleSpec struct {
 	// +optional
 	MoodleCronjobTolerations []corev1.Toleration `json:"moodleCronjobTolerations,omitempty"`
 
+	// MoodleCronjobNodeSelector defines any node labels selectors for Moodle cronjob pods.
+	// +optional
+	MoodleCronjobNodeSelector *corev1.NodeSelector `json:"moodleCronjobNodeSelector,omitempty"`
+
+	// MoodleCronjobAffinity defines any affinity rules for Moodle cronjob pods.
+	// +optional
+	MoodleCronjobAffinity *corev1.Affinity `json:"moodleCronjobAffinity,omitempty"`
+
 	// MoodleCronjobResourceRequests whether moodle cronjob resource requests are added. Default: true
 	// +optional
 	MoodleCronjobResourceRequests bool `json:"moodleCronjobResourceRequests,omitempty"`
@@ -144,6 +152,18 @@ type MoodleSpec struct {
 	// +optional
 	MoodleCronjobResourceLimitsMemory string `json:"moodleCronjobResourceLimitsMemory,omitempty"`
 
+	// MoodleUpdateJobTolerations defines any tolerations for Moodle cronjob pods.
+	// +optional
+	MoodleUpdateJobTolerations []corev1.Toleration `json:"moodleUpdateJobTolerations,omitempty"`
+
+	// MoodleUpdateJobNodeSelector defines any node labels selectors for Moodle cronjob pods.
+	// +optional
+	MoodleUpdateJobNodeSelector *corev1.NodeSelector `json:"moodleUpdateJobNodeSelector,omitempty"`
+
+	// MoodleUpdateJobAffinity defines any affinity rules for Moodle cronjob pods.
+	// +optional
+	MoodleUpdateJobAffinity *corev1.Affinity `json:"moodleUpdateJobAffinity,omitempty"`
+
 	// MoodleUpdateJobResourceRequests whether moodle update job resource requests are added. Default: true
 	// +optional
 	MoodleUpdateJobResourceRequests bool `json:"moodleUpdateJobResourceRequests,omitempty"`
@@ -171,6 +191,18 @@ type MoodleSpec struct {
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	MoodleUpdateJobResourceLimitsMemory string `json:"moodleUpdateJobResourceLimitsMemory,omitempty"`
+
+	// MoodleNewInstanceJobTolerations defines any tolerations for Moodle cronjob pods.
+	// +optional
+	MoodleNewInstanceJobTolerations []corev1.Toleration `json:"moodleNewInstanceJobTolerations,omitempty"`
+
+	// MoodleNewInstanceJobNodeSelector defines any node labels selectors for Moodle cronjob pods.
+	// +optional
+	MoodleNewInstanceJobNodeSelector *corev1.NodeSelector `json:"moodleNewInstanceJobNodeSelector,omitempty"`
+
+	// MoodleNewInstanceJobAffinity defines any affinity rules for Moodle cronjob pods.
+	// +optional
+	MoodleNewInstanceJobAffinity *corev1.Affinity `json:"moodleNewInstanceJobAffinity,omitempty"`
 
 	// MoodleNewInstanceJobResourceRequests whether moodle new instance job resource requests are added. Default: true
 	// +optional
@@ -233,6 +265,14 @@ type MoodleSpec struct {
 	// +optional
 	NginxTolerations []corev1.Toleration `json:"nginxTolerations,omitempty"`
 
+	// NginxNodeSelector defines any node labels selectors for Nginx pods.
+	// +optional
+	NginxNodeSelector *corev1.NodeSelector `json:"nginxNodeSelector,omitempty"`
+
+	// NginxAffinity defines any affinity rules for Nginx pods.
+	// +optional
+	NginxAffinity *corev1.Affinity `json:"nginxAffinity,omitempty"`
+
 	// NginxExtraConfig contains extra Nginx config
 	// +optional
 	NginxExtraConfig string `json:"nginxExtraConfig,omitempty"`
@@ -281,6 +321,14 @@ type MoodleSpec struct {
 	// PhpFpmTolerations defines any tolerations for php-fpm pods.
 	// +optional
 	PhpFpmTolerations []corev1.Toleration `json:"phpFpmTolerations,omitempty"`
+
+	// PhpFpmNodeSelector defines any node labels selectors for PhpFpm pods.
+	// +optional
+	PhpFpmNodeSelector *corev1.NodeSelector `json:"phpFpmNodeSelector,omitempty"`
+
+	// PhpFpmAffinity defines any affinity rules for PhpFpm pods.
+	// +optional
+	PhpFpmAffinity *corev1.Affinity `json:"phpFpmAffinity,omitempty"`
 
 	// PhpFpmPhpExtraIni contains extra php ini config
 	// +optional

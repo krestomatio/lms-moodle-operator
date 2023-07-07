@@ -86,6 +86,14 @@ type PostgresSpec struct {
 	// +optional
 	PostgresTolerations []corev1.Toleration `json:"postgresTolerations,omitempty"`
 
+	// PostgresNodeSelector defines any node labels selectors for Postgres pods.
+	// +optional
+	PostgresNodeSelector *corev1.NodeSelector `json:"postgresNodeSelector,omitempty"`
+
+	// PostgresAffinity defines any affinity rules for Postgres pods.
+	// +optional
+	PostgresAffinity *corev1.Affinity `json:"postgresAffinity,omitempty"`
+
 	// PostgresReadreplicasSize defines postgres readreplicas number of replicas
 	// +optional
 	PostgresReadreplicasSize int32 `json:"postgresReadreplicasSize,omitempty"`
@@ -138,6 +146,14 @@ type PostgresSpec struct {
 	// +optional
 	PostgresReadreplicasTolerations []corev1.Toleration `json:"postgresReadreplicasTolerations,omitempty"`
 
+	// PostgresReadreplicasNodeSelector defines any node labels selectors for PostgresReadreplicas pods.
+	// +optional
+	PostgresReadreplicasNodeSelector *corev1.NodeSelector `json:"postgresReadreplicasNodeSelector,omitempty"`
+
+	// PostgresReadreplicasAffinity defines any affinity rules for PostgresReadreplicas pods.
+	// +optional
+	PostgresReadreplicasAffinity *corev1.Affinity `json:"postgresReadreplicasAffinity,omitempty"`
+
 	// PgbouncerExtraConfig contains extra pgbouncer config
 	// +optional
 	PgbouncerExtraConfig string `json:"pgbouncerExtraConfig,omitempty"`
@@ -174,6 +190,14 @@ type PostgresSpec struct {
 	// +optional
 	PgbouncerTolerations []corev1.Toleration `json:"pgbouncerTolerations,omitempty"`
 
+	// PgbouncerNodeSelector defines any node labels selectors for Pgbouncer pods.
+	// +optional
+	PgbouncerNodeSelector *corev1.NodeSelector `json:"pgbouncerNodeSelector,omitempty"`
+
+	// PgbouncerAffinity defines any affinity rules for Pgbouncer pods.
+	// +optional
+	PgbouncerAffinity *corev1.Affinity `json:"pgbouncerAffinity,omitempty"`
+
 	// PgbouncerReadonlyExtraConfig contains extra pgbouncerReadonly config
 	// +optional
 	PgbouncerReadonlyExtraConfig string `json:"pgbouncerReadonlyExtraConfig,omitempty"`
@@ -209,6 +233,14 @@ type PostgresSpec struct {
 	// PgbouncerReadonlyTolerations defines any tolerations for PgbouncerReadonly pods.
 	// +optional
 	PgbouncerReadonlyTolerations []corev1.Toleration `json:"pgbouncerReadonlyTolerations,omitempty"`
+
+	// PgbouncerReadonlyNodeSelector defines any node labels selectors for PgbouncerReadonly pods.
+	// +optional
+	PgbouncerReadonlyNodeSelector *corev1.NodeSelector `json:"pgbouncerReadonlyNodeSelector,omitempty"`
+
+	// PgbouncerReadonlyAffinity defines any affinity rules for PgbouncerReadonly pods.
+	// +optional
+	PgbouncerReadonlyAffinity *corev1.Affinity `json:"pgbouncerReadonlyAffinity,omitempty"`
 }
 
 // PostgresMode describes mode postgres runs
