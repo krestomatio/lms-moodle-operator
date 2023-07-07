@@ -1,5 +1,9 @@
 ## Changes
 
-### Bug Fixes
+### New Features
 
-* rename type (Job Céspedes Ortiz)
+* add node placement options (Job Céspedes Ortiz)
+
+### Chores
+
+* release: 0.3.9 (krestomatio-cibot)
