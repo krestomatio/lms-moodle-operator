@@ -88,7 +88,8 @@ type PostgresSpec struct {
 
 	// PostgresNodeSelector defines any node labels selectors for Postgres pods.
 	// +optional
-	PostgresNodeSelector *corev1.NodeSelector `json:"postgresNodeSelector,omitempty"`
+	// +mapType=atomic
+	PostgresNodeSelector map[string]string `json:"postgresNodeSelector,omitempty"`
 
 	// PostgresAffinity defines any affinity rules for Postgres pods.
 	// +optional
@@ -148,7 +149,8 @@ type PostgresSpec struct {
 
 	// PostgresReadreplicasNodeSelector defines any node labels selectors for PostgresReadreplicas pods.
 	// +optional
-	PostgresReadreplicasNodeSelector *corev1.NodeSelector `json:"postgresReadreplicasNodeSelector,omitempty"`
+	// +mapType=atomic
+	PostgresReadreplicasNodeSelector map[string]string `json:"postgresReadreplicasNodeSelector,omitempty"`
 
 	// PostgresReadreplicasAffinity defines any affinity rules for PostgresReadreplicas pods.
 	// +optional
@@ -192,7 +194,8 @@ type PostgresSpec struct {
 
 	// PgbouncerNodeSelector defines any node labels selectors for Pgbouncer pods.
 	// +optional
-	PgbouncerNodeSelector *corev1.NodeSelector `json:"pgbouncerNodeSelector,omitempty"`
+	// +mapType=atomic
+	PgbouncerNodeSelector map[string]string `json:"pgbouncerNodeSelector,omitempty"`
 
 	// PgbouncerAffinity defines any affinity rules for Pgbouncer pods.
 	// +optional
@@ -236,7 +239,8 @@ type PostgresSpec struct {
 
 	// PgbouncerReadonlyNodeSelector defines any node labels selectors for PgbouncerReadonly pods.
 	// +optional
-	PgbouncerReadonlyNodeSelector *corev1.NodeSelector `json:"pgbouncerReadonlyNodeSelector,omitempty"`
+	// +mapType=atomic
+	PgbouncerReadonlyNodeSelector map[string]string `json:"pgbouncerReadonlyNodeSelector,omitempty"`
 
 	// PgbouncerReadonlyAffinity defines any affinity rules for PgbouncerReadonly pods.
 	// +optional
