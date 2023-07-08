@@ -15,6 +15,10 @@ linters:
     - gosec
     - dupl
     - unconvert
+    - gocyclo
     # - goimports
     # - revive
-    # - gocyclo
+linters-settings:
+  dupl:
+    # tokens count to trigger issue, 150 by default
+    threshold: 300
