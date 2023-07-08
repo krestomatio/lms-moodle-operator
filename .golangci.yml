@@ -7,14 +7,14 @@ linters:
     - ineffassign
     - ginkgolinter
     - goconst
-    # - goimports
     - errcheck
-    # - dupl
     - unparam
-    # - revive
     - staticcheck
     - unused
     - gosimple
-    # - unconvert
-    - gocyclo
     - gosec
+    - dupl
+    - unconvert
+    # - goimports
+    # - revive
+    # - gocyclo

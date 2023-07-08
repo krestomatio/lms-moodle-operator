@@ -24,6 +24,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
@@ -31,8 +32,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/imdario/mergo"
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
@@ -63,7 +67,6 @@ type SiteReconcilerContext struct {
 	nfsName                 string
 	keydbName               string
 	postgresName            string
-	commonLabels            string
 	site                    *unstructured.Unstructured
 	flavor                  *unstructured.Unstructured
 	moodle                  *unstructured.Unstructured
@@ -197,10 +200,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.postgresSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "postgresSpec")
 	r.siteCtx.nfsSpec, r.siteCtx.nfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "nfsSpec")
 	r.siteCtx.keydbSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "keydbSpec")
-
 	r.siteCtx.flavorName, _, _ = unstructured.NestedString(r.siteCtx.spec, "flavor")
-
-	r.siteCtx.commonLabels = m4ev1alpha1.GroupVersion.Group + "/site_name: " + r.siteCtx.name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor_name: " + r.siteCtx.flavorName
 
 	// Fetch flavor spec
 	r.siteCtx.flavor = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
@@ -223,7 +223,6 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		r.siteCtx.postgres.SetName(r.siteCtx.postgresName)
 		r.siteCtx.postgres.SetNamespace(r.siteCtx.namespaceName)
 	}
-
 	if r.siteCtx.hasNfs {
 		r.siteCtx.nfs.SetName(r.siteCtx.nfsName)
 		r.siteCtx.nfs.SetNamespace(r.siteCtx.namespaceName)
@@ -252,11 +251,12 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 			}
 		}
 		// Set site labels to postgres
-		flavorPostgresSpecCommonLabelsString, flavorPostgresSpecCommonLabelsFound, _ := unstructured.NestedString(r.siteCtx.flavorPostgresSpec, "commonLabels")
-		if flavorPostgresSpecCommonLabelsFound {
-			r.siteCtx.flavorPostgresSpec["commonLabels"] = r.siteCtx.commonLabels + "\n" + flavorPostgresSpecCommonLabelsString
-		} else {
-			r.siteCtx.flavorPostgresSpec["commonLabels"] = r.siteCtx.commonLabels
+		if err := r.CommonLabels(r.siteCtx.flavorPostgresSpec); err != nil {
+			return err
+		}
+		// set default affinity
+		if err := r.DefaultAffinityYaml(r.siteCtx.flavorPostgresSpec, "postgresAffinity"); err != nil {
+			return err
 		}
 		// save postgres spec
 		r.siteCtx.combinedPostgresSpec = make(map[string]interface{})
@@ -281,11 +281,12 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 			}
 		}
 		// Set site labels to nfs
-		flavorNfsSpecCommonLabelsString, flavorNfsSpecCommonLabelsFound, _ := unstructured.NestedString(r.siteCtx.flavorNfsSpec, "commonLabels")
-		if flavorNfsSpecCommonLabelsFound {
-			r.siteCtx.flavorNfsSpec["commonLabels"] = r.siteCtx.commonLabels + "\n" + flavorNfsSpecCommonLabelsString
-		} else {
-			r.siteCtx.flavorNfsSpec["commonLabels"] = r.siteCtx.commonLabels
+		if err := r.CommonLabels(r.siteCtx.flavorNfsSpec); err != nil {
+			return err
+		}
+		// set default affinity
+		if err := r.DefaultAffinityYaml(r.siteCtx.flavorNfsSpec, "ganeshaAffinity"); err != nil {
+			return err
 		}
 		// save nfs spec
 		r.siteCtx.combinedNfsSpec = make(map[string]interface{})
@@ -311,11 +312,12 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 			}
 		}
 		// Set site labels to keydb
-		flavorKeydbSpecCommonLabelsString, flavorKeydbSpecCommonLabelsFound, _ := unstructured.NestedString(r.siteCtx.flavorKeydbSpec, "commonLabels")
-		if flavorKeydbSpecCommonLabelsFound {
-			r.siteCtx.flavorKeydbSpec["commonLabels"] = r.siteCtx.commonLabels + "\n" + flavorKeydbSpecCommonLabelsString
-		} else {
-			r.siteCtx.flavorKeydbSpec["commonLabels"] = r.siteCtx.commonLabels
+		if err := r.CommonLabels(r.siteCtx.flavorKeydbSpec); err != nil {
+			return err
+		}
+		// set default affinity
+		if err := r.DefaultAffinityYaml(r.siteCtx.flavorKeydbSpec, "keydbAffinity"); err != nil {
+			return err
 		}
 		// save keydb spec
 		r.siteCtx.combinedKeydbSpec = make(map[string]interface{})
@@ -330,11 +332,12 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		}
 	}
 	// Set site labels to Moodle
-	flavorMoodleSpecCommonLabelsString, flavorMoodleSpecCommonLabelsFound, _ := unstructured.NestedString(r.siteCtx.flavorMoodleSpec, "commonLabels")
-	if flavorMoodleSpecCommonLabelsFound {
-		r.siteCtx.flavorMoodleSpec["commonLabels"] = r.siteCtx.commonLabels + "\n" + flavorMoodleSpecCommonLabelsString
-	} else {
-		r.siteCtx.flavorMoodleSpec["commonLabels"] = r.siteCtx.commonLabels
+	if err := r.CommonLabels(r.siteCtx.flavorMoodleSpec); err != nil {
+		return err
+	}
+	// set moodle default affinity
+	if err := r.MoodleDefaultAffinityYaml(); err != nil {
+		return err
 	}
 	// save moodle spec
 	r.siteCtx.combinedMoodleSpec = make(map[string]interface{})
@@ -475,6 +478,32 @@ func ignoreDeletionPredicate() predicate.Predicate {
 	}
 }
 
+// sitesByFlavor select sites that are using a flavor
+// It returns a list of reconcile.Request
+func (r *SiteReconciler) sitesByFlavor(flavor client.Object) []reconcile.Request {
+	SiteList := &m4ev1alpha1.SiteList{}
+
+	// Filter the list of sites by the ones using the flavor name
+	listOps := &client.ListOptions{
+		FieldSelector: fields.OneTermEqualSelector(FlavorNameIndex, flavor.GetName()),
+	}
+
+	err := r.Client.List(context.Background(), SiteList, listOps)
+	if err != nil {
+		return []reconcile.Request{}
+	}
+
+	reconcileRequests := make([]reconcile.Request, len(SiteList.Items))
+	for i, site := range SiteList.Items {
+		reconcileRequests[i] = reconcile.Request{
+			NamespacedName: types.NamespacedName{
+				Name: site.Name,
+			},
+		}
+	}
+	return reconcileRequests
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	mgr.GetScheme().AddKnownTypeWithName(r.MoodleGVK, &unstructured.Unstructured{})
@@ -498,5 +527,6 @@ func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(newUnstructuredObject(r.NfsGVK)).
 		Owns(newUnstructuredObject(r.KeydbGVK)).
 		Owns(newUnstructuredObject(r.PostgresGVK)).
+		Watches(&source.Kind{Type: &m4ev1alpha1.Flavor{}}, handler.EnqueueRequestsFromMapFunc(r.sitesByFlavor)).
 		Complete(r)
 }
