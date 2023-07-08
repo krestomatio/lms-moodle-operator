@@ -1,6 +1,10 @@
 ## Changes
 
-### Bug Fixes
+### New Features
 
-* use string for node selector and affinity (Job Céspedes Ortiz)
-* site: use Flavor in site spec (Job Céspedes Ortiz)
+* add default affinity (Job Céspedes Ortiz)
+* site: trigger reconcile by flavor changes (Job Céspedes Ortiz)
+
+### Code Refactoring
+
+* set common labels func (Job Céspedes Ortiz)
