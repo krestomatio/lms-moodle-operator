@@ -3,6 +3,8 @@ package m4e
 import (
 	"context"
 
+	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -11,8 +13,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
+	"sigs.k8s.io/yaml"
 )
 
 const (
@@ -263,7 +264,7 @@ func (r *FlavorReconciler) updateFlavorState(ctx context.Context) error {
 	state := r.setFlavorState()
 
 	// set state in site object
-	stateUpdate, err := SetStatusState(r.flavorCtx.flavor, string(state))
+	stateUpdate, err := SetStatusState(r.flavorCtx.flavor, state)
 	if err != nil {
 		log.Error(err, "unable to update Flavor '"+r.flavorCtx.flavor.GetName()+"' state")
 		return err
@@ -382,4 +383,65 @@ func truncate(str string, length int) (truncated string) {
 		truncated += string(char)
 	}
 	return
+}
+
+// DefaultAffinity set the default affinity for a site
+func (r *SiteReconciler) DefaultAffinityYaml(objSpec map[string]interface{}, fieldName string) (err error) {
+	var defaultAffinityYamlBytes []byte
+
+	defaultAffinityYaml := corev1.Affinity{
+		PodAffinity: &corev1.PodAffinity{
+			PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
+				{
+					Weight: int32(100),
+					PodAffinityTerm: corev1.PodAffinityTerm{
+						TopologyKey: "kubernetes.io/hostname",
+						LabelSelector: &metav1.LabelSelector{
+							MatchExpressions: []metav1.LabelSelectorRequirement{
+								{
+									Key:      m4ev1alpha1.GroupVersion.Group + "/site-name",
+									Operator: metav1.LabelSelectorOpIn,
+									Values: []string{
+										r.siteCtx.name,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	defaultAffinityYamlBytes, err = yaml.Marshal(defaultAffinityYaml)
+
+	if objSpecDefaultAffinityString, objDefaultAffinityFound, err := unstructured.NestedString(objSpec, fieldName); err != nil {
+		return err
+	} else if objDefaultAffinityFound {
+		objSpec[fieldName] = string(defaultAffinityYamlBytes) + "\n" + objSpecDefaultAffinityString
+	} else {
+		objSpec[fieldName] = string(defaultAffinityYamlBytes)
+	}
+
+	return err
+}
+
+// MoodleDefaultAffinityYaml set the default affinity for Moodle
+func (r *SiteReconciler) MoodleDefaultAffinityYaml() (err error) {
+	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleCronjobAffinity"); err != nil {
+		return err
+	}
+	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleUpdateJobAffinity"); err != nil {
+		return err
+	}
+	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleNewInstanceJobAffinity"); err != nil {
+		return err
+	}
+	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "phpFpmAffinity"); err != nil {
+		return err
+	}
+	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "nginxAffinity"); err != nil {
+		return err
+	}
+	return err
 }

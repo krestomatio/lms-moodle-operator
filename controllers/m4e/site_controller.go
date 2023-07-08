@@ -204,7 +204,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 
 	r.siteCtx.flavorName, _, _ = unstructured.NestedString(r.siteCtx.spec, "flavor")
 
-	r.siteCtx.commonLabels = m4ev1alpha1.GroupVersion.Group + "/site_name: " + r.siteCtx.name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor_name: " + r.siteCtx.flavorName
+	r.siteCtx.commonLabels = m4ev1alpha1.GroupVersion.Group + "/site-name: " + r.siteCtx.name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor-name: " + r.siteCtx.flavorName
 
 	// Fetch flavor spec
 	r.siteCtx.flavor = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
@@ -262,6 +262,10 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		} else {
 			r.siteCtx.flavorPostgresSpec["commonLabels"] = r.siteCtx.commonLabels
 		}
+		// set default affinity
+		if err := r.DefaultAffinityYaml(r.siteCtx.flavorPostgresSpec, "postgresAffinity"); err != nil {
+			return err
+		}
 		// save postgres spec
 		r.siteCtx.combinedPostgresSpec = make(map[string]interface{})
 		r.siteCtx.combinedPostgresSpec = r.siteCtx.flavorPostgresSpec
@@ -290,6 +294,10 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 			r.siteCtx.flavorNfsSpec["commonLabels"] = r.siteCtx.commonLabels + "\n" + flavorNfsSpecCommonLabelsString
 		} else {
 			r.siteCtx.flavorNfsSpec["commonLabels"] = r.siteCtx.commonLabels
+		}
+		// set default affinity
+		if err := r.DefaultAffinityYaml(r.siteCtx.flavorNfsSpec, "ganeshaAffinity"); err != nil {
+			return err
 		}
 		// save nfs spec
 		r.siteCtx.combinedNfsSpec = make(map[string]interface{})
@@ -321,6 +329,10 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		} else {
 			r.siteCtx.flavorKeydbSpec["commonLabels"] = r.siteCtx.commonLabels
 		}
+		// set default affinity
+		if err := r.DefaultAffinityYaml(r.siteCtx.flavorKeydbSpec, "keydbAffinity"); err != nil {
+			return err
+		}
 		// save keydb spec
 		r.siteCtx.combinedKeydbSpec = make(map[string]interface{})
 		r.siteCtx.combinedKeydbSpec = r.siteCtx.flavorKeydbSpec
@@ -339,6 +351,10 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		r.siteCtx.flavorMoodleSpec["commonLabels"] = r.siteCtx.commonLabels + "\n" + flavorMoodleSpecCommonLabelsString
 	} else {
 		r.siteCtx.flavorMoodleSpec["commonLabels"] = r.siteCtx.commonLabels
+	}
+	// set moodle default affinity
+	if err := r.MoodleDefaultAffinityYaml(); err != nil {
+		return err
 	}
 	// save moodle spec
 	r.siteCtx.combinedMoodleSpec = make(map[string]interface{})
