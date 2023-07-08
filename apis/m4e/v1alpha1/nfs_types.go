@@ -76,12 +76,11 @@ type NfsSpec struct {
 
 	// GaneshaNodeSelector defines any node labels selectors for Ganesha pods.
 	// +optional
-	// +mapType=atomic
-	GaneshaNodeSelector map[string]string `json:"ganeshaNodeSelector,omitempty"`
+	GaneshaNodeSelector string `json:"ganeshaNodeSelector,omitempty"`
 
 	// GaneshaAffinity defines any affinity rules for Ganesha pods.
 	// +optional
-	GaneshaAffinity *corev1.Affinity `json:"ganeshaAffinity,omitempty"`
+	GaneshaAffinity string `json:"ganeshaAffinity,omitempty"`
 
 	// GaneshaExportUserid defines export folder userid
 	// +optional defines export folder userid
