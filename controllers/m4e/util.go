@@ -385,6 +385,19 @@ func truncate(str string, length int) (truncated string) {
 	return
 }
 
+// CommonLabels set common labels
+func (r *SiteReconciler) CommonLabels(objSpec map[string]interface{}) (err error) {
+	commonLabels := m4ev1alpha1.GroupVersion.Group + "/site-name: " + r.siteCtx.name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor-name: " + r.siteCtx.flavorName
+
+	objSpecCommonLabelsString, objSpecCommonLabelsFound, _ := unstructured.NestedString(objSpec, "commonLabels")
+	if objSpecCommonLabelsFound {
+		objSpec["commonLabels"] = commonLabels + "\n" + objSpecCommonLabelsString
+	} else {
+		objSpec["commonLabels"] = commonLabels
+	}
+	return err
+}
+
 // DefaultAffinity set the default affinity for a site
 func (r *SiteReconciler) DefaultAffinityYaml(objSpec map[string]interface{}, fieldName string) (err error) {
 	var defaultAffinityYamlBytes []byte
