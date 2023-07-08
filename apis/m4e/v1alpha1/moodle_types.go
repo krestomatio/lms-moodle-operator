@@ -118,12 +118,11 @@ type MoodleSpec struct {
 
 	// MoodleCronjobNodeSelector defines any node labels selectors for Moodle cronjob pods.
 	// +optional
-	// +mapType=atomic
-	MoodleCronjobNodeSelector map[string]string `json:"moodleCronjobNodeSelector,omitempty"`
+	MoodleCronjobNodeSelector string `json:"moodleCronjobNodeSelector,omitempty"`
 
 	// MoodleCronjobAffinity defines any affinity rules for Moodle cronjob pods.
 	// +optional
-	MoodleCronjobAffinity *corev1.Affinity `json:"moodleCronjobAffinity,omitempty"`
+	MoodleCronjobAffinity string `json:"moodleCronjobAffinity,omitempty"`
 
 	// MoodleCronjobResourceRequests whether moodle cronjob resource requests are added. Default: true
 	// +optional
@@ -159,12 +158,11 @@ type MoodleSpec struct {
 
 	// MoodleUpdateJobNodeSelector defines any node labels selectors for Moodle cronjob pods.
 	// +optional
-	// +mapType=atomic
-	MoodleUpdateJobNodeSelector map[string]string `json:"moodleUpdateJobNodeSelector,omitempty"`
+	MoodleUpdateJobNodeSelector string `json:"moodleUpdateJobNodeSelector,omitempty"`
 
 	// MoodleUpdateJobAffinity defines any affinity rules for Moodle cronjob pods.
 	// +optional
-	MoodleUpdateJobAffinity *corev1.Affinity `json:"moodleUpdateJobAffinity,omitempty"`
+	MoodleUpdateJobAffinity string `json:"moodleUpdateJobAffinity,omitempty"`
 
 	// MoodleUpdateJobResourceRequests whether moodle update job resource requests are added. Default: true
 	// +optional
@@ -200,12 +198,11 @@ type MoodleSpec struct {
 
 	// MoodleNewInstanceJobNodeSelector defines any node labels selectors for Moodle cronjob pods.
 	// +optional
-	// +mapType=atomic
-	MoodleNewInstanceJobNodeSelector map[string]string `json:"moodleNewInstanceJobNodeSelector,omitempty"`
+	MoodleNewInstanceJobNodeSelector string `json:"moodleNewInstanceJobNodeSelector,omitempty"`
 
 	// MoodleNewInstanceJobAffinity defines any affinity rules for Moodle cronjob pods.
 	// +optional
-	MoodleNewInstanceJobAffinity *corev1.Affinity `json:"moodleNewInstanceJobAffinity,omitempty"`
+	MoodleNewInstanceJobAffinity string `json:"moodleNewInstanceJobAffinity,omitempty"`
 
 	// MoodleNewInstanceJobResourceRequests whether moodle new instance job resource requests are added. Default: true
 	// +optional
@@ -270,12 +267,11 @@ type MoodleSpec struct {
 
 	// NginxNodeSelector defines any node labels selectors for Nginx pods.
 	// +optional
-	// +mapType=atomic
-	NginxNodeSelector map[string]string `json:"nginxNodeSelector,omitempty"`
+	NginxNodeSelector string `json:"nginxNodeSelector,omitempty"`
 
 	// NginxAffinity defines any affinity rules for Nginx pods.
 	// +optional
-	NginxAffinity *corev1.Affinity `json:"nginxAffinity,omitempty"`
+	NginxAffinity string `json:"nginxAffinity,omitempty"`
 
 	// NginxExtraConfig contains extra Nginx config
 	// +optional
@@ -328,12 +324,11 @@ type MoodleSpec struct {
 
 	// PhpFpmNodeSelector defines any node labels selectors for PhpFpm pods.
 	// +optional
-	// +mapType=atomic
-	PhpFpmNodeSelector map[string]string `json:"phpFpmNodeSelector,omitempty"`
+	PhpFpmNodeSelector string `json:"phpFpmNodeSelector,omitempty"`
 
 	// PhpFpmAffinity defines any affinity rules for PhpFpm pods.
 	// +optional
-	PhpFpmAffinity *corev1.Affinity `json:"phpFpmAffinity,omitempty"`
+	PhpFpmAffinity string `json:"phpFpmAffinity,omitempty"`
 
 	// PhpFpmPhpExtraIni contains extra php ini config
 	// +optional

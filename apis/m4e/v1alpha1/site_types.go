@@ -33,16 +33,8 @@ type SiteSpec struct {
 	// +kubebuilder:validation:MaxLength=255
 	Flavor string `json:"flavor"`
 
-	// MoodleSpec defines Moodle spec to override Flavor
-	MoodleSpec MoodleSpec `json:"moodleSpec"`
-
-	// NfsSpec defines NFS Ganesha server spec to override Flavor
-	// +optional
-	NfsSpec NfsSpec `json:"nfsSpec,omitempty"`
-
-	// KeydbSpec defines Keydb spec to deploy optionally
-	// +optional
-	KeydbSpec KeydbSpec `json:"keydbSpec"`
+	// FlavorSpec to set same fields as Flavor
+	FlavorSpec `json:",inline"`
 }
 
 // SiteStatus defines the observed state of Site
