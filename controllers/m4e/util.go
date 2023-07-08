@@ -385,8 +385,8 @@ func truncate(str string, length int) (truncated string) {
 	return
 }
 
-// CommonLabels set common labels
-func (r *SiteReconciler) CommonLabels(objSpec map[string]interface{}) (err error) {
+// commonLabels set common labels
+func (r *SiteReconciler) commonLabels(objSpec map[string]interface{}) (err error) {
 	commonLabels := m4ev1alpha1.GroupVersion.Group + "/site-name: " + r.siteCtx.name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor-name: " + r.siteCtx.flavorName
 
 	objSpecCommonLabelsString, objSpecCommonLabelsFound, _ := unstructured.NestedString(objSpec, "commonLabels")
@@ -399,7 +399,7 @@ func (r *SiteReconciler) CommonLabels(objSpec map[string]interface{}) (err error
 }
 
 // DefaultAffinity set the default affinity for a site
-func (r *SiteReconciler) DefaultAffinityYaml(objSpec map[string]interface{}, fieldName string) (err error) {
+func (r *SiteReconciler) defaultAffinityYaml(objSpec map[string]interface{}, fieldName string) (err error) {
 	var defaultAffinityYamlBytes []byte
 
 	defaultAffinityYaml := corev1.Affinity{
@@ -439,21 +439,21 @@ func (r *SiteReconciler) DefaultAffinityYaml(objSpec map[string]interface{}, fie
 	return err
 }
 
-// MoodleDefaultAffinityYaml set the default affinity for Moodle
-func (r *SiteReconciler) MoodleDefaultAffinityYaml() (err error) {
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleCronjobAffinity"); err != nil {
+// moodleDefaultAffinityYaml set the default affinity for Moodle
+func (r *SiteReconciler) moodleDefaultAffinityYaml() (err error) {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleCronjobAffinity"); err != nil {
 		return err
 	}
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleUpdateJobAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleUpdateJobAffinity"); err != nil {
 		return err
 	}
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleNewInstanceJobAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleNewInstanceJobAffinity"); err != nil {
 		return err
 	}
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "phpFpmAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "phpFpmAffinity"); err != nil {
 		return err
 	}
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "nginxAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "nginxAffinity"); err != nil {
 		return err
 	}
 	return err

@@ -251,11 +251,11 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 			}
 		}
 		// Set site labels to postgres
-		if err := r.CommonLabels(r.siteCtx.flavorPostgresSpec); err != nil {
+		if err := r.commonLabels(r.siteCtx.flavorPostgresSpec); err != nil {
 			return err
 		}
 		// set default affinity
-		if err := r.DefaultAffinityYaml(r.siteCtx.flavorPostgresSpec, "postgresAffinity"); err != nil {
+		if err := r.defaultAffinityYaml(r.siteCtx.flavorPostgresSpec, "postgresAffinity"); err != nil {
 			return err
 		}
 		// save postgres spec
@@ -281,11 +281,11 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 			}
 		}
 		// Set site labels to nfs
-		if err := r.CommonLabels(r.siteCtx.flavorNfsSpec); err != nil {
+		if err := r.commonLabels(r.siteCtx.flavorNfsSpec); err != nil {
 			return err
 		}
 		// set default affinity
-		if err := r.DefaultAffinityYaml(r.siteCtx.flavorNfsSpec, "ganeshaAffinity"); err != nil {
+		if err := r.defaultAffinityYaml(r.siteCtx.flavorNfsSpec, "ganeshaAffinity"); err != nil {
 			return err
 		}
 		// save nfs spec
@@ -312,11 +312,11 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 			}
 		}
 		// Set site labels to keydb
-		if err := r.CommonLabels(r.siteCtx.flavorKeydbSpec); err != nil {
+		if err := r.commonLabels(r.siteCtx.flavorKeydbSpec); err != nil {
 			return err
 		}
 		// set default affinity
-		if err := r.DefaultAffinityYaml(r.siteCtx.flavorKeydbSpec, "keydbAffinity"); err != nil {
+		if err := r.defaultAffinityYaml(r.siteCtx.flavorKeydbSpec, "keydbAffinity"); err != nil {
 			return err
 		}
 		// save keydb spec
@@ -332,11 +332,11 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		}
 	}
 	// Set site labels to Moodle
-	if err := r.CommonLabels(r.siteCtx.flavorMoodleSpec); err != nil {
+	if err := r.commonLabels(r.siteCtx.flavorMoodleSpec); err != nil {
 		return err
 	}
 	// set moodle default affinity
-	if err := r.MoodleDefaultAffinityYaml(); err != nil {
+	if err := r.moodleDefaultAffinityYaml(); err != nil {
 		return err
 	}
 	// save moodle spec
