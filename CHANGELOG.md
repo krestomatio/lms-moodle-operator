@@ -2,9 +2,13 @@
 
 ### New Features
 
-* add default affinity (Job Céspedes Ortiz)
-* site: trigger reconcile by flavor changes (Job Céspedes Ortiz)
+* add autoscaling options (Job Céspedes Ortiz)
+
+### Bug Fixes
+
+* rename variable (Job Céspedes Ortiz)
 
 ### Code Refactoring
 
-* set common labels func (Job Céspedes Ortiz)
+* reduce cyclomatic code (Job Céspedes Ortiz)
+* rename functions (Job Céspedes Ortiz)
