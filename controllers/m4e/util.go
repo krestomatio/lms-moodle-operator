@@ -544,7 +544,7 @@ func (r *SiteReconciler) nfsSpec() (err error) {
 
 // keydbSpec handle any keydb spec
 func (r *SiteReconciler) keydbSpec() (err error) {
-	r.siteCtx.flavorKeydbSpec, r.siteCtx.flavorKeydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "keydbSpec")
+	r.siteCtx.hasKeydb = r.siteCtx.keydbSpecFound || r.siteCtx.flavorKeydbSpecFound
 
 	if r.siteCtx.hasKeydb {
 		r.siteCtx.keydb.SetName(r.siteCtx.keydbName)

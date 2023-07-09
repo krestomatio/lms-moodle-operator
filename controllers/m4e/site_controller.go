@@ -196,7 +196,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	}
 	r.siteCtx.spec, _, _ = unstructured.NestedMap(r.siteCtx.site.UnstructuredContent(), "spec")
 	r.siteCtx.moodleSpec, r.siteCtx.moodleSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "moodleSpec")
-	r.siteCtx.postgresSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "postgresSpec")
+	r.siteCtx.postgresSpec, r.siteCtx.postgresSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "postgresSpec")
 	r.siteCtx.nfsSpec, r.siteCtx.nfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "nfsSpec")
 	r.siteCtx.keydbSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "keydbSpec")
 	r.siteCtx.flavorName, _, _ = unstructured.NestedString(r.siteCtx.spec, "flavor")
