@@ -94,6 +94,10 @@ type PostgresSpec struct {
 	// +optional
 	PostgresAffinity string `json:"postgresAffinity,omitempty"`
 
+	// PostgresVpaSpec set postgres horizontal pod autoscaler spec
+	// +optional
+	PostgresVpaSpec string `json:"postgresVpaSpec,omitempty"`
+
 	// PostgresReadreplicasSize defines postgres readreplicas number of replicas
 	// +optional
 	PostgresReadreplicasSize int32 `json:"postgresReadreplicasSize,omitempty"`
@@ -154,6 +158,10 @@ type PostgresSpec struct {
 	// +optional
 	PostgresReadreplicasAffinity string `json:"postgresReadreplicasAffinity,omitempty"`
 
+	// PostgresReadreplicasVpaSpec set postgres readreplicas horizontal pod autoscaler spec
+	// +optional
+	PostgresReadreplicasVpaSpec string `json:"postgresReadreplicasVpaSpec,omitempty"`
+
 	// PgbouncerExtraConfig contains extra pgbouncer config
 	// +optional
 	PgbouncerExtraConfig string `json:"pgbouncerExtraConfig,omitempty"`
@@ -198,6 +206,10 @@ type PostgresSpec struct {
 	// +optional
 	PgbouncerAffinity string `json:"pgbouncerAffinity,omitempty"`
 
+	// PgbouncerVpaSpec set pgbouncer horizontal pod autoscaler spec
+	// +optional
+	PgbouncerVpaSpec string `json:"pgbouncerVpaSpec,omitempty"`
+
 	// PgbouncerReadonlyExtraConfig contains extra pgbouncerReadonly config
 	// +optional
 	PgbouncerReadonlyExtraConfig string `json:"pgbouncerReadonlyExtraConfig,omitempty"`
@@ -241,6 +253,10 @@ type PostgresSpec struct {
 	// PgbouncerReadonlyAffinity defines any affinity rules for PgbouncerReadonly pods.
 	// +optional
 	PgbouncerReadonlyAffinity string `json:"pgbouncerReadonlyAffinity,omitempty"`
+
+	// PgbouncerReadonlyVpaSpec set pgbouncer readonly horizontal pod autoscaler spec
+	// +optional
+	PgbouncerReadonlyVpaSpec string `json:"pgbouncerReadonlyVpaSpec,omitempty"`
 }
 
 // PostgresMode describes mode postgres runs

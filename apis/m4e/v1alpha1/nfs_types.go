@@ -115,4 +115,8 @@ type NfsSpec struct {
 	// +kubebuilder:validation:Enum=NULL;FATAL;MAJ;CRIT;WARN;EVENT;INFO;DEBUG;MID_DEBUG;M_DBG;FULL_DEBUG;F_DBG
 	// +optional
 	GaneshaConfLogLevel string `json:"ganeshaConfLogLevel,omitempty"`
+
+	// GaneshaVpaSpec set ganesha horizontal pod autoscaler spec
+	// +optional
+	GaneshaVpaSpec string `json:"ganeshaVpaSpec,omitempty"`
 }

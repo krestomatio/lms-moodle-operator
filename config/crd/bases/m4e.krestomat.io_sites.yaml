@@ -180,6 +180,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  keydbVpaSpec:
+                    description: KeydbVpaSpec set keydb horizontal pod autoscaler
+                      spec
+                    type: string
                 type: object
               moodleSpec:
                 description: MoodleSpec defines Moodle spec
@@ -287,6 +291,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  moodleCronjobVpaSpec:
+                    description: MoodleCronjobVpaSpec set moodle cronjob vertical
+                      pod autoscaler spec
+                    type: string
                   moodleHealthcheckSubpath:
                     description: MoodleHealthcheckSubpath defines Moodle subpath for
                       nginx check
@@ -602,6 +610,10 @@ spec:
                   nginxExtraConfig:
                     description: NginxExtraConfig contains extra Nginx config
                     type: string
+                  nginxHpaSpec:
+                    description: NginxHpaSpec set nginx horizontal pod autoscaler
+                      spec
+                    type: string
                   nginxImage:
                     description: NginxImage defines image for nginx container
                     maxLength: 255
@@ -688,12 +700,19 @@ spec:
                           type: string
                       type: object
                     type: array
+                  nginxVpaSpec:
+                    description: NginxVpaSpec set nginx vertical pod autoscaler spec
+                    type: string
                   phpFpmAffinity:
                     description: PhpFpmAffinity defines any affinity rules for PhpFpm
                       pods.
                     type: string
                   phpFpmExtraConfig:
                     description: PhpFpmExtraConfig contains extra php-fpm config
+                    type: string
+                  phpFpmHpaSpec:
+                    description: PhpFpmHpaSpec set php-fpm horizontal pod autoscaler
+                      spec
                     type: string
                   phpFpmImage:
                     description: PhpFpmImage defines image for php-fpm container
@@ -786,6 +805,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  phpFpmVpaSpec:
+                    description: PhpFpmVpaSpec set php-fpm vertical pod autoscaler
+                      spec
+                    type: string
                   routineStatusCrNotify:
                     description: RoutineStatusCrNotify specification using ansible
                       URI module
@@ -1016,6 +1039,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  ganeshaVpaSpec:
+                    description: GaneshaVpaSpec set ganesha horizontal pod autoscaler
+                      spec
+                    type: string
                 type: object
               postgresSpec:
                 description: PostgresSpec defines Postgres spec to deploy optionally
@@ -1113,6 +1140,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  pgbouncerReadonlyVpaSpec:
+                    description: PgbouncerReadonlyVpaSpec set pgbouncer readonly horizontal
+                      pod autoscaler spec
+                    type: string
                   pgbouncerResourceLimits:
                     description: 'PgbouncerResourceLimits whether pgbouncer resource
                       limits are added. Default: false'
@@ -1183,6 +1214,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  pgbouncerVpaSpec:
+                    description: PgbouncerVpaSpec set pgbouncer horizontal pod autoscaler
+                      spec
+                    type: string
                   postgresAffinity:
                     description: PostgresAffinity defines any affinity rules for Postgres
                       pods.
@@ -1326,6 +1361,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  postgresReadreplicasVpaSpec:
+                    description: PostgresReadreplicasVpaSpec set postgres readreplicas
+                      horizontal pod autoscaler spec
+                    type: string
                   postgresResourceLimits:
                     description: 'PostgresResourceLimits whether postgres resource
                       limits are added. Default: false'
@@ -1400,6 +1439,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  postgresVpaSpec:
+                    description: PostgresVpaSpec set postgres horizontal pod autoscaler
+                      spec
+                    type: string
                 type: object
             required:
             - flavor

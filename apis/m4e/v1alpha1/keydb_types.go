@@ -93,6 +93,10 @@ type KeydbSpec struct {
 	// KeydbAffinity defines any affinity rules for Keydb pods.
 	// +optional
 	KeydbAffinity string `json:"keydbAffinity,omitempty"`
+
+	// KeydbVpaSpec set keydb horizontal pod autoscaler spec
+	// +optional
+	KeydbVpaSpec string `json:"keydbVpaSpec,omitempty"`
 }
 
 // KeydbMode describes mode keydb runs
