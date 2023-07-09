@@ -3,6 +3,7 @@ package m4e
 import (
 	"context"
 
+	"github.com/imdario/mergo"
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -385,8 +386,8 @@ func truncate(str string, length int) (truncated string) {
 	return
 }
 
-// CommonLabels set common labels
-func (r *SiteReconciler) CommonLabels(objSpec map[string]interface{}) (err error) {
+// commonLabels set common labels
+func (r *SiteReconciler) commonLabels(objSpec map[string]interface{}) (err error) {
 	commonLabels := m4ev1alpha1.GroupVersion.Group + "/site-name: " + r.siteCtx.name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor-name: " + r.siteCtx.flavorName
 
 	objSpecCommonLabelsString, objSpecCommonLabelsFound, _ := unstructured.NestedString(objSpec, "commonLabels")
@@ -399,7 +400,7 @@ func (r *SiteReconciler) CommonLabels(objSpec map[string]interface{}) (err error
 }
 
 // DefaultAffinity set the default affinity for a site
-func (r *SiteReconciler) DefaultAffinityYaml(objSpec map[string]interface{}, fieldName string) (err error) {
+func (r *SiteReconciler) defaultAffinityYaml(objSpec map[string]interface{}, fieldName string) (err error) {
 	var defaultAffinityYamlBytes []byte
 
 	defaultAffinityYaml := corev1.Affinity{
@@ -439,22 +440,168 @@ func (r *SiteReconciler) DefaultAffinityYaml(objSpec map[string]interface{}, fie
 	return err
 }
 
-// MoodleDefaultAffinityYaml set the default affinity for Moodle
-func (r *SiteReconciler) MoodleDefaultAffinityYaml() (err error) {
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleCronjobAffinity"); err != nil {
+// moodleDefaultAffinityYaml set the default affinity for Moodle
+func (r *SiteReconciler) moodleDefaultAffinityYaml() (err error) {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleCronjobAffinity"); err != nil {
 		return err
 	}
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleUpdateJobAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleUpdateJobAffinity"); err != nil {
 		return err
 	}
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleNewInstanceJobAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleNewInstanceJobAffinity"); err != nil {
 		return err
 	}
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "phpFpmAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "phpFpmAffinity"); err != nil {
 		return err
 	}
-	if err = r.DefaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "nginxAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "nginxAffinity"); err != nil {
 		return err
 	}
+	return err
+}
+
+// postgresSpec handle any postgres spec
+func (r *SiteReconciler) postgresSpec() (err error) {
+	r.siteCtx.hasPostgres = r.siteCtx.postgresSpecFound || r.siteCtx.flavorPostgresSpecFound
+
+	if r.siteCtx.hasPostgres {
+		r.siteCtx.postgres.SetName(r.siteCtx.postgresName)
+		r.siteCtx.postgres.SetNamespace(r.siteCtx.namespaceName)
+	}
+
+	// Postgres kind from Postgres ansible operator
+	if r.siteCtx.hasPostgres {
+		// Set Postgres host and secret, if not already present in Moodle spec
+		postgresRelatedMoodleSpec := map[string]interface{}{
+			"moodlePostgresMetaName": r.siteCtx.postgresName,
+		}
+		// Merge Moodle related postgres spec with flavor Moodle spec
+		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, postgresRelatedMoodleSpec); err != nil {
+			return err
+		}
+		// Merge Postgres spec if set on site Spec
+		if r.siteCtx.postgresSpecFound {
+			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorPostgresSpec, r.siteCtx.postgresSpec); err != nil {
+				return err
+			}
+		}
+		// Set site labels to postgres
+		if err := r.commonLabels(r.siteCtx.flavorPostgresSpec); err != nil {
+			return err
+		}
+		// set default affinity
+		if err := r.defaultAffinityYaml(r.siteCtx.flavorPostgresSpec, "postgresAffinity"); err != nil {
+			return err
+		}
+		// save postgres spec
+		r.siteCtx.combinedPostgresSpec = make(map[string]interface{})
+		r.siteCtx.combinedPostgresSpec = r.siteCtx.flavorPostgresSpec
+	}
+
+	return err
+}
+
+// nfsSpec handle any nfs spec
+func (r *SiteReconciler) nfsSpec() (err error) {
+	r.siteCtx.hasNfs = r.siteCtx.nfsSpecFound || r.siteCtx.flavorNfsSpecFound
+
+	if r.siteCtx.hasNfs {
+		r.siteCtx.nfs.SetName(r.siteCtx.nfsName)
+		r.siteCtx.nfs.SetNamespace(r.siteCtx.namespaceName)
+	}
+
+	// Ganesha server kind from NFS ansible operator
+	if r.siteCtx.hasNfs {
+		// Set NFS storage class name and access modes when using NFS operator
+		nfsRelatedMoodleSpec := map[string]interface{}{
+			"moodleNfsMetaName": r.siteCtx.nfsName,
+		}
+		// Merge Moodle related nfs spec with flavor Moodle spec
+		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, nfsRelatedMoodleSpec); err != nil {
+			return err
+		}
+		// Merge NFS spec if set on site Spec
+		if r.siteCtx.nfsSpecFound {
+			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorNfsSpec, r.siteCtx.nfsSpec); err != nil {
+				return err
+			}
+		}
+		// Set site labels to nfs
+		if err := r.commonLabels(r.siteCtx.flavorNfsSpec); err != nil {
+			return err
+		}
+		// set default affinity
+		if err := r.defaultAffinityYaml(r.siteCtx.flavorNfsSpec, "ganeshaAffinity"); err != nil {
+			return err
+		}
+		// save nfs spec
+		r.siteCtx.combinedNfsSpec = make(map[string]interface{})
+		r.siteCtx.combinedNfsSpec = r.siteCtx.flavorNfsSpec
+	}
+
+	return err
+}
+
+// keydbSpec handle any keydb spec
+func (r *SiteReconciler) keydbSpec() (err error) {
+	r.siteCtx.hasKeydb = r.siteCtx.keydbSpecFound || r.siteCtx.flavorKeydbSpecFound
+
+	if r.siteCtx.hasKeydb {
+		r.siteCtx.keydb.SetName(r.siteCtx.keydbName)
+		r.siteCtx.keydb.SetNamespace(r.siteCtx.namespaceName)
+	}
+
+	// Keydb kind from Keydb ansible operator
+	if r.siteCtx.hasKeydb {
+		// Set Keydb host and secret, if not already present in Moodle spec
+		keydbRelatedMoodleSpec := map[string]interface{}{
+			"moodleKeydbMetaName": r.siteCtx.keydbName,
+		}
+		// Merge Moodle related keydb spec with flavor Moodle spec
+		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, keydbRelatedMoodleSpec); err != nil {
+			return err
+		}
+		// Merge Keydb spec if set on site Spec
+		if r.siteCtx.keydbSpecFound {
+			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorKeydbSpec, r.siteCtx.keydbSpec); err != nil {
+				return err
+			}
+		}
+		// Set site labels to keydb
+		if err := r.commonLabels(r.siteCtx.flavorKeydbSpec); err != nil {
+			return err
+		}
+		// set default affinity
+		if err := r.defaultAffinityYaml(r.siteCtx.flavorKeydbSpec, "keydbAffinity"); err != nil {
+			return err
+		}
+		// save keydb spec
+		r.siteCtx.combinedKeydbSpec = make(map[string]interface{})
+		r.siteCtx.combinedKeydbSpec = r.siteCtx.flavorKeydbSpec
+	}
+
+	return err
+}
+
+// moodleSpec handle any keydb spec
+func (r *SiteReconciler) moodleSpec() (err error) {
+	// Merge Moodle spec if set on site Spec
+	if r.siteCtx.moodleSpecFound {
+		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, r.siteCtx.moodleSpec); err != nil {
+			return err
+		}
+	}
+	// Set site labels to Moodle
+	if err := r.commonLabels(r.siteCtx.flavorMoodleSpec); err != nil {
+		return err
+	}
+	// set moodle default affinity
+	if err := r.moodleDefaultAffinityYaml(); err != nil {
+		return err
+	}
+	// save moodle spec
+	r.siteCtx.combinedMoodleSpec = make(map[string]interface{})
+	r.siteCtx.combinedMoodleSpec = r.siteCtx.flavorMoodleSpec
+
 	return err
 }

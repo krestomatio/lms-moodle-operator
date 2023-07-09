@@ -38,7 +38,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	"github.com/imdario/mergo"
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
 )
 
@@ -197,7 +196,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	}
 	r.siteCtx.spec, _, _ = unstructured.NestedMap(r.siteCtx.site.UnstructuredContent(), "spec")
 	r.siteCtx.moodleSpec, r.siteCtx.moodleSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "moodleSpec")
-	r.siteCtx.postgresSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "postgresSpec")
+	r.siteCtx.postgresSpec, r.siteCtx.postgresSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "postgresSpec")
 	r.siteCtx.nfsSpec, r.siteCtx.nfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "nfsSpec")
 	r.siteCtx.keydbSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "keydbSpec")
 	r.siteCtx.flavorName, _, _ = unstructured.NestedString(r.siteCtx.spec, "flavor")
@@ -208,7 +207,6 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		log.Error(err, "Flavor not found")
 		return &FlavorNotFoundError{r.siteCtx.flavorName}
 	}
-
 	r.siteCtx.flavorSpec, _, _ = unstructured.NestedMap(r.siteCtx.flavor.UnstructuredContent(), "spec")
 	r.siteCtx.flavorMoodleSpec, _, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "moodleSpec")
 	r.siteCtx.flavorPostgresSpec, r.siteCtx.flavorPostgresSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "postgresSpec")
@@ -216,132 +214,20 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.flavorKeydbSpec, r.siteCtx.flavorKeydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "keydbSpec")
 
 	// whether Site has dependant components
-	r.siteCtx.hasPostgres = r.siteCtx.postgresSpecFound || r.siteCtx.flavorPostgresSpecFound
-	r.siteCtx.hasNfs = r.siteCtx.nfsSpecFound || r.siteCtx.flavorNfsSpecFound
-	r.siteCtx.hasKeydb = r.siteCtx.keydbSpecFound || r.siteCtx.flavorKeydbSpecFound
-	if r.siteCtx.hasPostgres {
-		r.siteCtx.postgres.SetName(r.siteCtx.postgresName)
-		r.siteCtx.postgres.SetNamespace(r.siteCtx.namespaceName)
-	}
-	if r.siteCtx.hasNfs {
-		r.siteCtx.nfs.SetName(r.siteCtx.nfsName)
-		r.siteCtx.nfs.SetNamespace(r.siteCtx.namespaceName)
-	}
-	if r.siteCtx.hasKeydb {
-		r.siteCtx.keydb.SetName(r.siteCtx.keydbName)
-		r.siteCtx.keydb.SetNamespace(r.siteCtx.namespaceName)
-	}
-
-	// Postgres kind from Postgres ansible operator
-	if r.siteCtx.hasPostgres {
-		// Set Postgres host and secret, if not already present in Moodle spec
-		postgresRelatedMoodleSpec := map[string]interface{}{
-			"moodlePostgresMetaName": r.siteCtx.postgresName,
-		}
-		// Merge Moodle related postgres spec with flavor Moodle spec
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, postgresRelatedMoodleSpec); err != nil {
-			log.Error(err, "Couldn't merge spec")
-			return err
-		}
-		// Merge Postgres spec if set on site Spec
-		if r.siteCtx.postgresSpecFound {
-			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorPostgresSpec, r.siteCtx.postgresSpec); err != nil {
-				log.Error(err, "Couldn't merge spec")
-				return err
-			}
-		}
-		// Set site labels to postgres
-		if err := r.CommonLabels(r.siteCtx.flavorPostgresSpec); err != nil {
-			return err
-		}
-		// set default affinity
-		if err := r.DefaultAffinityYaml(r.siteCtx.flavorPostgresSpec, "postgresAffinity"); err != nil {
-			return err
-		}
-		// save postgres spec
-		r.siteCtx.combinedPostgresSpec = make(map[string]interface{})
-		r.siteCtx.combinedPostgresSpec = r.siteCtx.flavorPostgresSpec
-	}
-
-	// Ganesha server kind from NFS ansible operator
-	if r.siteCtx.hasNfs {
-		// Set NFS storage class name and access modes when using NFS operator
-		nfsRelatedMoodleSpec := map[string]interface{}{
-			"moodleNfsMetaName": r.siteCtx.nfsName,
-		}
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, nfsRelatedMoodleSpec); err != nil {
-			log.Error(err, "Couldn't merge spec")
-			return err
-		}
-		// Merge NFS spec if set on site Spec
-		if r.siteCtx.nfsSpecFound {
-			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorNfsSpec, r.siteCtx.nfsSpec); err != nil {
-				log.Error(err, "Couldn't merge spec")
-				return err
-			}
-		}
-		// Set site labels to nfs
-		if err := r.CommonLabels(r.siteCtx.flavorNfsSpec); err != nil {
-			return err
-		}
-		// set default affinity
-		if err := r.DefaultAffinityYaml(r.siteCtx.flavorNfsSpec, "ganeshaAffinity"); err != nil {
-			return err
-		}
-		// save nfs spec
-		r.siteCtx.combinedNfsSpec = make(map[string]interface{})
-		r.siteCtx.combinedNfsSpec = r.siteCtx.flavorNfsSpec
-	}
-
-	// Keydb kind from Keydb ansible operator
-	if r.siteCtx.hasKeydb {
-		// Set Keydb host and secret, if not already present in Moodle spec
-		keydbRelatedMoodleSpec := map[string]interface{}{
-			"moodleKeydbMetaName": r.siteCtx.keydbName,
-		}
-		// Merge Moodle related keydb spec with flavor Moodle spec
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, keydbRelatedMoodleSpec); err != nil {
-			log.Error(err, "Couldn't merge spec")
-			return err
-		}
-		// Merge Keydb spec if set on site Spec
-		if r.siteCtx.keydbSpecFound {
-			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorKeydbSpec, r.siteCtx.keydbSpec); err != nil {
-				log.Error(err, "Couldn't merge spec")
-				return err
-			}
-		}
-		// Set site labels to keydb
-		if err := r.CommonLabels(r.siteCtx.flavorKeydbSpec); err != nil {
-			return err
-		}
-		// set default affinity
-		if err := r.DefaultAffinityYaml(r.siteCtx.flavorKeydbSpec, "keydbAffinity"); err != nil {
-			return err
-		}
-		// save keydb spec
-		r.siteCtx.combinedKeydbSpec = make(map[string]interface{})
-		r.siteCtx.combinedKeydbSpec = r.siteCtx.flavorKeydbSpec
-	}
-
-	// Merge Moodle spec if set on site Spec
-	if r.siteCtx.moodleSpecFound {
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, r.siteCtx.moodleSpec); err != nil {
-			log.Error(err, "Couldn't merge spec")
-			return err
-		}
-	}
-	// Set site labels to Moodle
-	if err := r.CommonLabels(r.siteCtx.flavorMoodleSpec); err != nil {
+	if err := r.postgresSpec(); err != nil {
 		return err
 	}
-	// set moodle default affinity
-	if err := r.MoodleDefaultAffinityYaml(); err != nil {
+	if err := r.nfsSpec(); err != nil {
 		return err
 	}
-	// save moodle spec
-	r.siteCtx.combinedMoodleSpec = make(map[string]interface{})
-	r.siteCtx.combinedMoodleSpec = r.siteCtx.flavorMoodleSpec
+	if err := r.keydbSpec(); err != nil {
+		return err
+	}
+
+	// moodle spec
+	if err := r.moodleSpec(); err != nil {
+		return err
+	}
 
 	// set UUID when it has to notify status to a url
 	if err := r.setNotifyUUID(); err != nil {

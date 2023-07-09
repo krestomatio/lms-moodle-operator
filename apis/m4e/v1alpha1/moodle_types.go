@@ -152,6 +152,10 @@ type MoodleSpec struct {
 	// +optional
 	MoodleCronjobResourceLimitsMemory string `json:"moodleCronjobResourceLimitsMemory,omitempty"`
 
+	// MoodleCronjobVpaSpec set moodle cronjob vertical pod autoscaler spec
+	// +optional
+	MoodleCronjobVpaSpec string `json:"moodleCronjobVpaSpec,omitempty"`
+
 	// MoodleUpdateJobTolerations defines any tolerations for Moodle cronjob pods.
 	// +optional
 	MoodleUpdateJobTolerations []corev1.Toleration `json:"moodleUpdateJobTolerations,omitempty"`
@@ -303,6 +307,14 @@ type MoodleSpec struct {
 	// +optional
 	NginxResourceLimitsMemory string `json:"nginxResourceLimitsMemory,omitempty"`
 
+	// NginxHpaSpec set nginx horizontal pod autoscaler spec
+	// +optional
+	NginxHpaSpec string `json:"nginxHpaSpec,omitempty"`
+
+	// NginxVpaSpec set nginx vertical pod autoscaler spec
+	// +optional
+	NginxVpaSpec string `json:"nginxVpaSpec,omitempty"`
+
 	// PhpFpmSize defines php-fpm number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=255
@@ -365,6 +377,14 @@ type MoodleSpec struct {
 	// +kubebuilder:validation:MaxLength=20
 	// +optional
 	PhpFpmResourceLimitsMemory string `json:"phpFpmResourceLimitsMemory,omitempty"`
+
+	// PhpFpmHpaSpec set php-fpm horizontal pod autoscaler spec
+	// +optional
+	PhpFpmHpaSpec string `json:"phpFpmHpaSpec,omitempty"`
+
+	// PhpFpmVpaSpec set php-fpm vertical pod autoscaler spec
+	// +optional
+	PhpFpmVpaSpec string `json:"phpFpmVpaSpec,omitempty"`
 
 	// MoodlePostgresMetaName defines Postgres CR name to use as database.
 	// +kubebuilder:validation:MaxLength=63
