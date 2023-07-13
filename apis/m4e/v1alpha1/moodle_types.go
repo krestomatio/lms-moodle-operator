@@ -235,6 +235,7 @@ type MoodleSpec struct {
 	MoodleNewInstanceJobResourceLimitsMemory string `json:"moodleNewInstanceJobResourceLimitsMemory,omitempty"`
 
 	// MoodleConfigAdditionalCfg defines moodle extra config properties in config.php
+	// +kubebuilder:pruning:PreserveUnknownFields
 	// +optional
 	MoodleConfigAdditionalCfg MoodleConfigProperty `json:"moodleConfigAdditionalCfg,omitempty"`
 
