@@ -440,6 +440,28 @@ func (r *SiteReconciler) defaultAffinityYaml(objSpec map[string]interface{}, fie
 	return err
 }
 
+// Merge value in nested string present in both objects into the first object
+// string + '\n' + string
+func (r *SiteReconciler) mergeNestedString(firstObjSpec map[string]interface{}, secondObjSpec map[string]interface{}, fields ...string) (err error) {
+
+	firstObjSpecNestedField, firstObjSpecNestedFieldFound, err := unstructured.NestedString(firstObjSpec, fields...)
+	if err != nil {
+		return err
+	}
+
+	secondObjSpecNestedField, secondObjSpecFieldNestedFound, err := unstructured.NestedString(secondObjSpec, fields...)
+	if err != nil {
+		return err
+	}
+
+	if firstObjSpecNestedFieldFound && secondObjSpecFieldNestedFound {
+		mergeNestedField := firstObjSpecNestedField + "\n" + secondObjSpecNestedField
+		unstructured.SetNestedField(firstObjSpec, mergeNestedField, fields...)
+	}
+
+	return err
+}
+
 // moodleDefaultAffinityYaml set the default affinity for Moodle
 func (r *SiteReconciler) moodleDefaultAffinityYaml() (err error) {
 	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleCronjobAffinity"); err != nil {
@@ -585,6 +607,9 @@ func (r *SiteReconciler) keydbSpec() (err error) {
 
 // moodleSpec handle any keydb spec
 func (r *SiteReconciler) moodleSpec() (err error) {
+	// Merge ingress annotations
+	r.mergeNestedString(r.siteCtx.moodleSpec, r.siteCtx.flavorMoodleSpec, "nginxIngressAnnotations")
+
 	// Merge Moodle spec if set on site Spec
 	if r.siteCtx.moodleSpecFound {
 		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, r.siteCtx.moodleSpec); err != nil {
