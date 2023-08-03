@@ -213,6 +213,16 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.flavorNfsSpec, r.siteCtx.flavorNfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "nfsSpec")
 	r.siteCtx.flavorKeydbSpec, r.siteCtx.flavorKeydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.flavorSpec, "keydbSpec")
 
+	// set labels
+	if err := r.setSiteLabels(ctx); err != nil {
+		return err
+	}
+	r.siteCtx.namespace.SetLabels(r.siteCtx.site.GetLabels())
+	r.siteCtx.postgres.SetLabels(r.siteCtx.site.GetLabels())
+	r.siteCtx.nfs.SetLabels(r.siteCtx.site.GetLabels())
+	r.siteCtx.keydb.SetLabels(r.siteCtx.site.GetLabels())
+	r.siteCtx.moodle.SetLabels(r.siteCtx.site.GetLabels())
+
 	// whether Site has dependant components
 	if err := r.postgresSpec(); err != nil {
 		return err
@@ -234,6 +244,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 		log.Error(err, "Couldn't add status uuid")
 		return err
 	}
+
 	return nil
 }
 
