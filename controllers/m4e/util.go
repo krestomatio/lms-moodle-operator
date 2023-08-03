@@ -386,16 +386,43 @@ func truncate(str string, length int) (truncated string) {
 	return
 }
 
+// setSiteLabels set site base labels
+func (r *SiteReconciler) setSiteLabels(ctx context.Context) error {
+	log := log.FromContext(ctx)
+	siteLabels := make(map[string]string)
+
+	// use flavor labels
+	for key, value := range r.siteCtx.flavor.GetLabels() {
+		siteLabels[key] = value
+	}
+
+	// set base labels
+	siteLabels[m4ev1alpha1.GroupVersion.Group+"/site-name"] = r.siteCtx.name
+	siteLabels[m4ev1alpha1.GroupVersion.Group+"/flavor-name"] = r.siteCtx.flavorName
+	siteLabels[m4ev1alpha1.GroupVersion.Group+"/meta-operator-name"] = OPERATORNAME
+
+	r.siteCtx.site.SetLabels(siteLabels)
+
+	if err := r.Patch(ctx, r.siteCtx.site, client.Merge); err != nil {
+		log.Error(err, "Failed to attempt patching site labels", "Site", r.siteCtx.site.GetName())
+		return err
+	}
+
+	return nil
+}
+
 // commonLabels set common labels
 func (r *SiteReconciler) commonLabels(objSpec map[string]interface{}) (err error) {
-	commonLabels := m4ev1alpha1.GroupVersion.Group + "/site-name: " + r.siteCtx.name + "\n" + m4ev1alpha1.GroupVersion.Group + "/flavor-name: " + r.siteCtx.flavorName
+	siteLabelsBytes, _ := yaml.Marshal(r.siteCtx.site.GetLabels())
+	siteLabelsString := string(siteLabelsBytes)
 
 	objSpecCommonLabelsString, objSpecCommonLabelsFound, _ := unstructured.NestedString(objSpec, "commonLabels")
 	if objSpecCommonLabelsFound {
-		objSpec["commonLabels"] = commonLabels + "\n" + objSpecCommonLabelsString
+		objSpec["commonLabels"] = siteLabelsString + "\n" + objSpecCommonLabelsString
 	} else {
-		objSpec["commonLabels"] = commonLabels
+		objSpec["commonLabels"] = siteLabelsString
 	}
+
 	return err
 }
 
@@ -403,7 +430,7 @@ func (r *SiteReconciler) commonLabels(objSpec map[string]interface{}) (err error
 func (r *SiteReconciler) defaultAffinityYaml(objSpec map[string]interface{}, fieldName string) (err error) {
 	var defaultAffinityYamlBytes []byte
 
-	defaultAffinityYaml := corev1.Affinity{
+	defaultAffinity := corev1.Affinity{
 		PodAffinity: &corev1.PodAffinity{
 			PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
 				{
@@ -427,7 +454,7 @@ func (r *SiteReconciler) defaultAffinityYaml(objSpec map[string]interface{}, fie
 		},
 	}
 
-	defaultAffinityYamlBytes, err = yaml.Marshal(defaultAffinityYaml)
+	defaultAffinityYamlBytes, err = yaml.Marshal(defaultAffinity)
 
 	if objSpecDefaultAffinityString, objDefaultAffinityFound, err := unstructured.NestedString(objSpec, fieldName); err != nil {
 		return err
@@ -456,7 +483,9 @@ func (r *SiteReconciler) mergeNestedString(firstObjSpec map[string]interface{}, 
 
 	if firstObjSpecNestedFieldFound && secondObjSpecFieldNestedFound {
 		mergeNestedField := firstObjSpecNestedField + "\n" + secondObjSpecNestedField
-		unstructured.SetNestedField(firstObjSpec, mergeNestedField, fields...)
+		if err := unstructured.SetNestedField(firstObjSpec, mergeNestedField, fields...); err != nil {
+			return err
+		}
 	}
 
 	return err
@@ -608,7 +637,9 @@ func (r *SiteReconciler) keydbSpec() (err error) {
 // moodleSpec handle any keydb spec
 func (r *SiteReconciler) moodleSpec() (err error) {
 	// Merge ingress annotations
-	r.mergeNestedString(r.siteCtx.moodleSpec, r.siteCtx.flavorMoodleSpec, "nginxIngressAnnotations")
+	if err := r.mergeNestedString(r.siteCtx.moodleSpec, r.siteCtx.flavorMoodleSpec, "nginxIngressAnnotations"); err != nil {
+		return err
+	}
 
 	// Merge Moodle spec if set on site Spec
 	if r.siteCtx.moodleSpecFound {
