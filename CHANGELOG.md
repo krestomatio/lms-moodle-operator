@@ -2,4 +2,4 @@
 
 ### New Features
 
-* set site base labels (Job Céspedes Ortiz)
+* add site network policy (Job Céspedes Ortiz)
