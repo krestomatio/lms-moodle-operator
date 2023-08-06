@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 // Package v1alpha1 contains API Schema definitions for the m4e v1alpha1 API group
-//+kubebuilder:object:generate=true
-//+groupName=m4e.krestomat.io
+// +kubebuilder:object:generate=true
+// +groupName=m4e.krestomat.io
 package v1alpha1
 
 import (
