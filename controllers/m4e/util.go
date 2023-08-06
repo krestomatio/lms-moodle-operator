@@ -6,6 +6,7 @@ import (
 	"github.com/imdario/mergo"
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -27,6 +28,16 @@ func (r *SiteReconciler) ReconcileCreate(ctx context.Context, parentObj client.O
 
 	log.V(1).Info("Creating resource", "Resource", obj.GetObjectKind())
 
+	// Set resource labels
+	obj.SetLabels(parentObj.GetLabels())
+
+	// Set resource ownership
+	if err := r.ReconcileSetOwner(ctx, parentObj, obj); err != nil {
+		log.Error(err, "Failed to set owner", "Resource", obj.GetObjectKind())
+		return err
+	}
+
+	// Get resource, if present
 	if err := r.Get(ctx, types.NamespacedName{Name: obj.GetName(), Namespace: obj.GetNamespace()}, obj); !errors.IsNotFound(err) {
 		log.V(1).Info("Resource already exists", "Resource", obj.GetObjectKind())
 		return nil
@@ -35,12 +46,7 @@ func (r *SiteReconciler) ReconcileCreate(ctx context.Context, parentObj client.O
 		return err
 	}
 
-	// Set resource ownership
-	if err := r.ReconcileSetOwner(ctx, parentObj, obj); err != nil {
-		log.Error(err, "Failed to set owner", "Resource", obj.GetObjectKind())
-		return err
-	}
-
+	// Create resource
 	if err := r.Create(ctx, obj); err != nil {
 		log.Error(err, "Failed to create resource", "Resource", obj.GetObjectKind())
 		return err
@@ -660,4 +666,34 @@ func (r *SiteReconciler) moodleSpec() (err error) {
 	r.siteCtx.combinedMoodleSpec = r.siteCtx.flavorMoodleSpec
 
 	return err
+}
+
+// siteNetworkPolicy define site network policy
+func (r *SiteReconciler) siteNetworkPolicy() {
+	// default network policy, isolating namespace
+	r.siteCtx.networkPolicy = &networkingv1.NetworkPolicy{
+		Spec: networkingv1.NetworkPolicySpec{
+			PolicyTypes: []networkingv1.PolicyType{
+				networkingv1.PolicyTypeIngress,
+			},
+			PodSelector: metav1.LabelSelector{
+				MatchLabels: make(map[string]string),
+			},
+			Ingress: []networkingv1.NetworkPolicyIngressRule{
+				{
+					From: []networkingv1.NetworkPolicyPeer{
+						{
+							NamespaceSelector: &metav1.LabelSelector{
+								MatchLabels: map[string]string{
+									"kubernetes.io/metadata.name": r.siteCtx.namespaceName,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	r.siteCtx.networkPolicy.SetNamespace(r.siteCtx.namespaceName)
+	r.siteCtx.networkPolicy.SetName(r.siteCtx.networkPolicyName)
 }

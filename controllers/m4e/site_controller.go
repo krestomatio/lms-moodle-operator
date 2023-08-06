@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/fields"
@@ -62,6 +63,7 @@ type SiteReconcilerContext struct {
 	name                    string
 	flavorName              string
 	namespaceName           string
+	networkPolicyName       string
 	moodleName              string
 	nfsName                 string
 	keydbName               string
@@ -87,6 +89,7 @@ type SiteReconcilerContext struct {
 	combinedKeydbSpec       map[string]interface{}
 	combinedPostgresSpec    map[string]interface{}
 	namespace               *corev1.Namespace
+	networkPolicy           *networkingv1.NetworkPolicy
 }
 
 type FlavorNotFoundError struct {
@@ -113,6 +116,7 @@ type SiteReconciler struct {
 //+kubebuilder:rbac:groups=keydb.krestomat.io,resources=keydbs,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=postgres.krestomat.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch;create
+//+kubebuilder:rbac:groups=networking.k8s.io,resources=networkpolicies,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -165,6 +169,8 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	}
 	// set namespace name. It must start with an alphabetic character
 	r.siteCtx.namespaceName = baseNamespace
+	// set network policy name. It must start with an alphabetic character
+	r.siteCtx.networkPolicyName = baseName
 	// set Moodle name. It must start with an alphabetic character
 	r.siteCtx.moodleName = baseName
 	// set Postgres name. It must start with an alphabetic character
@@ -176,6 +182,8 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	// site namespace
 	r.siteCtx.namespace = &corev1.Namespace{}
 	r.siteCtx.namespace.SetName(r.siteCtx.namespaceName)
+	// site network policy
+	r.siteNetworkPolicy()
 	// dependant components
 	r.siteCtx.moodle = newUnstructuredObject(r.MoodleGVK)
 	r.siteCtx.postgres = newUnstructuredObject(r.PostgresGVK)
@@ -217,7 +225,6 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	if err := r.setSiteLabels(ctx); err != nil {
 		return err
 	}
-	r.siteCtx.namespace.SetLabels(r.siteCtx.site.GetLabels())
 	r.siteCtx.postgres.SetLabels(r.siteCtx.site.GetLabels())
 	r.siteCtx.nfs.SetLabels(r.siteCtx.site.GetLabels())
 	r.siteCtx.keydb.SetLabels(r.siteCtx.site.GetLabels())
@@ -304,6 +311,11 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 
 	// Create namespace
 	if err := r.ReconcileCreate(ctx, r.siteCtx.site, r.siteCtx.namespace); err != nil {
+		return false, err
+	}
+
+	// Create network policy
+	if err := r.ReconcileCreate(ctx, r.siteCtx.site, r.siteCtx.networkPolicy); err != nil {
 		return false, err
 	}
 
