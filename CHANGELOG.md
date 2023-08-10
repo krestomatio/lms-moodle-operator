@@ -2,4 +2,4 @@
 
 ### New Features
 
-* add site network policy (Job Céspedes Ortiz)
+* add new moodle states (Job Céspedes Ortiz)
