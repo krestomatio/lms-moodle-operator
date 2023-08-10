@@ -1440,6 +1440,9 @@ spec:
                 - Unknown
                 - Creating
                 - SettingUp
+                - UpdatePending
+                - UpdateStarted
+                - UpdateComplete
                 - Failed
                 - Ready
                 - Terminating

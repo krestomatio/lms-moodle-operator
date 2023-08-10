@@ -57,7 +57,7 @@ type SiteStatus struct {
 }
 
 // StatusState describes the site state
-// +kubebuilder:validation:Enum=Unknown;Creating;SettingUp;Failed;Ready;Terminating;
+// +kubebuilder:validation:Enum=Unknown;Creating;SettingUp;UpdatePending;UpdateStarted;UpdateComplete;Failed;Ready;Terminating;
 type StatusState string
 
 const (
