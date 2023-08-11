@@ -1,5 +1,5 @@
 ## Changes
 
-### New Features
+### Code Refactoring
 
-* add new moodle states (Job Céspedes Ortiz)
+* centralize state handling (Job Céspedes Ortiz)
