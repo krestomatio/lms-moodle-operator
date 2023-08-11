@@ -439,7 +439,6 @@ func (r *SiteReconciler) setSiteLabels(ctx context.Context) error {
 
 	// set base labels
 	siteLabels[m4ev1alpha1.GroupVersion.Group+"/site-name"] = r.siteCtx.name
-	siteLabels[m4ev1alpha1.GroupVersion.Group+"/flavor-name"] = r.siteCtx.flavorName
 	siteLabels[m4ev1alpha1.GroupVersion.Group+"/meta-operator-name"] = OPERATORNAME
 
 	r.siteCtx.site.SetLabels(siteLabels)
