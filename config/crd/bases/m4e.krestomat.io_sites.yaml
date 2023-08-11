@@ -1528,16 +1528,6 @@ spec:
               state:
                 default: Unknown
                 description: state describes the site state
-                enum:
-                - Unknown
-                - Creating
-                - SettingUp
-                - UpdatePending
-                - UpdateStarted
-                - UpdateComplete
-                - Failed
-                - Ready
-                - Terminating
                 type: string
             type: object
         type: object

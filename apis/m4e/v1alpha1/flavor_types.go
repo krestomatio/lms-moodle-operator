@@ -52,7 +52,7 @@ type FlavorStatus struct {
 	// state describes the site state
 	// +kubebuilder:default:="Unknown"
 	// +optional
-	State StatusState `json:"state,omitempty"`
+	State string `json:"state,omitempty"`
 }
 
 //+kubebuilder:object:root=true

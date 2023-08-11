@@ -264,8 +264,8 @@ func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool,
 	// indicated by the deletion timestamp being set.
 	if r.siteCtx.markedToBeDeleted {
 		// update site state (terminating)
-		if err := r.updateSiteState(ctx); err != nil {
-			return false, false, err
+		if requeue, err := r.updateSiteState(ctx); err != nil {
+			return false, requeue, err
 		}
 		if controllerutil.ContainsFinalizer(r.siteCtx.site, SiteFinalizer) {
 			// Run finalization logic for SiteFinalizer. If the
@@ -351,13 +351,23 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 		}
 		// Update Site status about NFS Ganesha
 		nfsReady = r.SetNfsReadyCondition(ctx, r.siteCtx.site, r.siteCtx.nfs)
+	}
 
-		// Wait for NFS Ganesha server to be ready; otherwise requeue
-		// NFS Ganesha server must be ready in order to mount its export as pvc
-		if !nfsReady {
-			log.Info("(NFS) Ganesha server is not ready, requeueing...", "Ganesha.Name", r.siteCtx.nfs.GetName())
-			return true, r.updateSiteState(ctx)
-		}
+	// Wait for postgres to be ready; otherwise requeue
+	if !postgresReady {
+		log.Info("Postgres is not ready, requeueing...", "Postgres.Name", r.siteCtx.postgres.GetName())
+		return r.updateSiteState(ctx)
+	}
+	// Wait for Keydb to be ready; otherwise requeue
+	if !keydbReady {
+		log.Info("Keydb is not ready, requeueing...", "Keydb.Name", r.siteCtx.keydb.GetName())
+		return r.updateSiteState(ctx)
+	}
+	// Wait for NFS Ganesha to be ready; otherwise requeue
+	// NFS Ganesha server must be ready in order to mount its export as pvc
+	if !nfsReady {
+		log.Info("(NFS) Ganesha server is not ready, requeueing...", "Ganesha.Name", r.siteCtx.nfs.GetName())
+		return r.updateSiteState(ctx)
 	}
 
 	// Save Moodle spec
@@ -368,13 +378,14 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 	}
 	// Update site status about Moodle
 	moodleReady = r.SetMoodleReadyCondition(ctx, r.siteCtx.site, r.siteCtx.moodle)
-
-	// Set site ready contidion status and state
-	if nfsReady && moodleReady && keydbReady && postgresReady {
-		r.SetReadyCondition(ctx, r.siteCtx.site)
+	// Wait for Keydb to be ready; otherwise requeue
+	if !moodleReady {
+		log.Info("Moodle is not ready, requeueing...", "Moodle.Name", r.siteCtx.moodle.GetName())
+		return r.updateSiteState(ctx)
 	}
 
-	return false, r.updateSiteState(ctx)
+	// site is ready
+	return r.updateSiteState(ctx)
 }
 
 // ignoreDeletionPredicate filters Delete events on resources that have been confirmed deleted
