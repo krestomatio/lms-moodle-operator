@@ -214,53 +214,45 @@ func (r *FlavorReconciler) finalizeFlavor(ctx context.Context) error {
 
 // updateSiteState update site state
 // return any error
-func (r *SiteReconciler) updateSiteState(ctx context.Context) error {
+func (r *SiteReconciler) updateSiteState(ctx context.Context) (requeue bool, err error) {
 	log := log.FromContext(ctx)
 
 	var state string
 
-	// get ready condition
-	readyCondition, readyConditionFound, readyConditionErr := getConditionByType(r.siteCtx.site, ReadyConditionType)
-
-	if readyConditionErr != nil {
-		log.Error(readyConditionErr, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
-		return readyConditionErr
+	state, err = r.setSiteState(ctx)
+	if err != nil {
+		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
+		return true, err
 	}
 
-	// get Moodle ready condition
-	moodleReadyCondition, moodleReadyConditionFound, moodleReadyConditionErr := getConditionByType(r.siteCtx.site, MoodleReadyConditionType)
-
-	if moodleReadyConditionErr != nil {
-		log.Error(moodleReadyConditionErr, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
-		return moodleReadyConditionErr
-	}
-
-	if readyConditionFound && moodleReadyConditionFound {
-		state = r.setSiteState(readyCondition, moodleReadyCondition)
-	} else {
-		state = string(m4ev1alpha1.SettingUpState)
-	}
-
-	// set state in site object
+	// Set state in site object
 	stateUpdate, err := SetStatusState(r.siteCtx.site, state)
 	if err != nil {
 		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
-		return err
+		return true, err
 	}
 
+	// If state not updated, return
 	if !stateUpdate {
 		log.V(1).Info("Site state not updated")
-		return nil
+		return false, nil
 	}
 
-	// save status
+	// Save status
 	if err := r.Status().Update(ctx, r.siteCtx.site); err != nil {
 		log.Error(err, "Unable to update Site '"+r.siteCtx.name+"' state")
-		return err
+		return true, err
 	}
 
 	log.V(1).Info("Site state updated")
-	return nil
+
+	if state == m4ev1alpha1.ReadyState {
+		return false, r.SetReadyCondition(ctx)
+	} else if state == m4ev1alpha1.TerminatingState {
+		return false, nil
+	} else {
+		return true, nil
+	}
 }
 
 // updateFlavorState update flavor state
@@ -292,34 +284,77 @@ func (r *FlavorReconciler) updateFlavorState(ctx context.Context) error {
 	return nil
 }
 
+// getDependantReadyReason return string from ready reason condition, given a condition type
+// return reason string and error
+func (r *SiteReconciler) getDependantReadyReason(ctx context.Context, dependant string) (reason string, err error) {
+	log := log.FromContext(ctx)
+
+	reason = dependant + "Pending"
+	contidionType := dependant + "Ready"
+
+	// get  ready condition
+	ReadyCondition, ReadyConditionFound, ReadyConditionErr := getConditionByType(r.siteCtx.site, contidionType)
+
+	if ReadyConditionErr != nil {
+		log.Error(ReadyConditionErr, "unable to get condition type for Site '"+r.siteCtx.site.GetName()+"' state")
+		return "Failed", ReadyConditionErr
+	}
+
+	if !ReadyConditionFound {
+		log.Info(contidionType + " not found for site '" + r.siteCtx.site.GetName())
+		return reason, ReadyConditionErr
+	}
+
+	Reason, ok := ReadyCondition["reason"]
+	if !ok {
+		log.Info(contidionType + " reason in not found for site '" + r.siteCtx.site.GetName())
+		return reason, err
+	}
+
+	reason = dependant + Reason.(string)
+
+	return reason, err
+}
+
 // setSiteState defines Site state value from ready condition
 // return state string
-func (r *SiteReconciler) setSiteState(readyCondition map[string]interface{}, moodleReadyCondition map[string]interface{}) string {
-	status := readyCondition["status"]
-	moodleStatus := moodleReadyCondition["status"]
-	moodleReason := moodleReadyCondition["reason"]
-
+func (r *SiteReconciler) setSiteState(ctx context.Context) (state string, err error) {
 	// Terminating
 	if r.siteCtx.markedToBeDeleted {
-		return string(m4ev1alpha1.TerminatingState)
+		return m4ev1alpha1.TerminatingState, err
 	}
 
-	if status == "False" || moodleStatus == "False" {
-		// Failed
-		if moodleReason == "Error" {
-			return string(m4ev1alpha1.FailedState)
-		}
-		// Creating
-		if moodleReason == "NotInstantiated" || moodleReason == "Instantiated" || moodleReason == "NotCreated" {
-			return string(m4ev1alpha1.CreatingState)
-		}
-	}
-	// Ready
-	if moodleStatus == "True" {
-		return string(m4ev1alpha1.ReadyState)
+	// get postgres ready condition
+	state, err = r.getDependantReadyReason(ctx, "Postgres")
+
+	if state != "Postgres"+m4ev1alpha1.SuccessfulState {
+		return state, err
 	}
 
-	return string(m4ev1alpha1.UnknownState)
+	// get Keydb ready condition
+	state, err = r.getDependantReadyReason(ctx, "Keydb")
+
+	if state != "Keydb"+m4ev1alpha1.SuccessfulState {
+		return state, err
+	}
+
+	// get Nfs ready condition
+	state, err = r.getDependantReadyReason(ctx, "Nfs")
+
+	if state != "Nfs"+m4ev1alpha1.SuccessfulState {
+		return state, err
+	}
+
+	// get Moodle ready condition
+	state, err = r.getDependantReadyReason(ctx, "Moodle")
+
+	if state != "Moodle"+m4ev1alpha1.SuccessfulState {
+		return state, err
+	}
+
+	state = m4ev1alpha1.ReadyState
+
+	return state, err
 }
 
 // setNotifyUUID defines site uuid if notifying status to an endpoint
@@ -344,10 +379,10 @@ func (r *SiteReconciler) setNotifyUUID() error {
 // return state string
 func (r *FlavorReconciler) setFlavorState() string {
 	if r.flavorCtx.markedToBeDeleted {
-		return string(m4ev1alpha1.TerminatingState)
+		return m4ev1alpha1.TerminatingState
 	}
 
-	return string(m4ev1alpha1.ReadyState)
+	return m4ev1alpha1.ReadyState
 }
 
 // SetStatusState set status state key in unstructure object

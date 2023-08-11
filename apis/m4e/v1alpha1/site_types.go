@@ -53,31 +53,24 @@ type SiteStatus struct {
 	// state describes the site state
 	// +kubebuilder:default:="Unknown"
 	// +optional
-	State StatusState `json:"state,omitempty"`
+	State string `json:"state,omitempty"`
 }
-
-// StatusState describes the site state
-// +kubebuilder:validation:Enum=Unknown;Creating;SettingUp;UpdatePending;UpdateStarted;UpdateComplete;Failed;Ready;Terminating;
-type StatusState string
 
 const (
 	// Resource is in an unknown
-	UnknownState StatusState = "Unknown"
-
-	// Resource is being created
-	CreatingState StatusState = "Creating"
-
-	// Resource is being set up
-	SettingUpState StatusState = "SettingUp"
+	UnknownState string = "Unknown"
 
 	// Resource has failed
-	FailedState StatusState = "Failed"
+	FailedState string = "Failed"
 
 	// Resource is ready
-	ReadyState StatusState = "Ready"
+	ReadyState string = "Ready"
 
 	// Resource is being deleted
-	TerminatingState StatusState = "Terminating"
+	TerminatingState string = "Terminating"
+
+	// Resource is successful
+	SuccessfulState string = "Successful"
 )
 
 //+kubebuilder:object:root=true

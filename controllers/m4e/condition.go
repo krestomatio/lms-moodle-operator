@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -31,27 +32,31 @@ func FindConditionUnstructuredByType(conditionsUnstructured []interface{}, condi
 }
 
 // SetReadyCondition set ready condition
-func (r *SiteReconciler) SetReadyCondition(ctx context.Context, site *unstructured.Unstructured) {
+func (r *SiteReconciler) SetReadyCondition(ctx context.Context) (err error) {
 	log := log.FromContext(ctx)
 
-	parentReadyCondition := map[string]interface{}{
+	readyCondition := map[string]interface{}{
 		"type":    "Ready",
 		"status":  "True",
-		"reason":  "SiteReady",
+		"reason":  m4ev1alpha1.SuccessfulState,
 		"message": "Site is ready",
 	}
 
-	hasSetCondition, setConditionErr := SetCondition(site, parentReadyCondition)
+	hasSetCondition, setConditionErr := SetCondition(r.siteCtx.site, readyCondition)
 	if setConditionErr != nil {
 		log.Error(setConditionErr, "unable to set ready condition based on dependant condition status")
+		return setConditionErr
 	}
 
 	// update parent status conditions if conditions changed
 	if hasSetCondition {
-		if err := r.Status().Update(ctx, site); err != nil {
+		if err := r.Status().Update(ctx, r.siteCtx.site); err != nil {
 			log.Error(err, "unable to update resource status")
+			return setConditionErr
 		}
 	}
+
+	return err
 }
 
 // SetMoodleReadyCondition set ready condition depending on ready status of Moodle
