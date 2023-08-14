@@ -160,11 +160,11 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	log.V(1).Info("Reconcile set")
 
 	// set base name for dependant resources
-	baseName := SiteNamePrefix + truncate(r.siteCtx.name, 13)
+	baseName := truncate(SiteNamePrefix+r.siteCtx.name, 18)
 	baseNamespace := SiteNamePrefix + r.siteCtx.name
 	// if site name already include the prefix, do not use it
 	if hasPrefix := strings.HasPrefix(r.siteCtx.name, SiteNamePrefix); hasPrefix {
-		baseName = truncate(r.siteCtx.name, 13)
+		baseName = truncate(r.siteCtx.name, 18)
 		baseNamespace = r.siteCtx.name
 	}
 	// set namespace name. It must start with an alphabetic character
