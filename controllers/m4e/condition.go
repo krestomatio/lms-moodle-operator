@@ -44,7 +44,7 @@ func (r *SiteReconciler) SetReadyCondition(ctx context.Context) (err error) {
 
 	hasSetCondition, setConditionErr := SetCondition(r.siteCtx.site, readyCondition)
 	if setConditionErr != nil {
-		log.Error(setConditionErr, "unable to set ready condition based on dependant condition status")
+		log.Error(setConditionErr, "unable to set ready condition")
 		return setConditionErr
 	}
 
@@ -57,6 +57,26 @@ func (r *SiteReconciler) SetReadyCondition(ctx context.Context) (err error) {
 	}
 
 	return err
+}
+
+// SetFalseReadyCondition set false ready condition
+func (r *SiteReconciler) SetFalseReadyCondition(ctx context.Context, reason string, message string) (changed bool, err error) {
+	log := log.FromContext(ctx)
+
+	readyCondition := map[string]interface{}{
+		"type":    "Ready",
+		"status":  "False",
+		"reason":  reason,
+		"message": message,
+	}
+
+	changed, setConditionErr := SetCondition(r.siteCtx.site, readyCondition)
+	if setConditionErr != nil {
+		log.Error(setConditionErr, "unable to set false ready condition")
+		return false, setConditionErr
+	}
+
+	return changed, err
 }
 
 // SetMoodleReadyCondition set ready condition depending on ready status of Moodle

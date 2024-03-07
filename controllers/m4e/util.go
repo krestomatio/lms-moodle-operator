@@ -182,6 +182,19 @@ func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err er
 	}
 
 	if !requeue {
+		// Set terminated state
+		if _, err := r.SetFalseReadyCondition(ctx, m4ev1alpha1.TerminatedState, "Finalizer ended"); err != nil {
+			return false, err
+		}
+		if statusStateUpdated, err := SetStatusState(r.siteCtx.site, m4ev1alpha1.TerminatedState); err != nil {
+			return false, err
+		} else if statusStateUpdated {
+			if err := r.Status().Update(ctx, r.siteCtx.site); err != nil {
+				log.Error(err, "Unable to update Site '"+r.siteCtx.name+"' state")
+				return false, err
+			}
+		}
+
 		log.Info("Successfully finalized site")
 	}
 
@@ -212,9 +225,9 @@ func (r *FlavorReconciler) finalizeFlavor(ctx context.Context) error {
 	return nil
 }
 
-// updateSiteState update site state
+// updateSiteStatus update site state
 // return any error
-func (r *SiteReconciler) updateSiteState(ctx context.Context) (requeue bool, err error) {
+func (r *SiteReconciler) updateSiteStatus(ctx context.Context) (requeue bool, err error) {
 	log := log.FromContext(ctx)
 
 	var state string
@@ -235,6 +248,23 @@ func (r *SiteReconciler) updateSiteState(ctx context.Context) (requeue bool, err
 	// If state not updated, return
 	if !stateUpdate {
 		log.V(1).Info("Site state not updated")
+	}
+
+	// Set status from moodle in site object
+	moodleStatusUpdate, err := SetStatusFromMoodle(r.siteCtx.site, r.siteCtx.moodle)
+	if err != nil {
+		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
+		return true, err
+	}
+
+	// If status from moodle not updated, return
+	if !moodleStatusUpdate {
+		log.V(1).Info("Site status from moodle not updated")
+	}
+
+	// If status not updated, return
+	if !stateUpdate && !moodleStatusUpdate {
+		log.V(1).Info("Site status not updated")
 		return false, nil
 	}
 
@@ -321,6 +351,9 @@ func (r *SiteReconciler) getDependantReadyReason(ctx context.Context, dependant 
 func (r *SiteReconciler) setSiteState(ctx context.Context) (state string, err error) {
 	// Terminating
 	if r.siteCtx.markedToBeDeleted {
+		if _, err := r.SetFalseReadyCondition(ctx, m4ev1alpha1.TerminatingState, "Finalizer started"); err != nil {
+			return state, err
+		}
 		return m4ev1alpha1.TerminatingState, err
 	}
 
@@ -404,6 +437,150 @@ func SetStatusState(objU *unstructured.Unstructured, state string) (bool, error)
 	}
 
 	return updateState, nil
+}
+
+// SetStatusFromMoodle set status keys from moodle CR in unstructure object
+// It returns a bool flag if status from moodle was updated, and
+// any error
+func SetStatusFromMoodle(siteU *unstructured.Unstructured, moodleU *unstructured.Unstructured) (bool, error) {
+	if moodleU == nil {
+		return false, nil
+	}
+
+	updateStatusFromMoodle := false
+
+	moodleUrl, moodleUrlFound, moodleUrlErr := unstructured.NestedString(moodleU.UnstructuredContent(), "status", "url")
+	moodleStorageGb, moodleStorageGbFound, moodleStorageGbErr := getStorageGbUsage(moodleU)
+	moodleRegisteredUsers, moodleRegisteredUsersFound, moodleRegisteredUsersErr := getRegisteredUsersUsage(moodleU)
+	moodleRelease, moodleReleaseFound, moodleReleaseErr := unstructured.NestedString(moodleU.UnstructuredContent(), "status", "version", "release")
+
+	if moodleUrlErr != nil {
+		return false, moodleUrlErr
+	}
+	if moodleStorageGbErr != nil {
+		return false, moodleStorageGbErr
+	}
+	if moodleRegisteredUsersErr != nil {
+		return false, moodleRegisteredUsersErr
+	}
+	if moodleReleaseErr != nil {
+		return false, moodleReleaseErr
+	}
+
+	siteUrl, _, siteUrlErr := unstructured.NestedString(siteU.UnstructuredContent(), "status", "url")
+	siteStorageGb, _, siteStorageGbErr := unstructured.NestedString(siteU.UnstructuredContent(), "status", "storageGb")
+	siteRegisteredUsers, _, siteRegisteredUsersErr := unstructured.NestedInt64(siteU.UnstructuredContent(), "status", "registeredUsers")
+	siteRelease, _, siteReleaseErr := unstructured.NestedString(siteU.UnstructuredContent(), "status", "release")
+
+	if siteUrlErr != nil {
+		return false, siteUrlErr
+	}
+	if siteStorageGbErr != nil {
+		return false, siteStorageGbErr
+	}
+	if siteRegisteredUsersErr != nil {
+		return false, siteRegisteredUsersErr
+	}
+	if siteReleaseErr != nil {
+		return false, siteReleaseErr
+	}
+
+	if moodleUrlFound && siteUrl != moodleUrl {
+		updateStatusFromMoodle = true
+		if err := unstructured.SetNestedField(siteU.Object, moodleUrl, "status", "url"); err != nil {
+			return false, err
+		}
+	}
+
+	if moodleStorageGbFound && siteStorageGb != moodleStorageGb {
+		updateStatusFromMoodle = true
+		if err := unstructured.SetNestedField(siteU.Object, moodleStorageGb, "status", "storageGb"); err != nil {
+			return false, err
+		}
+	}
+
+	if moodleRegisteredUsersFound && siteRegisteredUsers != moodleRegisteredUsers {
+		updateStatusFromMoodle = true
+		if err := unstructured.SetNestedField(siteU.Object, moodleRegisteredUsers, "status", "registeredUsers"); err != nil {
+			return false, err
+		}
+	}
+
+	if moodleReleaseFound && siteRelease != moodleRelease {
+		updateStatusFromMoodle = true
+		if err := unstructured.SetNestedField(siteU.Object, moodleRelease, "status", "release"); err != nil {
+			return false, err
+		}
+	}
+
+	return updateStatusFromMoodle, nil
+}
+
+// getStorageGbUsage returns storage gb from a unstructure status object,
+// a bool flag which indicates whether usage item exists, and
+// any error getting the usage item
+func getStorageGbUsage(objU *unstructured.Unstructured) (string, bool, error) {
+	storageGbUsageItemName := "storage_total"
+
+	// look for usage item in unstructured object
+	moodleStorageGb, moodleStorageGbFound, moodleStorageGbErr := getUsageItemByName(objU, storageGbUsageItemName)
+	if moodleStorageGbErr != nil || !moodleStorageGbFound {
+		return "", false, moodleStorageGbErr
+	}
+
+	value, ok := moodleStorageGb["value"].(string)
+
+	return value, ok, nil
+}
+
+// getRegisteredUsersUsage returns registered users from a unstructure status object,
+// a bool flag which indicates whether usage item exists, and
+// any error getting the usage item
+func getRegisteredUsersUsage(objU *unstructured.Unstructured) (int64, bool, error) {
+	registeredUsersUsageItemName := "users_total"
+
+	// look for usage item in unstructured object
+	moodleRegisteredUsers, moodleRegisteredUsersFound, moodleRegisteredUsersErr := getUsageItemByName(objU, registeredUsersUsageItemName)
+	if moodleRegisteredUsersErr != nil || !moodleRegisteredUsersFound {
+		return 0, false, moodleRegisteredUsersErr
+	}
+
+	value, ok := moodleRegisteredUsers["value"].(int64)
+
+	return value, ok, nil
+}
+
+// getUsageItemByName returns a usage item by name from a unstructure object,
+// a bool flag which indicates whether usage item exists, and
+// any error getting the usage item
+func getUsageItemByName(objU *unstructured.Unstructured, usageItemName string) (map[string]interface{}, bool, error) {
+	// look for usage slice in unstructured object
+	usage, usageFound, usageErr := unstructured.NestedSlice(objU.Object, "status", "usage")
+	if usageErr != nil {
+		return make(map[string]interface{}), false, usageErr
+	}
+
+	if !usageFound {
+		return make(map[string]interface{}), false, nil
+	}
+
+	// look for usageItem type
+	usageItem, usageItemFound := FindUsageItemUnstructuredByName(usage, usageItemName)
+
+	return usageItem, usageItemFound, nil
+}
+
+// FindUsageItemUnstructuredByName returns first usage item with given name
+// along with bool flag which indicates if the usage item is found or not
+func FindUsageItemUnstructuredByName(usageUnstructured []interface{}, usageName string) (map[string]interface{}, bool) {
+	for _, usageItemUnstructured := range usageUnstructured {
+		if usageItemAsMap, ok := usageItemUnstructured.(map[string]interface{}); ok {
+			if typeString, ok := usageItemAsMap["name"]; ok && typeString == usageName {
+				return usageItemAsMap, true
+			}
+		}
+	}
+	return make(map[string]interface{}), false
 }
 
 // Init a new unstructured object with determined GVK

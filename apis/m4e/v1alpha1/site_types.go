@@ -54,6 +54,24 @@ type SiteStatus struct {
 	// +kubebuilder:default:="Unknown"
 	// +optional
 	State string `json:"state,omitempty"`
+
+	// Site url
+	// +optional
+	Url string `json:"url,omitempty"`
+
+	// Site number of current GB for storage capacity
+	// +kubebuilder:default:="0"
+	// +optional
+	StorageGb string `json:"storageGb,omitempty"`
+
+	// Site number of current registered users for user capacity
+	// +kubebuilder:default:=0
+	// +optional
+	RegisteredUsers int64 `json:"registeredUsers,omitempty"`
+
+	// Site moodle version
+	// +optional
+	Release string `json:"release,omitempty"`
 }
 
 const (
@@ -68,6 +86,9 @@ const (
 
 	// Resource is being deleted
 	TerminatingState string = "Terminating"
+
+	// Resource has being deleted
+	TerminatedState string = "Terminated"
 
 	// Resource is successful
 	SuccessfulState string = "Successful"

@@ -1525,9 +1525,24 @@ spec:
                 x-kubernetes-list-map-keys:
                 - type
                 x-kubernetes-list-type: map
+              registeredUsers:
+                default: 0
+                description: Site number of current registered users for user capacity
+                format: int64
+                type: integer
+              release:
+                description: Site moodle version
+                type: string
               state:
                 default: Unknown
                 description: state describes the site state
+                type: string
+              storageGb:
+                default: "0"
+                description: Site number of current GB for storage capacity
+                type: string
+              url:
+                description: Site url
                 type: string
             type: object
         type: object

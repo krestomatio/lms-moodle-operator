@@ -264,18 +264,15 @@ func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool,
 	// indicated by the deletion timestamp being set.
 	if r.siteCtx.markedToBeDeleted {
 		// update site state (terminating)
-		if requeue, err := r.updateSiteState(ctx); err != nil {
+		if requeue, err := r.updateSiteStatus(ctx); err != nil {
 			return false, requeue, err
 		}
 		if controllerutil.ContainsFinalizer(r.siteCtx.site, SiteFinalizer) {
 			// Run finalization logic for SiteFinalizer. If the
 			// finalization logic fails, don't remove the finalizer so
 			// that we can retry during the next reconciliation.
-			if requeue, err := r.finalizeSite(ctx); err != nil {
-				return false, false, err
-			} else if requeue {
-				// finalizer requires requeue
-				return false, true, err
+			if requeue, err := r.finalizeSite(ctx); err != nil || requeue {
+				return false, requeue, err
 			}
 
 			// Remove SiteFinalizer. Once all finalizers have been
@@ -356,18 +353,18 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 	// Wait for postgres to be ready; otherwise requeue
 	if !postgresReady {
 		log.Info("Postgres is not ready, requeueing...", "Postgres.Name", r.siteCtx.postgres.GetName())
-		return r.updateSiteState(ctx)
+		return r.updateSiteStatus(ctx)
 	}
 	// Wait for Keydb to be ready; otherwise requeue
 	if !keydbReady {
 		log.Info("Keydb is not ready, requeueing...", "Keydb.Name", r.siteCtx.keydb.GetName())
-		return r.updateSiteState(ctx)
+		return r.updateSiteStatus(ctx)
 	}
 	// Wait for NFS Ganesha to be ready; otherwise requeue
 	// NFS Ganesha server must be ready in order to mount its export as pvc
 	if !nfsReady {
 		log.Info("(NFS) Ganesha server is not ready, requeueing...", "Ganesha.Name", r.siteCtx.nfs.GetName())
-		return r.updateSiteState(ctx)
+		return r.updateSiteStatus(ctx)
 	}
 
 	// Save Moodle spec
@@ -381,11 +378,11 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 	// Wait for Keydb to be ready; otherwise requeue
 	if !moodleReady {
 		log.Info("Moodle is not ready, requeueing...", "Moodle.Name", r.siteCtx.moodle.GetName())
-		return r.updateSiteState(ctx)
+		return r.updateSiteStatus(ctx)
 	}
 
 	// site is ready
-	return r.updateSiteState(ctx)
+	return r.updateSiteStatus(ctx)
 }
 
 // ignoreDeletionPredicate filters Delete events on resources that have been confirmed deleted
