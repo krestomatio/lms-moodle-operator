@@ -183,6 +183,9 @@ func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err er
 
 	if !requeue {
 		// Set terminated state
+		if _, err := r.SetFalseReadyCondition(ctx, m4ev1alpha1.TerminatedState, "Finalizer ended"); err != nil {
+			return false, err
+		}
 		if statusStateUpdated, err := SetStatusState(r.siteCtx.site, m4ev1alpha1.TerminatedState); err != nil {
 			return false, err
 		} else if statusStateUpdated {
@@ -348,6 +351,9 @@ func (r *SiteReconciler) getDependantReadyReason(ctx context.Context, dependant 
 func (r *SiteReconciler) setSiteState(ctx context.Context) (state string, err error) {
 	// Terminating
 	if r.siteCtx.markedToBeDeleted {
+		if _, err := r.SetFalseReadyCondition(ctx, m4ev1alpha1.TerminatingState, "Finalizer started"); err != nil {
+			return state, err
+		}
 		return m4ev1alpha1.TerminatingState, err
 	}
 
