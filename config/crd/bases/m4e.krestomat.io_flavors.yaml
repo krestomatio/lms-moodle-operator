@@ -69,6 +69,19 @@ spec:
                     description: KeydbNodeSelector defines any node labels selectors
                       for Keydb pods.
                     type: string
+                  keydbPvcDataAutoexpansion:
+                    description: KeydbPvcDataAutoexpansion enables autoexpansion
+                    type: boolean
+                  keydbPvcDataAutoexpansionCapGib:
+                    description: KeydbPvcDataAutoexpansionCapGib defines limit for
+                      autoexpansion increments
+                    format: int32
+                    type: integer
+                  keydbPvcDataAutoexpansionIncrementGib:
+                    description: KeydbPvcDataAutoexpansionIncrementGib defines Gib
+                      to increment
+                    format: int32
+                    type: integer
                   keydbPvcDataSize:
                     description: KeydbPvcDataSize defines keydb storage size
                     maxLength: 20
@@ -1222,6 +1235,19 @@ spec:
                     description: PostgresNodeSelector defines any node labels selectors
                       for Postgres pods.
                     type: string
+                  postgresPvcDataAutoexpansion:
+                    description: PostgresPvcDataAutoexpansion enables autoexpansion
+                    type: boolean
+                  postgresPvcDataAutoexpansionCapGib:
+                    description: PostgresPvcDataAutoexpansionCapGib defines limit
+                      for autoexpansion increments
+                    format: int32
+                    type: integer
+                  postgresPvcDataAutoexpansionIncrementGib:
+                    description: PostgresPvcDataAutoexpansionIncrementGib defines
+                      Gib to increment
+                    format: int32
+                    type: integer
                   postgresPvcDataSize:
                     description: PostgresPvcDataSize defines postgres storage size
                     maxLength: 20
@@ -1249,6 +1275,20 @@ spec:
                     description: PostgresReadreplicasNodeSelector defines any node
                       labels selectors for PostgresReadreplicas pods.
                     type: string
+                  postgresReadreplicasPvcDataAutoexpansion:
+                    description: PostgresReadreplicasPvcDataAutoexpansion enables
+                      autoexpansion
+                    type: boolean
+                  postgresReadreplicasPvcDataAutoexpansionCapGib:
+                    description: PostgresReadreplicasPvcDataAutoexpansionCapGib defines
+                      limit for autoexpansion increments
+                    format: int32
+                    type: integer
+                  postgresReadreplicasPvcDataAutoexpansionIncrementGib:
+                    description: PostgresReadreplicasPvcDataAutoexpansionIncrementGib
+                      defines Gib to increment
+                    format: int32
+                    type: integer
                   postgresReadreplicasPvcDataSize:
                     description: PostgresReadreplicasPvcDataSize defines postgres
                       readreplicas storage size

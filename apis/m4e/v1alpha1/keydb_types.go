@@ -54,6 +54,18 @@ type KeydbSpec struct {
 	// +optional
 	KeydbPvcDataStorageClassName string `json:"keydbPvcDataStorageClassName,omitempty"`
 
+	// KeydbPvcDataAutoexpansion enables autoexpansion
+	// +optional
+	KeydbPvcDataAutoexpansion bool `json:"keydbPvcDataAutoexpansion,omitempty"`
+
+	// KeydbPvcDataAutoexpansionIncrementGib defines Gib to increment
+	// +optional
+	KeydbPvcDataAutoexpansionIncrementGib int32 `json:"keydbPvcDataAutoexpansionIncrementGib,omitempty"`
+
+	// KeydbPvcDataAutoexpansionCapGib defines limit for autoexpansion increments
+	// +optional
+	KeydbPvcDataAutoexpansionCapGib int32 `json:"keydbPvcDataAutoexpansionCapGib,omitempty"`
+
 	// KeydbResourceRequests whether keydb resource requests are added. Default: true
 	// +optional
 	KeydbResourceRequests bool `json:"keydbResourceRequests,omitempty"`
