@@ -2,5 +2,4 @@
 
 ### New Features
 
-* add finalizer condition details (Job Céspedes Ortiz)
-* set status from moodle (Job Céspedes Ortiz)
+* api: add sts pvc autoexpansion to postgres and keydb (Job Céspedes Ortiz)
