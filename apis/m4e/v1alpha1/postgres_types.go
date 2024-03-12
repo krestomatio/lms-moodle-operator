@@ -54,6 +54,18 @@ type PostgresSpec struct {
 	// +optional
 	PostgresPvcDataStorageClassName string `json:"postgresPvcDataStorageClassName,omitempty"`
 
+	// PostgresPvcDataAutoexpansion enables autoexpansion
+	// +optional
+	PostgresPvcDataAutoexpansion bool `json:"postgresPvcDataAutoexpansion,omitempty"`
+
+	// PostgresPvcDataAutoexpansionIncrementGib defines Gib to increment
+	// +optional
+	PostgresPvcDataAutoexpansionIncrementGib int32 `json:"postgresPvcDataAutoexpansionIncrementGib,omitempty"`
+
+	// PostgresPvcDataAutoexpansionCapGib defines limit for autoexpansion increments
+	// +optional
+	PostgresPvcDataAutoexpansionCapGib int32 `json:"postgresPvcDataAutoexpansionCapGib,omitempty"`
+
 	// PostgresResourceRequests whether postgres resource requests are added. Default: true
 	// +optional
 	PostgresResourceRequests bool `json:"postgresResourceRequests,omitempty"`
@@ -117,6 +129,18 @@ type PostgresSpec struct {
 	// +kubebuilder:validation:MaxLength=63
 	// +optional
 	PostgresReadreplicasPvcDataStorageClassName string `json:"postgresReadreplicasPvcDataStorageClassName,omitempty"`
+
+	// PostgresReadreplicasPvcDataAutoexpansion enables autoexpansion
+	// +optional
+	PostgresReadreplicasPvcDataAutoexpansion bool `json:"postgresReadreplicasPvcDataAutoexpansion,omitempty"`
+
+	// PostgresReadreplicasPvcDataAutoexpansionIncrementGib defines Gib to increment
+	// +optional
+	PostgresReadreplicasPvcDataAutoexpansionIncrementGib int32 `json:"postgresReadreplicasPvcDataAutoexpansionIncrementGib,omitempty"`
+
+	// PostgresReadreplicasPvcDataAutoexpansionCapGib defines limit for autoexpansion increments
+	// +optional
+	PostgresReadreplicasPvcDataAutoexpansionCapGib int32 `json:"postgresReadreplicasPvcDataAutoexpansionCapGib,omitempty"`
 
 	// PostgresReadreplicasResourceRequests whether postgres readreplicas resource requests are added. Default: true
 	// +optional
