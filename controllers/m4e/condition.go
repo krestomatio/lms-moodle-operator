@@ -31,48 +31,30 @@ func FindConditionUnstructuredByType(conditionsUnstructured []interface{}, condi
 	return make(map[string]interface{}), false
 }
 
-// SetReadyCondition set ready condition
-func (r *SiteReconciler) SetReadyCondition(ctx context.Context) (err error) {
-	log := log.FromContext(ctx)
-
-	readyCondition := map[string]interface{}{
-		"type":    "Ready",
-		"status":  "True",
-		"reason":  m4ev1alpha1.SuccessfulState,
-		"message": "Site is ready",
-	}
-
-	hasSetCondition, setConditionErr := SetCondition(r.siteCtx.site, readyCondition)
-	if setConditionErr != nil {
-		log.Error(setConditionErr, "unable to set ready condition")
-		return setConditionErr
-	}
-
-	// update parent status conditions if conditions changed
-	if hasSetCondition {
-		if err := r.Status().Update(ctx, r.siteCtx.site); err != nil {
-			log.Error(err, "unable to update resource status")
-			return setConditionErr
-		}
-	}
-
-	return err
+// SetSuccessfulReadyCondition set successful ready condition
+func (r *SiteReconciler) SetSuccessfulReadyCondition(ctx context.Context) (changed bool, err error) {
+	return r.SetReadyCondition(ctx, "True", m4ev1alpha1.SuccessfulState, "Site is ready")
 }
 
 // SetFalseReadyCondition set false ready condition
 func (r *SiteReconciler) SetFalseReadyCondition(ctx context.Context, reason string, message string) (changed bool, err error) {
+	return r.SetReadyCondition(ctx, "False", reason, message)
+}
+
+// SetReadyCondition set ready condition
+func (r *SiteReconciler) SetReadyCondition(ctx context.Context, status string, reason string, message string) (changed bool, err error) {
 	log := log.FromContext(ctx)
 
 	readyCondition := map[string]interface{}{
 		"type":    "Ready",
-		"status":  "False",
+		"status":  status,
 		"reason":  reason,
 		"message": message,
 	}
 
 	changed, setConditionErr := SetCondition(r.siteCtx.site, readyCondition)
 	if setConditionErr != nil {
-		log.Error(setConditionErr, "unable to set false ready condition")
+		log.Error(setConditionErr, "unable to set ready condition")
 		return false, setConditionErr
 	}
 
@@ -81,32 +63,32 @@ func (r *SiteReconciler) SetFalseReadyCondition(ctx context.Context, reason stri
 
 // SetMoodleReadyCondition set ready condition depending on ready status of Moodle
 // and returns bool flag which indicates ready condition status of that dependant object
-func (r *SiteReconciler) SetMoodleReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
+func (r *SiteReconciler) SetMoodleReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, MoodleReadyConditionType, ReadyConditionType)
 }
 
 // SetPostgresReadyCondition set ready condition depending on ready status of Postgres
 // and returns bool flag which indicates ready condition status of that dependant object
-func (r *SiteReconciler) SetPostgresReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
+func (r *SiteReconciler) SetPostgresReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, PostgresReadyConditionType, ReadyConditionType)
 }
 
 // SetNfsReadyCondition set ready condition depending on ready status of NFS Ganesha
 // and returns bool flag which indicates ready condition status of that dependant object
-func (r *SiteReconciler) SetNfsReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
+func (r *SiteReconciler) SetNfsReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, NfsReadyConditionType, ReadyConditionType)
 }
 
 // SetKeydbReadyCondition set ready condition depending on ready status of Keydb
 // and returns bool flag which indicates ready condition status of that dependant object
-func (r *SiteReconciler) SetKeydbReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) bool {
+func (r *SiteReconciler) SetKeydbReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, KeydbReadyConditionType, ReadyConditionType)
 }
 
 // SetConditionFromDependantByType set a condition in a parent object from
 // a ready type condition of a dependant object based on its status
 // Returns bool flag which indicates ready condition status of the dependant object
-func (r *SiteReconciler) SetConditionFromDependantByType(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured, parentConditionType string, dependantConditionType string) bool {
+func (r *SiteReconciler) SetConditionFromDependantByType(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured, parentConditionType string, dependantConditionType string) (changed bool, status bool) {
 	log := log.FromContext(ctx)
 	dependantConditionStatus := false
 
@@ -115,20 +97,20 @@ func (r *SiteReconciler) SetConditionFromDependantByType(ctx context.Context, pa
 
 	if dependantConditionErr != nil {
 		log.Error(dependantConditionErr, "unable to get dependant condition")
-		return false
+		return false, false
 	}
 
 	if !dependantConditionFound {
 		log.V(1).Info("dependant condition not found")
-		return false
+		return false, false
 	}
 
 	// rename type to set parent condition
 	dependantCondition["type"] = parentConditionType
-	hasSetCondition, setConditionErr := SetCondition(parentObj, dependantCondition)
+	_, setConditionErr := SetCondition(parentObj, dependantCondition)
 	if setConditionErr != nil {
 		log.Error(setConditionErr, "unable to set condition based on dependant")
-		return false
+		return false, false
 	}
 
 	// if depedant condition status is false, set parent as not ready either
@@ -139,25 +121,17 @@ func (r *SiteReconciler) SetConditionFromDependantByType(ctx context.Context, pa
 			"reason":  "DependantNotReady",
 			"message": "Dependant is not ready",
 		}
-		hasSetParentReadyCondition, hasSetParentReadyConditionErr := SetCondition(parentObj, parentReadyCondition)
+		parentReadyConditionchanged, hasSetParentReadyConditionErr := SetCondition(parentObj, parentReadyCondition)
 		if hasSetParentReadyConditionErr != nil {
 			log.Error(hasSetParentReadyConditionErr, "unable to set ready condition based on dependant condition status")
-			return false
+			return false, false
 		}
-		hasSetCondition = hasSetParentReadyCondition
+		changed = parentReadyConditionchanged
 	} else {
 		dependantConditionStatus = true
 	}
 
-	// update parent status conditions
-	if hasSetCondition {
-		if err := r.Status().Update(ctx, parentObj); err != nil {
-			log.Error(err, "unable to update resource status")
-			return false
-		}
-	}
-
-	return dependantConditionStatus
+	return changed, dependantConditionStatus
 }
 
 // getConditionByType returns a condition by type from a unstructure object,

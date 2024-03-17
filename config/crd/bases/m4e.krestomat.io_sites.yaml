@@ -33,9 +33,21 @@ spec:
       jsonPath: .spec.flavor
       name: FLAVOR
       type: string
-    - description: Site URL
+    - description: Site Host
       jsonPath: .spec.moodleSpec.moodleHost
       name: HOST
+      type: string
+    - description: Site URL
+      jsonPath: .status.url
+      name: URL
+      type: string
+    - description: Site registered users
+      jsonPath: .status.registeredUsers
+      name: USERS
+      type: integer
+    - description: Site storage usage in GB
+      jsonPath: .status.storageGb
+      name: GB
       type: string
     name: v1alpha1
     schema:
@@ -1485,6 +1497,11 @@ spec:
                       spec
                     type: string
                 type: object
+              state:
+                description: State defines a state to put a site other than normal
+                enum:
+                - suspended
+                type: string
             required:
             - flavor
             - moodleSpec
