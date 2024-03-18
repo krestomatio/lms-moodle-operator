@@ -33,6 +33,11 @@ type SiteSpec struct {
 	// +kubebuilder:validation:MaxLength=255
 	Flavor string `json:"flavor"`
 
+	// State defines a state to put a site other than normal
+	// +kubebuilder:validation:Enum=suspended
+	// +optional
+	State string `json:"state,omitempty"`
+
 	// FlavorSpec to set same fields as Flavor
 	FlavorSpec `json:",inline"`
 }
@@ -92,6 +97,9 @@ const (
 
 	// Resource is successful
 	SuccessfulState string = "Successful"
+
+	// Resource is successful
+	SuspendedState string = "Suspended"
 )
 
 //+kubebuilder:object:root=true
@@ -101,7 +109,10 @@ const (
 //+kubebuilder:printcolumn:name="STATUS",type="string",description="Site status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
 //+kubebuilder:printcolumn:name="SINCE",type="date",JSONPath=".status.conditions[?(@.type=='Ready')].lastTransitionTime",description="Time of latest transition",priority=0
 //+kubebuilder:printcolumn:name="FLAVOR",type="string",description="Flavor name",JSONPath=".spec.flavor",priority=0
-//+kubebuilder:printcolumn:name="HOST",type="string",JSONPath=".spec.moodleSpec.moodleHost",description="Site URL",priority=0
+//+kubebuilder:printcolumn:name="HOST",type="string",JSONPath=".spec.moodleSpec.moodleHost",description="Site Host",priority=0
+//+kubebuilder:printcolumn:name="URL",type="string",JSONPath=".status.url",description="Site URL",priority=0
+//+kubebuilder:printcolumn:name="USERS",type="integer",JSONPath=".status.registeredUsers",description="Site registered users",priority=0
+//+kubebuilder:printcolumn:name="GB",type="string",JSONPath=".status.storageGb",description="Site storage usage in GB",priority=0
 
 // Site is the Schema for the sites API
 type Site struct {

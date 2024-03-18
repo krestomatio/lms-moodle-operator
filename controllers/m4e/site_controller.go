@@ -62,6 +62,7 @@ type SiteReconcilerContext struct {
 	flavorPostgresSpecFound bool
 	name                    string
 	flavorName              string
+	state                   string
 	namespaceName           string
 	networkPolicyName       string
 	moodleName              string
@@ -146,8 +147,17 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 		return ctrl.Result{Requeue: requeue}, nil
 	}
 
-	// Patch resources
-	if requeue, err := r.reconcilePersist(ctx); err != nil {
+	// Suspend logic
+	if r.siteCtx.state == "suspended" {
+		if requeue, err := r.reconcileSuspend(ctx); err != nil {
+			return ctrl.Result{}, err
+		} else {
+			return ctrl.Result{Requeue: requeue}, nil
+		}
+	}
+
+	// Present resources
+	if requeue, err := r.reconcilePresent(ctx); err != nil {
 		return ctrl.Result{}, err
 	} else {
 		return ctrl.Result{Requeue: requeue}, nil
@@ -208,6 +218,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.nfsSpec, r.siteCtx.nfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "nfsSpec")
 	r.siteCtx.keydbSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "keydbSpec")
 	r.siteCtx.flavorName, _, _ = unstructured.NestedString(r.siteCtx.spec, "flavor")
+	r.siteCtx.state, _, _ = unstructured.NestedString(r.siteCtx.spec, "state")
 
 	// Fetch flavor spec
 	r.siteCtx.flavor = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
@@ -295,8 +306,100 @@ func (r *SiteReconciler) reconcileFinalize(ctx context.Context) (finalized bool,
 	return false, false, nil
 }
 
-// reconcilePersist take care of applying and persisting changes
-func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, err error) {
+// reconcileSuspend take care of suspend state
+func (r *SiteReconciler) reconcileSuspend(ctx context.Context) (requeue bool, err error) {
+	log := log.FromContext(ctx)
+	log.V(1).Info("Reconcile persist")
+
+	// Save Moodle spec
+	r.siteCtx.moodle.Object["spec"] = r.siteCtx.combinedMoodleSpec
+	// Set suspended
+	if err := unstructured.SetNestedField(r.siteCtx.combinedMoodleSpec, "suspended", "cr_state"); err != nil {
+		return false, err
+	}
+	// Update site status about Moodle
+	r.SetMoodleReadyCondition(ctx, r.siteCtx.site, r.siteCtx.moodle)
+	// Apply Moodle resource
+	if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.moodle); err != nil {
+		return false, err
+	}
+	// Whether moodle is suspended
+	if suspended := r.isDependantSuspended(ctx, r.siteCtx.moodle); !suspended {
+		log.Info("Moodle resource is being suspended")
+		_, err := r.updateSiteStatus(ctx)
+		return true, err
+	}
+
+	// Save Keydb spec
+	if r.siteCtx.hasKeydb {
+		r.siteCtx.keydb.Object["spec"] = r.siteCtx.combinedKeydbSpec
+		// Set suspended
+		if err := unstructured.SetNestedField(r.siteCtx.combinedKeydbSpec, "suspended", "cr_state"); err != nil {
+			return false, err
+		}
+		// Update Site status about Keydb
+		r.SetKeydbReadyCondition(ctx, r.siteCtx.site, r.siteCtx.keydb)
+		// Apply Keydb resource
+		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.keydb); err != nil {
+			return false, err
+		}
+		// Whether keydb is suspended
+		if suspended := r.isDependantSuspended(ctx, r.siteCtx.keydb); !suspended {
+			log.Info("Keydb resource is being suspended")
+			_, err := r.updateSiteStatus(ctx)
+			return true, err
+		}
+	}
+
+	// Save NFS Ganesha server spec
+	if r.siteCtx.hasNfs {
+		// Save NFS Ganesha server spec
+		r.siteCtx.nfs.Object["spec"] = r.siteCtx.combinedNfsSpec
+		// Set suspended
+		if err := unstructured.SetNestedField(r.siteCtx.combinedNfsSpec, "suspended", "cr_state"); err != nil {
+			return false, err
+		}
+		// Update Site status about NFS Ganesha
+		r.SetNfsReadyCondition(ctx, r.siteCtx.site, r.siteCtx.nfs)
+		// Apply NFS Ganesha server resource
+		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.nfs); err != nil {
+			return false, err
+		}
+		// Whether nfs is suspended
+		if suspended := r.isDependantSuspended(ctx, r.siteCtx.nfs); !suspended {
+			log.Info("Nfs resource is being suspended")
+			_, err := r.updateSiteStatus(ctx)
+			return true, err
+		}
+	}
+
+	// Save Postgres spec
+	if r.siteCtx.hasPostgres {
+		r.siteCtx.postgres.Object["spec"] = r.siteCtx.combinedPostgresSpec
+		// Set suspended
+		if err := unstructured.SetNestedField(r.siteCtx.combinedPostgresSpec, "suspended", "cr_state"); err != nil {
+			return false, err
+		}
+		// Update Site status about Postgres
+		r.SetPostgresReadyCondition(ctx, r.siteCtx.site, r.siteCtx.postgres)
+		// Apply Postgres resource
+		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.postgres); err != nil {
+			return false, err
+		}
+		// Whether postgres is suspended
+		if suspended := r.isDependantSuspended(ctx, r.siteCtx.postgres); !suspended {
+			log.Info("Postgres resource is being suspended")
+			_, err := r.updateSiteStatus(ctx)
+			return true, err
+		}
+	}
+
+	// site is suspended
+	return r.updateSiteStatus(ctx)
+}
+
+// reconcilePresent take care of present state
+func (r *SiteReconciler) reconcilePresent(ctx context.Context) (requeue bool, err error) {
 	log := log.FromContext(ctx)
 	log.V(1).Info("Reconcile persist")
 
@@ -319,35 +422,47 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 	// Save Postgres spec
 	if r.siteCtx.hasPostgres {
 		r.siteCtx.postgres.Object["spec"] = r.siteCtx.combinedPostgresSpec
+		// Update Site status about Postgres
+		r.SetPostgresReadyCondition(ctx, r.siteCtx.site, r.siteCtx.postgres)
 		// Apply Postgres resource
 		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.postgres); err != nil {
 			return false, err
 		}
-		// Update Site status about Postgres
-		postgresReady = r.SetPostgresReadyCondition(ctx, r.siteCtx.site, r.siteCtx.postgres)
+		// check if postgres ready
+		if postgresReady, err = getReadyStatus(ctx, r.siteCtx.postgres); err != nil {
+			return false, err
+		}
 	}
 
 	// Save Keydb spec
 	if r.siteCtx.hasKeydb {
 		r.siteCtx.keydb.Object["spec"] = r.siteCtx.combinedKeydbSpec
+		// Update Site status about Keydb
+		r.SetKeydbReadyCondition(ctx, r.siteCtx.site, r.siteCtx.keydb)
 		// Apply Keydb resource
 		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.keydb); err != nil {
 			return false, err
 		}
-		// Update Site status about Keydb
-		keydbReady = r.SetKeydbReadyCondition(ctx, r.siteCtx.site, r.siteCtx.keydb)
+		// check if keydb ready
+		if keydbReady, err = getReadyStatus(ctx, r.siteCtx.keydb); err != nil {
+			return false, err
+		}
 	}
 
 	// Save NFS Ganesha server spec
 	if r.siteCtx.hasNfs {
 		// Save NFS Ganesha server spec
 		r.siteCtx.nfs.Object["spec"] = r.siteCtx.combinedNfsSpec
+		// Update Site status about NFS Ganesha
+		r.SetNfsReadyCondition(ctx, r.siteCtx.site, r.siteCtx.nfs)
 		// Apply NFS Ganesha server resource
 		if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.nfs); err != nil {
 			return false, err
 		}
-		// Update Site status about NFS Ganesha
-		nfsReady = r.SetNfsReadyCondition(ctx, r.siteCtx.site, r.siteCtx.nfs)
+		// check if nfs ready
+		if nfsReady, err = getReadyStatus(ctx, r.siteCtx.nfs); err != nil {
+			return false, err
+		}
 	}
 
 	// Wait for postgres to be ready; otherwise requeue
@@ -369,13 +484,17 @@ func (r *SiteReconciler) reconcilePersist(ctx context.Context) (requeue bool, er
 
 	// Save Moodle spec
 	r.siteCtx.moodle.Object["spec"] = r.siteCtx.combinedMoodleSpec
+	// Update site status about Moodle
+	r.SetMoodleReadyCondition(ctx, r.siteCtx.site, r.siteCtx.moodle)
 	// Apply Moodle resource
 	if err := r.ReconcileApply(ctx, r.siteCtx.site, r.siteCtx.moodle); err != nil {
 		return false, err
 	}
-	// Update site status about Moodle
-	moodleReady = r.SetMoodleReadyCondition(ctx, r.siteCtx.site, r.siteCtx.moodle)
-	// Wait for Keydb to be ready; otherwise requeue
+	// check if moodle ready
+	if moodleReady, err = getReadyStatus(ctx, r.siteCtx.moodle); err != nil {
+		return false, err
+	}
+	// Wait for Moodle to be ready; otherwise requeue
 	if !moodleReady {
 		log.Info("Moodle is not ready, requeueing...", "Moodle.Name", r.siteCtx.moodle.GetName())
 		return r.updateSiteStatus(ctx)

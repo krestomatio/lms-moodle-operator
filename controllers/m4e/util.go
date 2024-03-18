@@ -230,42 +230,61 @@ func (r *FlavorReconciler) finalizeFlavor(ctx context.Context) error {
 func (r *SiteReconciler) updateSiteStatus(ctx context.Context) (requeue bool, err error) {
 	log := log.FromContext(ctx)
 
-	var state string
+	var statusState string
+	requeue = true
 
-	state, err = r.setSiteState(ctx)
+	statusState, err = r.getStatusState(ctx)
 	if err != nil {
 		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
 		return true, err
 	}
 
 	// Set state in site object
-	stateUpdate, err := SetStatusState(r.siteCtx.site, state)
+	statusStateUpdated, err := SetStatusState(r.siteCtx.site, statusState)
 	if err != nil {
 		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
 		return true, err
 	}
 
-	// If state not updated, return
-	if !stateUpdate {
+	// If state not updated
+	if !statusStateUpdated {
 		log.V(1).Info("Site state not updated")
 	}
 
 	// Set status from moodle in site object
-	moodleStatusUpdate, err := SetStatusFromMoodle(r.siteCtx.site, r.siteCtx.moodle)
+	moodleStatusUpdated, err := SetStatusFromMoodle(r.siteCtx.site, r.siteCtx.moodle)
 	if err != nil {
 		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
 		return true, err
 	}
 
-	// If status from moodle not updated, return
-	if !moodleStatusUpdate {
+	// If status from moodle not updated
+	if !moodleStatusUpdated {
 		log.V(1).Info("Site status from moodle not updated")
 	}
 
 	// If status not updated, return
-	if !stateUpdate && !moodleStatusUpdate {
+	if !statusStateUpdated && !moodleStatusUpdated {
 		log.V(1).Info("Site status not updated")
 		return false, nil
+	}
+
+	// Set ready condition
+	if statusState == m4ev1alpha1.ReadyState {
+		requeue = false
+		if _, err = r.SetSuccessfulReadyCondition(ctx); err != nil {
+			return false, err
+		}
+	} else if statusState == m4ev1alpha1.TerminatingState {
+		requeue = false
+		if _, err = r.SetFalseReadyCondition(ctx, m4ev1alpha1.TerminatingState, "Finalizer started"); err != nil {
+			return false, err
+		}
+	} else if statusState == m4ev1alpha1.SuspendedState {
+		requeue = false
+		if _, err := r.SetFalseReadyCondition(ctx, statusState, "Site is suspended"); err != nil {
+			return false, err
+		}
 	}
 
 	// Save status
@@ -276,13 +295,7 @@ func (r *SiteReconciler) updateSiteStatus(ctx context.Context) (requeue bool, er
 
 	log.V(1).Info("Site state updated")
 
-	if state == m4ev1alpha1.ReadyState {
-		return false, r.SetReadyCondition(ctx)
-	} else if state == m4ev1alpha1.TerminatingState {
-		return false, nil
-	} else {
-		return true, nil
-	}
+	return requeue, nil
 }
 
 // updateFlavorState update flavor state
@@ -314,78 +327,156 @@ func (r *FlavorReconciler) updateFlavorState(ctx context.Context) error {
 	return nil
 }
 
-// getDependantReadyReason return string from ready reason condition, given a condition type
-// return reason string and error
-func (r *SiteReconciler) getDependantReadyReason(ctx context.Context, dependant string) (reason string, err error) {
+// getReadyStatus whether ready condition is true or not
+func getReadyStatus(ctx context.Context, obj *unstructured.Unstructured) (status bool, err error) {
 	log := log.FromContext(ctx)
 
-	reason = dependant + "Pending"
-	contidionType := dependant + "Ready"
+	contidionType := "Ready"
 
 	// get  ready condition
-	ReadyCondition, ReadyConditionFound, ReadyConditionErr := getConditionByType(r.siteCtx.site, contidionType)
+	ReadyCondition, ReadyConditionFound, ReadyConditionErr := getConditionByType(obj, contidionType)
 
 	if ReadyConditionErr != nil {
-		log.Error(ReadyConditionErr, "unable to get condition type for Site '"+r.siteCtx.site.GetName()+"' state")
+		log.Error(ReadyConditionErr, "unable to get condition type from obj '"+obj.GetName()+"' status")
+		return false, ReadyConditionErr
+	}
+
+	if !ReadyConditionFound {
+		log.Info(contidionType + " not found for obj '" + obj.GetName())
+		return false, ReadyConditionErr
+	}
+
+	statusString, ok := ReadyCondition["status"].(string)
+	if !ok {
+		log.Info(contidionType + " status in not found for obj '" + obj.GetName())
+		return false, err
+	}
+
+	status = statusString == "True"
+
+	return status, err
+}
+
+// getReadyReason return string from ready reason condition
+func getReadyReason(ctx context.Context, obj *unstructured.Unstructured) (reason string, err error) {
+	log := log.FromContext(ctx)
+
+	reason = "Pending"
+	contidionType := "Ready"
+
+	// get  ready condition
+	ReadyCondition, ReadyConditionFound, ReadyConditionErr := getConditionByType(obj, contidionType)
+
+	if ReadyConditionErr != nil {
+		log.Error(ReadyConditionErr, "unable to get condition type from obj '"+obj.GetName()+"' status")
 		return "Failed", ReadyConditionErr
 	}
 
 	if !ReadyConditionFound {
-		log.Info(contidionType + " not found for site '" + r.siteCtx.site.GetName())
+		log.Info(contidionType + " not found for obj '" + obj.GetName())
 		return reason, ReadyConditionErr
 	}
 
-	Reason, ok := ReadyCondition["reason"]
+	reasonString, ok := ReadyCondition["reason"].(string)
 	if !ok {
-		log.Info(contidionType + " reason in not found for site '" + r.siteCtx.site.GetName())
+		log.Info(contidionType + " reason in not found for obj '" + obj.GetName())
 		return reason, err
 	}
 
-	reason = dependant + Reason.(string)
+	reason = reasonString
 
 	return reason, err
 }
 
-// setSiteState defines Site state value from ready condition
+// getStatusState defines Site state value from ready condition
 // return state string
-func (r *SiteReconciler) setSiteState(ctx context.Context) (state string, err error) {
+func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err error) {
+	log := log.FromContext(ctx)
+
+	expectedStatusState := m4ev1alpha1.SuccessfulState
+	isSuspendedState := r.siteCtx.state == "suspended"
+
+	if isSuspendedState {
+		expectedStatusState = m4ev1alpha1.SuspendedState
+	}
+
+	if isSuspendedState {
+		state = m4ev1alpha1.SuspendedState
+	} else {
+		state = m4ev1alpha1.ReadyState
+	}
+
 	// Terminating
 	if r.siteCtx.markedToBeDeleted {
-		if _, err := r.SetFalseReadyCondition(ctx, m4ev1alpha1.TerminatingState, "Finalizer started"); err != nil {
-			return state, err
+		state = m4ev1alpha1.TerminatingState
+		return state, err
+	}
+
+	if r.siteCtx.hasPostgres {
+		// get postgres ready condition
+		var postgresState string
+		if postgresState, err = getReadyReason(ctx, r.siteCtx.postgres); err != nil {
+			log.Error(err, "Postgres ready reason error")
 		}
-		return m4ev1alpha1.TerminatingState, err
+
+		if postgresState != "" && postgresState != expectedStatusState {
+			state = "Postgres" + postgresState
+			if isSuspendedState && postgresState == m4ev1alpha1.SuccessfulState {
+				state = "PostgresSuspending"
+			} else {
+				return state, err
+			}
+		}
 	}
 
-	// get postgres ready condition
-	state, err = r.getDependantReadyReason(ctx, "Postgres")
+	if r.siteCtx.hasKeydb {
+		// get Keydb ready condition
+		var keydbState string
+		if keydbState, err = getReadyReason(ctx, r.siteCtx.keydb); err != nil {
+			log.Error(err, "Keydb ready reason error")
+		}
 
-	if state != "Postgres"+m4ev1alpha1.SuccessfulState {
-		return state, err
+		if keydbState != "" && keydbState != expectedStatusState {
+			state = "Keydb" + keydbState
+			if isSuspendedState && keydbState == m4ev1alpha1.SuccessfulState {
+				state = "KeydbSuspending"
+			} else {
+				return state, err
+			}
+		}
 	}
 
-	// get Keydb ready condition
-	state, err = r.getDependantReadyReason(ctx, "Keydb")
+	if r.siteCtx.hasNfs {
+		// get Nfs ready condition
+		var nfsState string
+		if nfsState, err = getReadyReason(ctx, r.siteCtx.nfs); err != nil {
+			log.Error(err, "Nfs ready reason error")
+		}
 
-	if state != "Keydb"+m4ev1alpha1.SuccessfulState {
-		return state, err
-	}
-
-	// get Nfs ready condition
-	state, err = r.getDependantReadyReason(ctx, "Nfs")
-
-	if state != "Nfs"+m4ev1alpha1.SuccessfulState {
-		return state, err
+		if nfsState != "" && nfsState != expectedStatusState {
+			state = "Nfs" + nfsState
+			if isSuspendedState && nfsState == m4ev1alpha1.SuccessfulState {
+				state = "NfsSuspending"
+			} else {
+				return state, err
+			}
+		}
 	}
 
 	// get Moodle ready condition
-	state, err = r.getDependantReadyReason(ctx, "Moodle")
-
-	if state != "Moodle"+m4ev1alpha1.SuccessfulState {
-		return state, err
+	var moodleState string
+	if moodleState, err = getReadyReason(ctx, r.siteCtx.moodle); err != nil {
+		log.Error(err, "Moodle ready reason error")
 	}
 
-	state = m4ev1alpha1.ReadyState
+	if moodleState != "" && moodleState != expectedStatusState {
+		state = "Moodle" + moodleState
+		if isSuspendedState && moodleState == m4ev1alpha1.SuccessfulState {
+			state = "MoodleSuspending"
+		} else {
+			return state, err
+		}
+	}
 
 	return state, err
 }
@@ -907,4 +998,18 @@ func (r *SiteReconciler) siteNetworkPolicy() {
 	}
 	r.siteCtx.networkPolicy.SetNamespace(r.siteCtx.namespaceName)
 	r.siteCtx.networkPolicy.SetName(r.siteCtx.networkPolicyName)
+}
+
+// isDependantSuspended whether dependant is suspended
+func (r *SiteReconciler) isDependantSuspended(ctx context.Context, obj *unstructured.Unstructured) (suspended bool) {
+	log := log.FromContext(ctx)
+
+	objState, objStateFound, _ := unstructured.NestedString(obj.Object, "status", "state")
+	if objStateFound && objState == m4ev1alpha1.SuspendedState {
+		log.V(1).Info("Dependant resource has been suspended", "Dependant", obj.GetObjectKind())
+		return true
+	} else {
+		log.V(1).Info("Dependant resource is not suspended", "Dependant", obj.GetObjectKind())
+		return false
+	}
 }
