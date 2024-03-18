@@ -2,4 +2,4 @@
 
 ### New Features
 
-* api: add sts pvc autoexpansion to postgres and keydb (Job Céspedes Ortiz)
+* handle suspended state (Job Céspedes Ortiz)
