@@ -1,5 +1,5 @@
 ## Changes
 
-### New Features
+### Code Refactoring
 
-* handle suspended state (Job Céspedes Ortiz)
+* use desired state field name in spec (Job Céspedes Ortiz)
