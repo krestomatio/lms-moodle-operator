@@ -394,13 +394,13 @@ func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err 
 	log := log.FromContext(ctx)
 
 	expectedStatusState := m4ev1alpha1.SuccessfulState
-	isSuspendedState := r.siteCtx.state == "suspended"
+	isSuspendedDesiredState := r.siteCtx.desiredState == m4ev1alpha1.SuspendedState
 
-	if isSuspendedState {
+	if isSuspendedDesiredState {
 		expectedStatusState = m4ev1alpha1.SuspendedState
 	}
 
-	if isSuspendedState {
+	if isSuspendedDesiredState {
 		state = m4ev1alpha1.SuspendedState
 	} else {
 		state = m4ev1alpha1.ReadyState
@@ -421,8 +421,8 @@ func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err 
 
 		if postgresState != "" && postgresState != expectedStatusState {
 			state = "Postgres" + postgresState
-			if isSuspendedState && postgresState == m4ev1alpha1.SuccessfulState {
-				state = "PostgresSuspending"
+			if isSuspendedDesiredState {
+				state = "Suspending" + state
 			} else {
 				return state, err
 			}
@@ -438,8 +438,8 @@ func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err 
 
 		if keydbState != "" && keydbState != expectedStatusState {
 			state = "Keydb" + keydbState
-			if isSuspendedState && keydbState == m4ev1alpha1.SuccessfulState {
-				state = "KeydbSuspending"
+			if isSuspendedDesiredState {
+				state = "Suspending" + state
 			} else {
 				return state, err
 			}
@@ -455,8 +455,8 @@ func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err 
 
 		if nfsState != "" && nfsState != expectedStatusState {
 			state = "Nfs" + nfsState
-			if isSuspendedState && nfsState == m4ev1alpha1.SuccessfulState {
-				state = "NfsSuspending"
+			if isSuspendedDesiredState {
+				state = "Suspending" + state
 			} else {
 				return state, err
 			}
@@ -471,8 +471,8 @@ func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err 
 
 	if moodleState != "" && moodleState != expectedStatusState {
 		state = "Moodle" + moodleState
-		if isSuspendedState && moodleState == m4ev1alpha1.SuccessfulState {
-			state = "MoodleSuspending"
+		if isSuspendedDesiredState {
+			state = "Suspending" + state
 		} else {
 			return state, err
 		}

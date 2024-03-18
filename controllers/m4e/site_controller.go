@@ -62,7 +62,7 @@ type SiteReconcilerContext struct {
 	flavorPostgresSpecFound bool
 	name                    string
 	flavorName              string
-	state                   string
+	desiredState            string
 	namespaceName           string
 	networkPolicyName       string
 	moodleName              string
@@ -148,7 +148,7 @@ func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.
 	}
 
 	// Suspend logic
-	if r.siteCtx.state == "suspended" {
+	if r.siteCtx.desiredState == m4ev1alpha1.SuspendedState {
 		if requeue, err := r.reconcileSuspend(ctx); err != nil {
 			return ctrl.Result{}, err
 		} else {
@@ -218,7 +218,7 @@ func (r *SiteReconciler) reconcilePrepare(ctx context.Context) error {
 	r.siteCtx.nfsSpec, r.siteCtx.nfsSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "nfsSpec")
 	r.siteCtx.keydbSpec, r.siteCtx.keydbSpecFound, _ = unstructured.NestedMap(r.siteCtx.spec, "keydbSpec")
 	r.siteCtx.flavorName, _, _ = unstructured.NestedString(r.siteCtx.spec, "flavor")
-	r.siteCtx.state, _, _ = unstructured.NestedString(r.siteCtx.spec, "state")
+	r.siteCtx.desiredState, _, _ = unstructured.NestedString(r.siteCtx.spec, "desiredState")
 
 	// Fetch flavor spec
 	r.siteCtx.flavor = newUnstructuredObject(m4ev1alpha1.GroupVersion.WithKind("Flavor"))
