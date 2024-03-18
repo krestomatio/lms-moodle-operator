@@ -33,10 +33,6 @@ spec:
       jsonPath: .spec.flavor
       name: FLAVOR
       type: string
-    - description: Site Host
-      jsonPath: .spec.moodleSpec.moodleHost
-      name: HOST
-      type: string
     - description: Site URL
       jsonPath: .status.url
       name: URL
@@ -69,6 +65,13 @@ spec:
           spec:
             description: SiteSpec defines the desired state of Site
             properties:
+              desiredState:
+                default: Ready
+                description: DesiredState defines the desired state to put a site
+                enum:
+                - Ready
+                - Suspended
+                type: string
               flavor:
                 description: Flavor defines what Moodle flavor to use
                 maxLength: 255
@@ -1497,11 +1500,6 @@ spec:
                       spec
                     type: string
                 type: object
-              state:
-                description: State defines a state to put a site other than normal
-                enum:
-                - suspended
-                type: string
             required:
             - flavor
             - moodleSpec
