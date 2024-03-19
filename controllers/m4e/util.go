@@ -2,6 +2,8 @@ package m4e
 
 import (
 	"context"
+	"fmt"
+	"strconv"
 
 	"github.com/imdario/mergo"
 	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
@@ -619,9 +621,18 @@ func getStorageGbUsage(objU *unstructured.Unstructured) (string, bool, error) {
 		return "", false, moodleStorageGbErr
 	}
 
-	value, ok := moodleStorageGb["value"].(string)
+	value, ok := moodleStorageGb["value"]
+	var str string
+	switch v := value.(type) {
+	case int64:
+		str = strconv.FormatInt(v, 10)
+	case float64:
+		str = strconv.FormatFloat(v, 'f', 1, 64)
+	default:
+		str = fmt.Sprintf("%v", v)
+	}
 
-	return value, ok, nil
+	return str, ok, nil
 }
 
 // getRegisteredUsersUsage returns registered users from a unstructure status object,
