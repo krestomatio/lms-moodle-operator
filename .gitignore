@@ -5,7 +5,8 @@
 *.dll
 *.so
 *.dylib
-bin
+bin/*
+Dockerfile.cross
 testbin/*
 
 # Test binary, build with `go test -c`
@@ -20,10 +21,10 @@ testbin/*
 
 # editor and IDE paraphernalia
 .idea
+.vscode
 *.swp
 *.swo
 *~
-.vscode
 
 # debug
 __debug_bin

@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/imdario/mergo"
-	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
+	m4ev1alpha1 "github.com/krestomatio/kio-operator/api/m4e/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"

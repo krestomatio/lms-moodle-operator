@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
+	m4ev1alpha1 "github.com/krestomatio/kio-operator/api/m4e/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/log"

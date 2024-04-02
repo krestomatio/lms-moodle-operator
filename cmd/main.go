@@ -1,5 +1,5 @@
 /*
-Copyright 2021.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
-	m4econtrollers "github.com/krestomatio/kio-operator/controllers/m4e"
+	m4ev1alpha1 "github.com/krestomatio/kio-operator/api/m4e/v1alpha1"
+	m4econtroller "github.com/krestomatio/kio-operator/internal/controller/m4e"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -95,13 +95,24 @@ func main() {
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "2388325d.krestomat.io",
+		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
+		// when the Manager ends. This requires the binary to immediately end when the
+		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
+		// speeds up voluntary leader transitions as the new leader don't have to wait
+		// LeaseDuration time first.
+		//
+		// In the default scaffold provided, the program ends immediately after
+		// the manager stops, so would be fine to enable this option. However,
+		// if you are doing or is intended to do any operation such as perform cleanups
+		// after the manager stops then its usage might be unsafe.
+		// LeaderElectionReleaseOnCancel: true,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
 	}
 
-	if err = (&m4econtrollers.SiteReconciler{
+	if err = (&m4econtroller.SiteReconciler{
 		Client:      mgr.GetClient(),
 		Scheme:      mgr.GetScheme(),
 		MoodleGVK:   moodleGvk,
@@ -112,7 +123,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Site")
 		os.Exit(1)
 	}
-	if err = (&m4econtrollers.FlavorReconciler{
+	if err = (&m4econtroller.FlavorReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
