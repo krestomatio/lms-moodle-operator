@@ -1,0 +1,5 @@
+# Install moodle operator
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- github.com/krestomatio/moodle-operator/config/default?ref=v0.5.61
