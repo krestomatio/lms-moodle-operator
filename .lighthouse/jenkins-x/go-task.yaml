@@ -65,7 +65,7 @@ spec:
           - name: shared
             mountPath: /shared
         steps:
-        - image: quay.io/krestomatio/go:1.18-toolset
+        - image: quay.io/krestomatio/go:1.21-toolset
           name: task
           resources:
             limits:
