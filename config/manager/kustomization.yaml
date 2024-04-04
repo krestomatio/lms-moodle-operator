@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: quay.io/krestomatio/kio-operator
-  newTag: 0.3.45
+  newTag: 0.3.46

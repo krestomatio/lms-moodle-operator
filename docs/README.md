@@ -27,15 +27,15 @@ To install this this operator along **all** its required and optional prerequisi
 1. **Install Operator:**
 ```bash
 # All operators
-kubectl apply -k https://github.com/krestomatio/kio-operator/config/operators?ref=v0.3.45
+kubectl apply -k https://github.com/krestomatio/kio-operator/config/operators?ref=v0.3.46
 # Only Kio Operator
-# kubectl apply -k https://github.com/krestomatio/kio-operator/config/default?ref=v0.3.45
+# kubectl apply -k https://github.com/krestomatio/kio-operator/config/default?ref=v0.3.46
 ```
 
 2. **Configure a Flavor:**
-- Download and modify [this Flavor sample](https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.45/config/samples/m4e_v1alpha1_flavor.yaml) file to define a Site flavor or template. A Flavor can be use by one or many Sites resources as spec template.
+- Download and modify [this Flavor sample](https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.46/config/samples/m4e_v1alpha1_flavor.yaml) file to define a Site flavor or template. A Flavor can be use by one or many Sites resources as spec template.
 ```bash
-curl -sSL 'https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.45/config/samples/m4e_v1alpha1_flavor.yaml' -o m4e_v1alpha1_flavor.yaml
+curl -sSL 'https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.46/config/samples/m4e_v1alpha1_flavor.yaml' -o m4e_v1alpha1_flavor.yaml
 # modify m4e_v1alpha1_flavor.yaml
 ```
 
@@ -47,9 +47,9 @@ kubectl apply -f m4e_v1alpha1_flavor.yaml
 
 4. **Configure a Site:**
 > **Note:** Site resource specification has precedence over Flavor specification.
-- Download and modify [this sample](https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.45/config/samples/m4e_v1alpha1_site.yaml) file to reflect your specific Site stack configuration options. This file defines the desired state for your instance and all its layers handle by the operators. Note that it references a Flavor resource by its name. The Flavor resoure in the previous step.
+- Download and modify [this sample](https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.46/config/samples/m4e_v1alpha1_site.yaml) file to reflect your specific Site stack configuration options. This file defines the desired state for your instance and all its layers handle by the operators. Note that it references a Flavor resource by its name. The Flavor resoure in the previous step.
 ```bash
-curl -sSL 'https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.45/config/samples/m4e_v1alpha1_site.yaml' -o m4e_v1alpha1_site.yaml
+curl -sSL 'https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.46/config/samples/m4e_v1alpha1_site.yaml' -o m4e_v1alpha1_site.yaml
 # modify m4e_v1alpha1_site.yaml
 ```
 
@@ -87,9 +87,9 @@ kubectl delete -f m4e_v1alpha1_site.yaml
 3. **Uninstall the Operator:**
 ```bash
 # All operators
-kubectl delete -k https://github.com/krestomatio/kio-operator/config/operators?ref=v0.3.45
+kubectl delete -k https://github.com/krestomatio/kio-operator/config/operators?ref=v0.3.46
 # Only Kio Operator
-# kubectl delete -k https://github.com/krestomatio/kio-operator/config/default?ref=v0.3.45
+# kubectl delete -k https://github.com/krestomatio/kio-operator/config/default?ref=v0.3.46
 ```
 
 ## Configuration

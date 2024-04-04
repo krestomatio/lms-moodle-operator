@@ -1,7 +1,5 @@
 ## Changes
 
-### New Features
+### Documentation
 
-* go-operator: generate operators kustomize files (Job Céspedes Ortiz)
-* gen docs (Job Céspedes Ortiz)
-* bump sdk operator to 1.33 (Job Céspedes Ortiz)
+* fix template (Job Céspedes Ortiz)
