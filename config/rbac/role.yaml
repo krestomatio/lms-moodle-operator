@@ -26,9 +26,9 @@ rules:
   - update
   - watch
 - apiGroups:
-  - m4e.krestomat.io
+  - lms.krestomat.io
   resources:
-  - flavors
+  - lmsmoodles
   verbs:
   - create
   - delete
@@ -38,15 +38,41 @@ rules:
   - update
   - watch
 - apiGroups:
-  - m4e.krestomat.io
+  - lms.krestomat.io
   resources:
-  - flavors/finalizers
+  - lmsmoodles/finalizers
   verbs:
   - update
 - apiGroups:
-  - m4e.krestomat.io
+  - lms.krestomat.io
   resources:
-  - flavors/status
+  - lmsmoodles/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - lms.krestomat.io
+  resources:
+  - lmsmoodletemplates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - lms.krestomat.io
+  resources:
+  - lmsmoodletemplates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - lms.krestomat.io
+  resources:
+  - lmsmoodletemplates/status
   verbs:
   - get
   - patch
@@ -63,32 +89,6 @@ rules:
   - patch
   - update
   - watch
-- apiGroups:
-  - m4e.krestomat.io
-  resources:
-  - sites
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - m4e.krestomat.io
-  resources:
-  - sites/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - m4e.krestomat.io
-  resources:
-  - sites/status
-  verbs:
-  - get
-  - patch
-  - update
 - apiGroups:
   - networking.k8s.io
   resources:

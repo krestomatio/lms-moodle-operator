@@ -1,0 +1,23 @@
+apiVersion: lms.krestomat.io/v1alpha1
+kind: LMSMoodle
+metadata:
+  name: lmsmoodle-sample
+  labels:
+    app.kubernetes.io/name: lmsmoodle
+    app.kubernetes.io/instance: lmsmoodle-sample
+    app.kubernetes.io/part-of: lms-moodle-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: lms-moodle-operator
+spec:
+  lmsMoodleTemplateName: lmsmoodletemplate-sample
+  ## Override lmsMoodleTemplate moodle spec, if any
+  moodleSpec:
+    moodleNewInstanceAgreeLicense: true
+    moodleNewInstanceFullname: Demo LMS Moodle
+    moodleNewInstanceShortname: demo
+    moodleNewInstanceSummary: A demo LMS Moodle
+    moodleNewInstanceAdminmail: admin@otherexample.com
+    moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
+  ## Override lmsMoodleTemplate nfs spec, if any
+  # nfsSpec:
+    # ganeshaPvcDataAutoexpansion: false

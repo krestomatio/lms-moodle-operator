@@ -4,14 +4,18 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
-  name: flavors.m4e.krestomat.io
+  name: lmsmoodletemplates.lms.krestomat.io
 spec:
-  group: m4e.krestomat.io
+  group: lms.krestomat.io
   names:
-    kind: Flavor
-    listKind: FlavorList
-    plural: flavors
-    singular: flavor
+    categories:
+    - moodle
+    kind: LMSMoodleTemplate
+    listKind: LMSMoodleTemplateList
+    plural: lmsmoodletemplates
+    shortNames:
+    - lmt
+    singular: lmsmoodletemplate
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -19,14 +23,15 @@ spec:
       jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
-    - description: Flavor status such as Unknown/Used/NotUsed/Terminating etc
+    - description: LMSMoodleTemplate status such as Unknown/Used/NotUsed/Terminating
+        etc
       jsonPath: .status.state
       name: STATUS
       type: string
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Flavor is the Schema for the flavors API
+        description: LMSMoodleTemplate is the Schema for the lmsmoodletemplates API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -41,7 +46,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: FlavorSpec defines the desired state of Flavor
+            description: LMSMoodleTemplateSpec defines the desired state of LMSMoodleTemplate
             properties:
               keydbSpec:
                 description: KeydbSpec defines Keydb spec to deploy optionally
@@ -1470,11 +1475,11 @@ spec:
             - moodleSpec
             type: object
           status:
-            description: FlavorStatus defines the observed state of Flavor
+            description: LMSMoodleTemplateStatus defines the observed state of LMSMoodleTemplate
             properties:
               state:
                 default: Unknown
-                description: state describes the site state
+                description: state describes the LMSMoodleTemplate state
                 type: string
             type: object
         type: object

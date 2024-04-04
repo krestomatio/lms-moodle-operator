@@ -1,5 +1,5 @@
 ## Append samples of your project ##
 resources:
-- m4e_v1alpha1_site.yaml
-- m4e_v1alpha1_flavor.yaml
+- lms_v1alpha1_lmsmoodle.yaml
+- lms_v1alpha1_lmsmoodletemplate.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

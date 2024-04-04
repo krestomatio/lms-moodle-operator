@@ -23,28 +23,28 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// SiteSpec defines the desired state of Site
-type SiteSpec struct {
+// LMSMoodleSpec defines the desired state of LMSMoodle
+type LMSMoodleSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Flavor defines what Moodle flavor to use
+	// LMSMoodleTemplateName defines what LMS Moodle template to use
 	// +kubebuilder:validation:MinLength=1
 	// +kubebuilder:validation:MaxLength=255
-	Flavor string `json:"flavor"`
+	LMSMoodleTemplateName string `json:"lmsMoodleTemplateName"`
 
-	// DesiredState defines the desired state to put a site
+	// DesiredState defines the desired state to put a LMSMoodle
 	// +kubebuilder:validation:Enum=Ready;Suspended
 	// +kubebuilder:default:="Ready"
 	// +optional
 	DesiredState string `json:"desiredState,omitempty"`
 
-	// FlavorSpec to set same fields as Flavor
-	FlavorSpec `json:",inline"`
+	// LMSMoodleTemplateSpec to set same fields as LMSMoodleTemplate
+	LMSMoodleTemplateSpec `json:",inline"`
 }
 
-// SiteStatus defines the observed state of Site
-type SiteStatus struct {
+// LMSMoodleStatus defines the observed state of LMSMoodle
+type LMSMoodleStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
@@ -56,26 +56,26 @@ type SiteStatus struct {
 	// +optional
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" patchMergeKey:"type"`
 
-	// state describes the site state
+	// state describes the LMSMoodle state
 	// +kubebuilder:default:="Unknown"
 	// +optional
 	State string `json:"state,omitempty"`
 
-	// Site url
+	// Url defines LMSMoodle url
 	// +optional
 	Url string `json:"url,omitempty"`
 
-	// Site number of current GB for storage capacity
+	// StorageGb defines LMSMoodle number of current GB for storage capacity
 	// +kubebuilder:default:="0"
 	// +optional
 	StorageGb string `json:"storageGb,omitempty"`
 
-	// Site number of current registered users for user capacity
+	// RegisteredUsers defines LMSMoodle number of current registered users for user capacity
 	// +kubebuilder:default:=0
 	// +optional
 	RegisteredUsers int64 `json:"registeredUsers,omitempty"`
 
-	// Site moodle version
+	// Release defines LMSMoodle moodle version
 	// +optional
 	Release string `json:"release,omitempty"`
 }
@@ -105,33 +105,33 @@ const (
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:resource:scope=Cluster
+//+kubebuilder:resource:scope=Cluster,categories={moodle},shortName=lm
 //+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
-//+kubebuilder:printcolumn:name="STATUS",type="string",description="Site status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
+//+kubebuilder:printcolumn:name="STATUS",type="string",description="LMSMoodle status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
 //+kubebuilder:printcolumn:name="SINCE",type="date",JSONPath=".status.conditions[?(@.type=='Ready')].lastTransitionTime",description="Time of latest transition",priority=0
-//+kubebuilder:printcolumn:name="FLAVOR",type="string",description="Flavor name",JSONPath=".spec.flavor",priority=0
-//+kubebuilder:printcolumn:name="URL",type="string",JSONPath=".status.url",description="Site URL",priority=0
-//+kubebuilder:printcolumn:name="USERS",type="integer",JSONPath=".status.registeredUsers",description="Site registered users",priority=0
-//+kubebuilder:printcolumn:name="GB",type="string",JSONPath=".status.storageGb",description="Site storage usage in GB",priority=0
+//+kubebuilder:printcolumn:name="TEMPLATE",type="string",description="LMSMoodleTemplate name",JSONPath=".spec.lmsMoodleTemplate",priority=0
+//+kubebuilder:printcolumn:name="URL",type="string",JSONPath=".status.url",description="LMSMoodle URL",priority=0
+//+kubebuilder:printcolumn:name="USERS",type="integer",JSONPath=".status.registeredUsers",description="LMSMoodle registered users",priority=0
+//+kubebuilder:printcolumn:name="GB",type="string",JSONPath=".status.storageGb",description="LMSMoodle storage usage in GB",priority=0
 
-// Site is the Schema for the sites API
-type Site struct {
+// LMSMoodle is the Schema for the lmsmoodles API
+type LMSMoodle struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   SiteSpec   `json:"spec,omitempty"`
-	Status SiteStatus `json:"status,omitempty"`
+	Spec   LMSMoodleSpec   `json:"spec,omitempty"`
+	Status LMSMoodleStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// SiteList contains a list of Site
-type SiteList struct {
+// LMSMoodleList contains a list of LMSMoodle
+type LMSMoodleList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Site `json:"items"`
+	Items           []LMSMoodle `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Site{}, &SiteList{})
+	SchemeBuilder.Register(&LMSMoodle{}, &LMSMoodleList{})
 }

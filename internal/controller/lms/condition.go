@@ -1,10 +1,10 @@
-package m4e
+package lms
 
 import (
 	"context"
 	"time"
 
-	m4ev1alpha1 "github.com/krestomatio/kio-operator/api/m4e/v1alpha1"
+	lmsv1alpha1 "github.com/krestomatio/lms-moodle-operator/api/lms/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -32,17 +32,17 @@ func FindConditionUnstructuredByType(conditionsUnstructured []interface{}, condi
 }
 
 // SetSuccessfulReadyCondition set successful ready condition
-func (r *SiteReconciler) SetSuccessfulReadyCondition(ctx context.Context) (changed bool, err error) {
-	return r.SetReadyCondition(ctx, "True", m4ev1alpha1.SuccessfulState, "Site is ready")
+func (r *LMSMoodleReconciler) SetSuccessfulReadyCondition(ctx context.Context) (changed bool, err error) {
+	return r.SetReadyCondition(ctx, "True", lmsv1alpha1.SuccessfulState, "LMSMoodle is ready")
 }
 
 // SetFalseReadyCondition set false ready condition
-func (r *SiteReconciler) SetFalseReadyCondition(ctx context.Context, reason string, message string) (changed bool, err error) {
+func (r *LMSMoodleReconciler) SetFalseReadyCondition(ctx context.Context, reason string, message string) (changed bool, err error) {
 	return r.SetReadyCondition(ctx, "False", reason, message)
 }
 
 // SetReadyCondition set ready condition
-func (r *SiteReconciler) SetReadyCondition(ctx context.Context, status string, reason string, message string) (changed bool, err error) {
+func (r *LMSMoodleReconciler) SetReadyCondition(ctx context.Context, status string, reason string, message string) (changed bool, err error) {
 	log := log.FromContext(ctx)
 
 	readyCondition := map[string]interface{}{
@@ -52,7 +52,7 @@ func (r *SiteReconciler) SetReadyCondition(ctx context.Context, status string, r
 		"message": message,
 	}
 
-	changed, setConditionErr := SetCondition(r.siteCtx.site, readyCondition)
+	changed, setConditionErr := SetCondition(r.lmsMoodleCtx.lmsMoodle, readyCondition)
 	if setConditionErr != nil {
 		log.Error(setConditionErr, "unable to set ready condition")
 		return false, setConditionErr
@@ -63,32 +63,32 @@ func (r *SiteReconciler) SetReadyCondition(ctx context.Context, status string, r
 
 // SetMoodleReadyCondition set ready condition depending on ready status of Moodle
 // and returns bool flag which indicates ready condition status of that dependant object
-func (r *SiteReconciler) SetMoodleReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
+func (r *LMSMoodleReconciler) SetMoodleReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, MoodleReadyConditionType, ReadyConditionType)
 }
 
 // SetPostgresReadyCondition set ready condition depending on ready status of Postgres
 // and returns bool flag which indicates ready condition status of that dependant object
-func (r *SiteReconciler) SetPostgresReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
+func (r *LMSMoodleReconciler) SetPostgresReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, PostgresReadyConditionType, ReadyConditionType)
 }
 
 // SetNfsReadyCondition set ready condition depending on ready status of NFS Ganesha
 // and returns bool flag which indicates ready condition status of that dependant object
-func (r *SiteReconciler) SetNfsReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
+func (r *LMSMoodleReconciler) SetNfsReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, NfsReadyConditionType, ReadyConditionType)
 }
 
 // SetKeydbReadyCondition set ready condition depending on ready status of Keydb
 // and returns bool flag which indicates ready condition status of that dependant object
-func (r *SiteReconciler) SetKeydbReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
+func (r *LMSMoodleReconciler) SetKeydbReadyCondition(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured) (changed bool, status bool) {
 	return r.SetConditionFromDependantByType(ctx, parentObj, dependantObj, KeydbReadyConditionType, ReadyConditionType)
 }
 
 // SetConditionFromDependantByType set a condition in a parent object from
 // a ready type condition of a dependant object based on its status
 // Returns bool flag which indicates ready condition status of the dependant object
-func (r *SiteReconciler) SetConditionFromDependantByType(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured, parentConditionType string, dependantConditionType string) (changed bool, status bool) {
+func (r *LMSMoodleReconciler) SetConditionFromDependantByType(ctx context.Context, parentObj *unstructured.Unstructured, dependantObj *unstructured.Unstructured, parentConditionType string, dependantConditionType string) (changed bool, status bool) {
 	log := log.FromContext(ctx)
 	dependantConditionStatus := false
 

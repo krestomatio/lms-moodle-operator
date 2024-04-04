@@ -1,4 +1,4 @@
-package m4e
+package lms
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/imdario/mergo"
-	m4ev1alpha1 "github.com/krestomatio/kio-operator/api/m4e/v1alpha1"
+	lmsv1alpha1 "github.com/krestomatio/lms-moodle-operator/api/lms/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -21,11 +21,11 @@ import (
 )
 
 const (
-	OPERATORNAME string = "kio-operator"
+	OPERATORNAME string = "lms-moodle-operator"
 )
 
 // ReconcileCreate create resource if it does not exists. Otherwise it does nothing
-func (r *SiteReconciler) ReconcileCreate(ctx context.Context, parentObj client.Object, obj client.Object) error {
+func (r *LMSMoodleReconciler) ReconcileCreate(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
 
 	log.V(1).Info("Creating resource", "Resource", obj.GetObjectKind())
@@ -58,7 +58,7 @@ func (r *SiteReconciler) ReconcileCreate(ctx context.Context, parentObj client.O
 	return nil
 }
 
-func (r *SiteReconciler) ReconcileApply(ctx context.Context, parentObj client.Object, obj client.Object) error {
+func (r *LMSMoodleReconciler) ReconcileApply(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
 
 	log.V(1).Info("Applying patch", "Resource", obj.GetObjectKind())
@@ -79,7 +79,7 @@ func (r *SiteReconciler) ReconcileApply(ctx context.Context, parentObj client.Ob
 	return nil
 }
 
-func (r *SiteReconciler) ReconcileSetOwner(ctx context.Context, parentObj client.Object, obj client.Object) error {
+func (r *LMSMoodleReconciler) ReconcileSetOwner(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
 
 	// Set owner reference
@@ -93,7 +93,7 @@ func (r *SiteReconciler) ReconcileSetOwner(ctx context.Context, parentObj client
 }
 
 // ReconcileDeleteDependant deletes a resource only if it has the owner reference of its parent
-func (r *SiteReconciler) ReconcileDeleteDependant(ctx context.Context, parentObj client.Object, obj client.Object) error {
+func (r *LMSMoodleReconciler) ReconcileDeleteDependant(ctx context.Context, parentObj client.Object, obj client.Object) error {
 	log := log.FromContext(ctx)
 
 	log.V(1).Info("Deleting dependant resource", "Resource", obj.GetObjectKind())
@@ -130,106 +130,106 @@ func (r *SiteReconciler) ReconcileDeleteDependant(ctx context.Context, parentObj
 	return nil
 }
 
-// finalizeSite cleans up before deleting Site
-func (r *SiteReconciler) finalizeSite(ctx context.Context) (requeue bool, err error) {
+// finalizeLMSMoodle cleans up before deleting LMSMoodle
+func (r *LMSMoodleReconciler) finalizeLMSMoodle(ctx context.Context) (requeue bool, err error) {
 	log := log.FromContext(ctx)
 	log.Info("Finalizing")
 
 	// Delete moodle and inmediately requeue in order to wait for it to be completely be removed.
 	// By doing so, any dependant CR removal will be done after, and removal
 	// conflicts will be avoided
-	log.Info("Deleting Moodle", "Moodle.Namespace", r.siteCtx.moodle.GetNamespace(), "Moodle.Name", r.siteCtx.moodle.GetName())
-	if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.moodle); err == nil {
-		log.V(1).Info("Set for requeue after Moodle deletion", "Moodle.Namespace", r.siteCtx.moodle.GetNamespace(), "Moodle.Name", r.siteCtx.moodle.GetName())
+	log.Info("Deleting Moodle", "Moodle.Namespace", r.lmsMoodleCtx.moodle.GetNamespace(), "Moodle.Name", r.lmsMoodleCtx.moodle.GetName())
+	if err := r.ReconcileDeleteDependant(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.moodle); err == nil {
+		log.V(1).Info("Set for requeue after Moodle deletion", "Moodle.Namespace", r.lmsMoodleCtx.moodle.GetNamespace(), "Moodle.Name", r.lmsMoodleCtx.moodle.GetName())
 		return true, nil
 	} else if !errors.IsNotFound(err) {
-		log.Error(err, "Moodle not deleted", "Moodle.Namespace", r.siteCtx.moodle.GetNamespace(), "Moodle.Name", r.siteCtx.moodle.GetName())
+		log.Error(err, "Moodle not deleted", "Moodle.Namespace", r.lmsMoodleCtx.moodle.GetNamespace(), "Moodle.Name", r.lmsMoodleCtx.moodle.GetName())
 		return false, err
 	}
 
 	// Delete Keydb and set for later requeuing in order to wait for it to be completely be removed.
-	if r.siteCtx.hasKeydb {
-		log.Info("Deleting Keydb", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
-		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.keydb); err == nil {
-			log.V(1).Info("Set for requeue after Keydb deletion", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+	if r.lmsMoodleCtx.hasKeydb {
+		log.Info("Deleting Keydb", "Keydb.Namespace", r.lmsMoodleCtx.keydb.GetNamespace(), "Keydb.Name", r.lmsMoodleCtx.keydb.GetName())
+		if err := r.ReconcileDeleteDependant(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.keydb); err == nil {
+			log.V(1).Info("Set for requeue after Keydb deletion", "Keydb.Namespace", r.lmsMoodleCtx.keydb.GetNamespace(), "Keydb.Name", r.lmsMoodleCtx.keydb.GetName())
 			requeue = true
 		} else if !errors.IsNotFound(err) {
-			log.Error(err, "Keydb not deleted", "Keydb.Namespace", r.siteCtx.keydb.GetNamespace(), "Keydb.Name", r.siteCtx.keydb.GetName())
+			log.Error(err, "Keydb not deleted", "Keydb.Namespace", r.lmsMoodleCtx.keydb.GetNamespace(), "Keydb.Name", r.lmsMoodleCtx.keydb.GetName())
 			return false, err
 		}
 	}
 
 	// Delete Postgres and set for later requeuing in order to wait for it to be completely be removed.
-	if r.siteCtx.hasPostgres {
-		log.Info("Deleting Postgres", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
-		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.postgres); err == nil {
-			log.V(1).Info("Set for requeue after Postgres deletion", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
+	if r.lmsMoodleCtx.hasPostgres {
+		log.Info("Deleting Postgres", "Postgres.Namespace", r.lmsMoodleCtx.postgres.GetNamespace(), "Postgres.Name", r.lmsMoodleCtx.postgres.GetName())
+		if err := r.ReconcileDeleteDependant(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.postgres); err == nil {
+			log.V(1).Info("Set for requeue after Postgres deletion", "Postgres.Namespace", r.lmsMoodleCtx.postgres.GetNamespace(), "Postgres.Name", r.lmsMoodleCtx.postgres.GetName())
 			requeue = true
 		} else if !errors.IsNotFound(err) {
-			log.Error(err, "Postgres not deleted", "Postgres.Namespace", r.siteCtx.postgres.GetNamespace(), "Postgres.Name", r.siteCtx.postgres.GetName())
+			log.Error(err, "Postgres not deleted", "Postgres.Namespace", r.lmsMoodleCtx.postgres.GetNamespace(), "Postgres.Name", r.lmsMoodleCtx.postgres.GetName())
 			return false, err
 		}
 	}
 
 	// Delete nfs ganesha server and set for later requeuing in order to wait for it to be completely be removed.
-	if r.siteCtx.hasNfs {
-		log.Info("Deleting NFS Ganesha", "Ganesha.Namespace", r.siteCtx.nfs.GetNamespace(), "Ganesha.Name", r.siteCtx.nfs.GetName())
-		if err := r.ReconcileDeleteDependant(ctx, r.siteCtx.site, r.siteCtx.nfs); err == nil {
-			log.V(1).Info("Set for requeue after NFS Ganesha server deletion", "Ganesha.Namespace", r.siteCtx.nfs.GetNamespace(), "Ganesha.Name", r.siteCtx.nfs.GetName())
+	if r.lmsMoodleCtx.hasNfs {
+		log.Info("Deleting NFS Ganesha", "Ganesha.Namespace", r.lmsMoodleCtx.nfs.GetNamespace(), "Ganesha.Name", r.lmsMoodleCtx.nfs.GetName())
+		if err := r.ReconcileDeleteDependant(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.nfs); err == nil {
+			log.V(1).Info("Set for requeue after NFS Ganesha server deletion", "Ganesha.Namespace", r.lmsMoodleCtx.nfs.GetNamespace(), "Ganesha.Name", r.lmsMoodleCtx.nfs.GetName())
 			requeue = true
 		} else if !errors.IsNotFound(err) {
-			log.Error(err, "NFS Ganesha server not deleted", "Ganesha.Namespace", r.siteCtx.nfs.GetNamespace(), "Ganesha.Name", r.siteCtx.nfs.GetName())
+			log.Error(err, "NFS Ganesha server not deleted", "Ganesha.Namespace", r.lmsMoodleCtx.nfs.GetNamespace(), "Ganesha.Name", r.lmsMoodleCtx.nfs.GetName())
 			return false, err
 		}
 	}
 
 	if !requeue {
 		// Set terminated state
-		if _, err := r.SetFalseReadyCondition(ctx, m4ev1alpha1.TerminatedState, "Finalizer ended"); err != nil {
+		if _, err := r.SetFalseReadyCondition(ctx, lmsv1alpha1.TerminatedState, "Finalizer ended"); err != nil {
 			return false, err
 		}
-		if statusStateUpdated, err := SetStatusState(r.siteCtx.site, m4ev1alpha1.TerminatedState); err != nil {
+		if statusStateUpdated, err := SetStatusState(r.lmsMoodleCtx.lmsMoodle, lmsv1alpha1.TerminatedState); err != nil {
 			return false, err
 		} else if statusStateUpdated {
-			if err := r.Status().Update(ctx, r.siteCtx.site); err != nil {
-				log.Error(err, "Unable to update Site '"+r.siteCtx.name+"' state")
+			if err := r.Status().Update(ctx, r.lmsMoodleCtx.lmsMoodle); err != nil {
+				log.Error(err, "Unable to update LMSMoodle '"+r.lmsMoodleCtx.name+"' state")
 				return false, err
 			}
 		}
 
-		log.Info("Successfully finalized site")
+		log.Info("Successfully finalized LMSMoodle")
 	}
 
 	return requeue, nil
 }
 
-// finalizeSite cleans up before deleting Flavor
-func (r *FlavorReconciler) finalizeFlavor(ctx context.Context) error {
+// finalizeSite cleans up before deleting LMSMoodleTemplate
+func (r *LMSMoodleTemplateReconciler) finalizeLMSMoodleTemplate(ctx context.Context) error {
 	log := log.FromContext(ctx)
 	log.Info("Finalizing")
 
-	// Whether any Site is using this flavor
-	log.Info("Deleting Flavor", "Flavor.Namespace", r.flavorCtx.flavor.GetNamespace(), "Flavor.Name", r.flavorCtx.flavor.GetName())
-	siteList := &m4ev1alpha1.SiteList{}
-	if err := r.List(ctx, siteList, client.MatchingFields{"spec.flavor": r.flavorCtx.flavor.GetName()}); err != nil {
-		log.Error(err, "Unable to list child sites")
+	// Whether any LMSMoodle is using this lmsMoodleTemplate
+	log.Info("Deleting LMSMoodleTemplate", "LMSMoodleTemplate.Namespace", r.lmsMoodleTemplateCtx.lmsMoodleTemplate.GetNamespace(), "LMSMoodleTemplate.Name", r.lmsMoodleTemplateCtx.lmsMoodleTemplate.GetName())
+	siteList := &lmsv1alpha1.LMSMoodleList{}
+	if err := r.List(ctx, siteList, client.MatchingFields{"spec.lmsMoodleTemplate": r.lmsMoodleTemplateCtx.lmsMoodleTemplate.GetName()}); err != nil {
+		log.Error(err, "Unable to list child lmsmoodles")
 		return err
 	}
 
-	sitesUsingFlavor := len(siteList.Items)
-	if sitesUsingFlavor > 0 {
-		flavorNotFoundError := &FlavorInUsedError{r.flavorCtx.flavor.GetName(), sitesUsingFlavor}
-		log.Error(flavorNotFoundError, "Cannot delete flavor")
-		return flavorNotFoundError
+	sitesUsingLMSMoodleTemplate := len(siteList.Items)
+	if sitesUsingLMSMoodleTemplate > 0 {
+		lmsMoodleTemplateNotFoundError := &LMSMoodleTemplateInUsedError{r.lmsMoodleTemplateCtx.lmsMoodleTemplate.GetName(), sitesUsingLMSMoodleTemplate}
+		log.Error(lmsMoodleTemplateNotFoundError, "Cannot delete LMSMoodleTemplate")
+		return lmsMoodleTemplateNotFoundError
 	}
 
-	log.Info("Successfully finalized flavor")
+	log.Info("Successfully finalized LMSMoodleTemplate")
 	return nil
 }
 
-// updateSiteStatus update site state
+// updateLMSMoodleStatus update lms moodle state
 // return any error
-func (r *SiteReconciler) updateSiteStatus(ctx context.Context) (requeue bool, err error) {
+func (r *LMSMoodleReconciler) updateLMSMoodleStatus(ctx context.Context) (requeue bool, err error) {
 	log := log.FromContext(ctx)
 
 	var statusState string
@@ -237,95 +237,95 @@ func (r *SiteReconciler) updateSiteStatus(ctx context.Context) (requeue bool, er
 
 	statusState, err = r.getStatusState(ctx)
 	if err != nil {
-		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
+		log.Error(err, "unable to update LMSMoodle '"+r.lmsMoodleCtx.lmsMoodle.GetName()+"' state")
 		return true, err
 	}
 
-	// Set state in site object
-	statusStateUpdated, err := SetStatusState(r.siteCtx.site, statusState)
+	// Set state in lms moodle object
+	statusStateUpdated, err := SetStatusState(r.lmsMoodleCtx.lmsMoodle, statusState)
 	if err != nil {
-		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
+		log.Error(err, "unable to update LMSMoodle '"+r.lmsMoodleCtx.lmsMoodle.GetName()+"' state")
 		return true, err
 	}
 
 	// If state not updated
 	if !statusStateUpdated {
-		log.V(1).Info("Site state not updated")
+		log.V(1).Info("LMSMoodle state not updated")
 	}
 
-	// Set status from moodle in site object
-	moodleStatusUpdated, err := SetStatusFromMoodle(r.siteCtx.site, r.siteCtx.moodle)
+	// Set status from moodle in lms moodle object
+	moodleStatusUpdated, err := SetStatusFromMoodle(r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.moodle)
 	if err != nil {
-		log.Error(err, "unable to update Site '"+r.siteCtx.site.GetName()+"' state")
+		log.Error(err, "unable to update LMSMoodle '"+r.lmsMoodleCtx.lmsMoodle.GetName()+"' state")
 		return true, err
 	}
 
 	// If status from moodle not updated
 	if !moodleStatusUpdated {
-		log.V(1).Info("Site status from moodle not updated")
+		log.V(1).Info("LMSMoodle status from moodle not updated")
 	}
 
 	// If status not updated, return
 	if !statusStateUpdated && !moodleStatusUpdated {
-		log.V(1).Info("Site status not updated")
+		log.V(1).Info("LMSMoodle status not updated")
 		return false, nil
 	}
 
 	// Set ready condition
-	if statusState == m4ev1alpha1.ReadyState {
+	if statusState == lmsv1alpha1.ReadyState {
 		requeue = false
 		if _, err = r.SetSuccessfulReadyCondition(ctx); err != nil {
 			return false, err
 		}
-	} else if statusState == m4ev1alpha1.TerminatingState {
+	} else if statusState == lmsv1alpha1.TerminatingState {
 		requeue = false
-		if _, err = r.SetFalseReadyCondition(ctx, m4ev1alpha1.TerminatingState, "Finalizer started"); err != nil {
+		if _, err = r.SetFalseReadyCondition(ctx, lmsv1alpha1.TerminatingState, "Finalizer started"); err != nil {
 			return false, err
 		}
-	} else if statusState == m4ev1alpha1.SuspendedState {
+	} else if statusState == lmsv1alpha1.SuspendedState {
 		requeue = false
-		if _, err := r.SetFalseReadyCondition(ctx, statusState, "Site is suspended"); err != nil {
+		if _, err := r.SetFalseReadyCondition(ctx, statusState, "LMSMoodle is suspended"); err != nil {
 			return false, err
 		}
 	}
 
 	// Save status
-	if err := r.Status().Update(ctx, r.siteCtx.site); err != nil {
-		log.Error(err, "Unable to update Site '"+r.siteCtx.name+"' state")
+	if err := r.Status().Update(ctx, r.lmsMoodleCtx.lmsMoodle); err != nil {
+		log.Error(err, "Unable to update LMSMoodle '"+r.lmsMoodleCtx.name+"' state")
 		return true, err
 	}
 
-	log.V(1).Info("Site state updated")
+	log.V(1).Info("LMSMoodle state updated")
 
 	return requeue, nil
 }
 
-// updateFlavorState update flavor state
+// updateLMSMoodleTemplateState update lmsMoodleTemplate state
 // return any error
-func (r *FlavorReconciler) updateFlavorState(ctx context.Context) error {
+func (r *LMSMoodleTemplateReconciler) updateLMSMoodleTemplateState(ctx context.Context) error {
 	log := log.FromContext(ctx)
 
-	state := r.setFlavorState()
+	state := r.setLMSMoodleTemplateState()
 
-	// set state in site object
-	stateUpdate, err := SetStatusState(r.flavorCtx.flavor, state)
+	// set state in lms moodle object
+	stateUpdate, err := SetStatusState(r.lmsMoodleTemplateCtx.lmsMoodleTemplate, state)
 	if err != nil {
-		log.Error(err, "unable to update Flavor '"+r.flavorCtx.flavor.GetName()+"' state")
+		log.Error(err, "unable to update LMSMoodleTemplate '"+r.lmsMoodleTemplateCtx.lmsMoodleTemplate.GetName()+"' state")
 		return err
 	}
 
 	if !stateUpdate {
-		log.V(1).Info("Flavor state not updated")
+		log.V(1).Info("LMSMoodleTemplate state not updated")
 		return nil
 	}
 
 	// save status
-	if err := r.Status().Update(ctx, r.flavorCtx.flavor); err != nil {
-		log.Error(err, "Unable to update Flavor '"+r.flavorCtx.flavor.GetName()+"' state")
+	if err := r.Status().Update(ctx, r.lmsMoodleTemplateCtx.lmsMoodleTemplate); err != nil {
+		log.Error(err, "Unable to update LMSMoodleTemplate '"+r.lmsMoodleTemplateCtx.lmsMoodleTemplate.GetName()+"' state")
 		return err
 	}
 
-	log.V(1).Info("Flavor state updated")
+	log.V(1).Info("LMSMoodleTemplate state updated")
 	return nil
 }
 
@@ -390,34 +390,34 @@ func getReadyReason(ctx context.Context, obj *unstructured.Unstructured) (reason
 	return reason, err
 }
 
-// getStatusState defines Site state value from ready condition
+// getStatusState defines LMSMoodle state value from ready condition
 // return state string
-func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err error) {
+func (r *LMSMoodleReconciler) getStatusState(ctx context.Context) (state string, err error) {
 	log := log.FromContext(ctx)
 
-	expectedStatusState := m4ev1alpha1.SuccessfulState
-	isSuspendedDesiredState := r.siteCtx.desiredState == m4ev1alpha1.SuspendedState
+	expectedStatusState := lmsv1alpha1.SuccessfulState
+	isSuspendedDesiredState := r.lmsMoodleCtx.desiredState == lmsv1alpha1.SuspendedState
 
 	if isSuspendedDesiredState {
-		expectedStatusState = m4ev1alpha1.SuspendedState
+		expectedStatusState = lmsv1alpha1.SuspendedState
 	}
 
 	if isSuspendedDesiredState {
-		state = m4ev1alpha1.SuspendedState
+		state = lmsv1alpha1.SuspendedState
 	} else {
-		state = m4ev1alpha1.ReadyState
+		state = lmsv1alpha1.ReadyState
 	}
 
 	// Terminating
-	if r.siteCtx.markedToBeDeleted {
-		state = m4ev1alpha1.TerminatingState
+	if r.lmsMoodleCtx.markedToBeDeleted {
+		state = lmsv1alpha1.TerminatingState
 		return state, err
 	}
 
-	if r.siteCtx.hasPostgres {
+	if r.lmsMoodleCtx.hasPostgres {
 		// get postgres ready condition
 		var postgresState string
-		if postgresState, err = getReadyReason(ctx, r.siteCtx.postgres); err != nil {
+		if postgresState, err = getReadyReason(ctx, r.lmsMoodleCtx.postgres); err != nil {
 			log.Error(err, "Postgres ready reason error")
 		}
 
@@ -431,10 +431,10 @@ func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err 
 		}
 	}
 
-	if r.siteCtx.hasKeydb {
+	if r.lmsMoodleCtx.hasKeydb {
 		// get Keydb ready condition
 		var keydbState string
-		if keydbState, err = getReadyReason(ctx, r.siteCtx.keydb); err != nil {
+		if keydbState, err = getReadyReason(ctx, r.lmsMoodleCtx.keydb); err != nil {
 			log.Error(err, "Keydb ready reason error")
 		}
 
@@ -448,10 +448,10 @@ func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err 
 		}
 	}
 
-	if r.siteCtx.hasNfs {
+	if r.lmsMoodleCtx.hasNfs {
 		// get Nfs ready condition
 		var nfsState string
-		if nfsState, err = getReadyReason(ctx, r.siteCtx.nfs); err != nil {
+		if nfsState, err = getReadyReason(ctx, r.lmsMoodleCtx.nfs); err != nil {
 			log.Error(err, "Nfs ready reason error")
 		}
 
@@ -467,7 +467,7 @@ func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err 
 
 	// get Moodle ready condition
 	var moodleState string
-	if moodleState, err = getReadyReason(ctx, r.siteCtx.moodle); err != nil {
+	if moodleState, err = getReadyReason(ctx, r.lmsMoodleCtx.moodle); err != nil {
 		log.Error(err, "Moodle ready reason error")
 	}
 
@@ -483,17 +483,17 @@ func (r *SiteReconciler) getStatusState(ctx context.Context) (state string, err 
 	return state, err
 }
 
-// setNotifyUUID defines site uuid if notifying status to an endpoint
+// setNotifyUUID defines lms moodle uuid if notifying status to an endpoint
 // Should be used once combinedMoodleSpec is set
-// By default, site name is used as UUID
-func (r *SiteReconciler) setNotifyUUID() error {
+// By default, lms moodle name is used as UUID
+func (r *LMSMoodleReconciler) setNotifyUUID() error {
 	// whether it has to notify status to a url
-	_, moodleSiteRoutineStatusCrNotifyFound, _ := unstructured.NestedMap(r.siteCtx.combinedMoodleSpec, "routineStatusCrNotify")
-	if moodleSiteRoutineStatusCrNotifyFound {
-		_, moodleSiteRoutineStatusCrNotifyUuidFound, _ := unstructured.NestedMap(r.siteCtx.combinedMoodleSpec, "routineStatusCrNotify", "uuid")
-		if !moodleSiteRoutineStatusCrNotifyUuidFound {
+	_, lmsMoodleRoutineStatusCrNotifyFound, _ := unstructured.NestedMap(r.lmsMoodleCtx.combinedMoodleSpec, "routineStatusCrNotify")
+	if lmsMoodleRoutineStatusCrNotifyFound {
+		_, lmsMoodleRoutineStatusCrNotifyUuidFound, _ := unstructured.NestedMap(r.lmsMoodleCtx.combinedMoodleSpec, "routineStatusCrNotify", "uuid")
+		if !lmsMoodleRoutineStatusCrNotifyUuidFound {
 			// set uuid to notify about
-			if err := unstructured.SetNestedField(r.siteCtx.combinedMoodleSpec, r.siteCtx.name, "routineStatusCrNotify", "uuid"); err != nil {
+			if err := unstructured.SetNestedField(r.lmsMoodleCtx.combinedMoodleSpec, r.lmsMoodleCtx.name, "routineStatusCrNotify", "uuid"); err != nil {
 				return err
 			}
 		}
@@ -501,14 +501,14 @@ func (r *SiteReconciler) setNotifyUUID() error {
 	return nil
 }
 
-// setFlavorState defines Flavor state value
+// setLMSMoodleTemplateState defines LMSMoodleTemplate state value
 // return state string
-func (r *FlavorReconciler) setFlavorState() string {
-	if r.flavorCtx.markedToBeDeleted {
-		return m4ev1alpha1.TerminatingState
+func (r *LMSMoodleTemplateReconciler) setLMSMoodleTemplateState() string {
+	if r.lmsMoodleTemplateCtx.markedToBeDeleted {
+		return lmsv1alpha1.TerminatingState
 	}
 
-	return m4ev1alpha1.ReadyState
+	return lmsv1alpha1.ReadyState
 }
 
 // SetStatusState set status state key in unstructure object
@@ -706,24 +706,24 @@ func truncate(str string, length int) (truncated string) {
 	return
 }
 
-// setSiteLabels set site base labels
-func (r *SiteReconciler) setSiteLabels(ctx context.Context) error {
+// setSiteLabels set lms moodle base labels
+func (r *LMSMoodleReconciler) setSiteLabels(ctx context.Context) error {
 	log := log.FromContext(ctx)
 	siteLabels := make(map[string]string)
 
-	// use flavor labels
-	for key, value := range r.siteCtx.flavor.GetLabels() {
+	// use lmsMoodleTemplate labels
+	for key, value := range r.lmsMoodleCtx.lmsMoodleTemplate.GetLabels() {
 		siteLabels[key] = value
 	}
 
 	// set base labels
-	siteLabels[m4ev1alpha1.GroupVersion.Group+"/site-name"] = r.siteCtx.name
-	siteLabels[m4ev1alpha1.GroupVersion.Group+"/meta-operator-name"] = OPERATORNAME
+	siteLabels[lmsv1alpha1.GroupVersion.Group+"/lms-name"] = r.lmsMoodleCtx.name
+	siteLabels[lmsv1alpha1.GroupVersion.Group+"/meta-operator-name"] = OPERATORNAME
 
-	r.siteCtx.site.SetLabels(siteLabels)
+	r.lmsMoodleCtx.lmsMoodle.SetLabels(siteLabels)
 
-	if err := r.Patch(ctx, r.siteCtx.site, client.Merge); err != nil {
-		log.Error(err, "Failed to attempt patching site labels", "Site", r.siteCtx.site.GetName())
+	if err := r.Patch(ctx, r.lmsMoodleCtx.lmsMoodle, client.Merge); err != nil {
+		log.Error(err, "Failed to attempt patching lms moodle labels", "LMSMoodle", r.lmsMoodleCtx.lmsMoodle.GetName())
 		return err
 	}
 
@@ -731,8 +731,8 @@ func (r *SiteReconciler) setSiteLabels(ctx context.Context) error {
 }
 
 // commonLabels set common labels
-func (r *SiteReconciler) commonLabels(objSpec map[string]interface{}) (err error) {
-	siteLabelsBytes, _ := yaml.Marshal(r.siteCtx.site.GetLabels())
+func (r *LMSMoodleReconciler) commonLabels(objSpec map[string]interface{}) (err error) {
+	siteLabelsBytes, _ := yaml.Marshal(r.lmsMoodleCtx.lmsMoodle.GetLabels())
 	siteLabelsString := string(siteLabelsBytes)
 
 	objSpecCommonLabelsString, objSpecCommonLabelsFound, _ := unstructured.NestedString(objSpec, "commonLabels")
@@ -745,8 +745,8 @@ func (r *SiteReconciler) commonLabels(objSpec map[string]interface{}) (err error
 	return err
 }
 
-// DefaultAffinity set the default affinity for a site
-func (r *SiteReconciler) defaultAffinityYaml(objSpec map[string]interface{}, fieldName string) (err error) {
+// DefaultAffinity set the default affinity for a lms moodle
+func (r *LMSMoodleReconciler) defaultAffinityYaml(objSpec map[string]interface{}, fieldName string) (err error) {
 	var defaultAffinityYamlBytes []byte
 
 	defaultAffinity := corev1.Affinity{
@@ -759,10 +759,10 @@ func (r *SiteReconciler) defaultAffinityYaml(objSpec map[string]interface{}, fie
 						LabelSelector: &metav1.LabelSelector{
 							MatchExpressions: []metav1.LabelSelectorRequirement{
 								{
-									Key:      m4ev1alpha1.GroupVersion.Group + "/site-name",
+									Key:      lmsv1alpha1.GroupVersion.Group + "/lms-name",
 									Operator: metav1.LabelSelectorOpIn,
 									Values: []string{
-										r.siteCtx.name,
+										r.lmsMoodleCtx.name,
 									},
 								},
 							},
@@ -788,7 +788,7 @@ func (r *SiteReconciler) defaultAffinityYaml(objSpec map[string]interface{}, fie
 
 // Merge value in nested string present in both objects into the first object
 // string + '\n' + string
-func (r *SiteReconciler) mergeNestedString(firstObjSpec map[string]interface{}, secondObjSpec map[string]interface{}, fields ...string) (err error) {
+func (r *LMSMoodleReconciler) mergeNestedString(firstObjSpec map[string]interface{}, secondObjSpec map[string]interface{}, fields ...string) (err error) {
 
 	firstObjSpecNestedField, firstObjSpecNestedFieldFound, err := unstructured.NestedString(firstObjSpec, fields...)
 	if err != nil {
@@ -811,163 +811,163 @@ func (r *SiteReconciler) mergeNestedString(firstObjSpec map[string]interface{}, 
 }
 
 // moodleDefaultAffinityYaml set the default affinity for Moodle
-func (r *SiteReconciler) moodleDefaultAffinityYaml() (err error) {
-	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleCronjobAffinity"); err != nil {
+func (r *LMSMoodleReconciler) moodleDefaultAffinityYaml() (err error) {
+	if err = r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, "moodleCronjobAffinity"); err != nil {
 		return err
 	}
-	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleUpdateJobAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, "moodleUpdateJobAffinity"); err != nil {
 		return err
 	}
-	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "moodleNewInstanceJobAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, "moodleNewInstanceJobAffinity"); err != nil {
 		return err
 	}
-	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "phpFpmAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, "phpFpmAffinity"); err != nil {
 		return err
 	}
-	if err = r.defaultAffinityYaml(r.siteCtx.flavorMoodleSpec, "nginxAffinity"); err != nil {
+	if err = r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, "nginxAffinity"); err != nil {
 		return err
 	}
 	return err
 }
 
 // postgresSpec handle any postgres spec
-func (r *SiteReconciler) postgresSpec() (err error) {
-	r.siteCtx.hasPostgres = r.siteCtx.postgresSpecFound || r.siteCtx.flavorPostgresSpecFound
+func (r *LMSMoodleReconciler) postgresSpec() (err error) {
+	r.lmsMoodleCtx.hasPostgres = r.lmsMoodleCtx.postgresSpecFound || r.lmsMoodleCtx.lmsMoodleTemplatePostgresSpecFound
 
-	if r.siteCtx.hasPostgres {
-		r.siteCtx.postgres.SetName(r.siteCtx.postgresName)
-		r.siteCtx.postgres.SetNamespace(r.siteCtx.namespaceName)
+	if r.lmsMoodleCtx.hasPostgres {
+		r.lmsMoodleCtx.postgres.SetName(r.lmsMoodleCtx.postgresName)
+		r.lmsMoodleCtx.postgres.SetNamespace(r.lmsMoodleCtx.namespaceName)
 	}
 
 	// Postgres kind from Postgres ansible operator
-	if r.siteCtx.hasPostgres {
+	if r.lmsMoodleCtx.hasPostgres {
 		// Set Postgres host and secret, if not already present in Moodle spec
 		postgresRelatedMoodleSpec := map[string]interface{}{
-			"moodlePostgresMetaName": r.siteCtx.postgresName,
+			"moodlePostgresMetaName": r.lmsMoodleCtx.postgresName,
 		}
-		// Merge Moodle related postgres spec with flavor Moodle spec
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, postgresRelatedMoodleSpec); err != nil {
+		// Merge Moodle related postgres spec with lmsMoodleTemplate Moodle spec
+		if err := mergo.MapWithOverwrite(&r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, postgresRelatedMoodleSpec); err != nil {
 			return err
 		}
-		// Merge Postgres spec if set on site Spec
-		if r.siteCtx.postgresSpecFound {
-			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorPostgresSpec, r.siteCtx.postgresSpec); err != nil {
+		// Merge Postgres spec if set on LMSMoodleSpec
+		if r.lmsMoodleCtx.postgresSpecFound {
+			if err := mergo.MapWithOverwrite(&r.lmsMoodleCtx.lmsMoodleTemplatePostgresSpec, r.lmsMoodleCtx.postgresSpec); err != nil {
 				return err
 			}
 		}
-		// Set site labels to postgres
-		if err := r.commonLabels(r.siteCtx.flavorPostgresSpec); err != nil {
+		// Set lms moodle labels to postgres
+		if err := r.commonLabels(r.lmsMoodleCtx.lmsMoodleTemplatePostgresSpec); err != nil {
 			return err
 		}
 		// set default affinity
-		if err := r.defaultAffinityYaml(r.siteCtx.flavorPostgresSpec, "postgresAffinity"); err != nil {
+		if err := r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplatePostgresSpec, "postgresAffinity"); err != nil {
 			return err
 		}
 		// save postgres spec
-		r.siteCtx.combinedPostgresSpec = make(map[string]interface{})
-		r.siteCtx.combinedPostgresSpec = r.siteCtx.flavorPostgresSpec
+		r.lmsMoodleCtx.combinedPostgresSpec = make(map[string]interface{})
+		r.lmsMoodleCtx.combinedPostgresSpec = r.lmsMoodleCtx.lmsMoodleTemplatePostgresSpec
 	}
 
 	return err
 }
 
 // nfsSpec handle any nfs spec
-func (r *SiteReconciler) nfsSpec() (err error) {
-	r.siteCtx.hasNfs = r.siteCtx.nfsSpecFound || r.siteCtx.flavorNfsSpecFound
+func (r *LMSMoodleReconciler) nfsSpec() (err error) {
+	r.lmsMoodleCtx.hasNfs = r.lmsMoodleCtx.nfsSpecFound || r.lmsMoodleCtx.lmsMoodleTemplateNfsSpecFound
 
-	if r.siteCtx.hasNfs {
-		r.siteCtx.nfs.SetName(r.siteCtx.nfsName)
-		r.siteCtx.nfs.SetNamespace(r.siteCtx.namespaceName)
+	if r.lmsMoodleCtx.hasNfs {
+		r.lmsMoodleCtx.nfs.SetName(r.lmsMoodleCtx.nfsName)
+		r.lmsMoodleCtx.nfs.SetNamespace(r.lmsMoodleCtx.namespaceName)
 	}
 
 	// Ganesha server kind from NFS ansible operator
-	if r.siteCtx.hasNfs {
+	if r.lmsMoodleCtx.hasNfs {
 		// Set NFS storage class name and access modes when using NFS operator
 		nfsRelatedMoodleSpec := map[string]interface{}{
-			"moodleNfsMetaName": r.siteCtx.nfsName,
+			"moodleNfsMetaName": r.lmsMoodleCtx.nfsName,
 		}
-		// Merge Moodle related nfs spec with flavor Moodle spec
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, nfsRelatedMoodleSpec); err != nil {
+		// Merge Moodle related nfs spec with lmsMoodleTemplate Moodle spec
+		if err := mergo.MapWithOverwrite(&r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, nfsRelatedMoodleSpec); err != nil {
 			return err
 		}
-		// Merge NFS spec if set on site Spec
-		if r.siteCtx.nfsSpecFound {
-			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorNfsSpec, r.siteCtx.nfsSpec); err != nil {
+		// Merge NFS spec if set on LMSMoodleSpec
+		if r.lmsMoodleCtx.nfsSpecFound {
+			if err := mergo.MapWithOverwrite(&r.lmsMoodleCtx.lmsMoodleTemplateNfsSpec, r.lmsMoodleCtx.nfsSpec); err != nil {
 				return err
 			}
 		}
-		// Set site labels to nfs
-		if err := r.commonLabels(r.siteCtx.flavorNfsSpec); err != nil {
+		// Set lms moodle labels to nfs
+		if err := r.commonLabels(r.lmsMoodleCtx.lmsMoodleTemplateNfsSpec); err != nil {
 			return err
 		}
 		// set default affinity
-		if err := r.defaultAffinityYaml(r.siteCtx.flavorNfsSpec, "ganeshaAffinity"); err != nil {
+		if err := r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplateNfsSpec, "ganeshaAffinity"); err != nil {
 			return err
 		}
 		// save nfs spec
-		r.siteCtx.combinedNfsSpec = make(map[string]interface{})
-		r.siteCtx.combinedNfsSpec = r.siteCtx.flavorNfsSpec
+		r.lmsMoodleCtx.combinedNfsSpec = make(map[string]interface{})
+		r.lmsMoodleCtx.combinedNfsSpec = r.lmsMoodleCtx.lmsMoodleTemplateNfsSpec
 	}
 
 	return err
 }
 
 // keydbSpec handle any keydb spec
-func (r *SiteReconciler) keydbSpec() (err error) {
-	r.siteCtx.hasKeydb = r.siteCtx.keydbSpecFound || r.siteCtx.flavorKeydbSpecFound
+func (r *LMSMoodleReconciler) keydbSpec() (err error) {
+	r.lmsMoodleCtx.hasKeydb = r.lmsMoodleCtx.keydbSpecFound || r.lmsMoodleCtx.lmsMoodleTemplateKeydbSpecFound
 
-	if r.siteCtx.hasKeydb {
-		r.siteCtx.keydb.SetName(r.siteCtx.keydbName)
-		r.siteCtx.keydb.SetNamespace(r.siteCtx.namespaceName)
+	if r.lmsMoodleCtx.hasKeydb {
+		r.lmsMoodleCtx.keydb.SetName(r.lmsMoodleCtx.keydbName)
+		r.lmsMoodleCtx.keydb.SetNamespace(r.lmsMoodleCtx.namespaceName)
 	}
 
 	// Keydb kind from Keydb ansible operator
-	if r.siteCtx.hasKeydb {
+	if r.lmsMoodleCtx.hasKeydb {
 		// Set Keydb host and secret, if not already present in Moodle spec
 		keydbRelatedMoodleSpec := map[string]interface{}{
-			"moodleKeydbMetaName": r.siteCtx.keydbName,
+			"moodleKeydbMetaName": r.lmsMoodleCtx.keydbName,
 		}
-		// Merge Moodle related keydb spec with flavor Moodle spec
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, keydbRelatedMoodleSpec); err != nil {
+		// Merge Moodle related keydb spec with lmsMoodleTemplate Moodle spec
+		if err := mergo.MapWithOverwrite(&r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, keydbRelatedMoodleSpec); err != nil {
 			return err
 		}
-		// Merge Keydb spec if set on site Spec
-		if r.siteCtx.keydbSpecFound {
-			if err := mergo.MapWithOverwrite(&r.siteCtx.flavorKeydbSpec, r.siteCtx.keydbSpec); err != nil {
+		// Merge Keydb spec if set on LMSMoodleSpec
+		if r.lmsMoodleCtx.keydbSpecFound {
+			if err := mergo.MapWithOverwrite(&r.lmsMoodleCtx.lmsMoodleTemplateKeydbSpec, r.lmsMoodleCtx.keydbSpec); err != nil {
 				return err
 			}
 		}
-		// Set site labels to keydb
-		if err := r.commonLabels(r.siteCtx.flavorKeydbSpec); err != nil {
+		// Set lms moodle labels to keydb
+		if err := r.commonLabels(r.lmsMoodleCtx.lmsMoodleTemplateKeydbSpec); err != nil {
 			return err
 		}
 		// set default affinity
-		if err := r.defaultAffinityYaml(r.siteCtx.flavorKeydbSpec, "keydbAffinity"); err != nil {
+		if err := r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplateKeydbSpec, "keydbAffinity"); err != nil {
 			return err
 		}
 		// save keydb spec
-		r.siteCtx.combinedKeydbSpec = make(map[string]interface{})
-		r.siteCtx.combinedKeydbSpec = r.siteCtx.flavorKeydbSpec
+		r.lmsMoodleCtx.combinedKeydbSpec = make(map[string]interface{})
+		r.lmsMoodleCtx.combinedKeydbSpec = r.lmsMoodleCtx.lmsMoodleTemplateKeydbSpec
 	}
 
 	return err
 }
 
 // moodleSpec handle any keydb spec
-func (r *SiteReconciler) moodleSpec() (err error) {
+func (r *LMSMoodleReconciler) moodleSpec() (err error) {
 	// Merge ingress annotations
-	if err := r.mergeNestedString(r.siteCtx.moodleSpec, r.siteCtx.flavorMoodleSpec, "nginxIngressAnnotations"); err != nil {
+	if err := r.mergeNestedString(r.lmsMoodleCtx.moodleSpec, r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, "nginxIngressAnnotations"); err != nil {
 		return err
 	}
 
-	// Merge Moodle spec if set on site Spec
-	if r.siteCtx.moodleSpecFound {
-		if err := mergo.MapWithOverwrite(&r.siteCtx.flavorMoodleSpec, r.siteCtx.moodleSpec); err != nil {
+	// Merge Moodle spec if set on LMSMoodleSpec
+	if r.lmsMoodleCtx.moodleSpecFound {
+		if err := mergo.MapWithOverwrite(&r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, r.lmsMoodleCtx.moodleSpec); err != nil {
 			return err
 		}
 	}
-	// Set site labels to Moodle
-	if err := r.commonLabels(r.siteCtx.flavorMoodleSpec); err != nil {
+	// Set lms moodle labels to Moodle
+	if err := r.commonLabels(r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec); err != nil {
 		return err
 	}
 	// set moodle default affinity
@@ -975,16 +975,16 @@ func (r *SiteReconciler) moodleSpec() (err error) {
 		return err
 	}
 	// save moodle spec
-	r.siteCtx.combinedMoodleSpec = make(map[string]interface{})
-	r.siteCtx.combinedMoodleSpec = r.siteCtx.flavorMoodleSpec
+	r.lmsMoodleCtx.combinedMoodleSpec = make(map[string]interface{})
+	r.lmsMoodleCtx.combinedMoodleSpec = r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec
 
 	return err
 }
 
-// siteNetworkPolicy define site network policy
-func (r *SiteReconciler) siteNetworkPolicy() {
+// lmsMoodleNetworkPolicy define lms moodle network policy
+func (r *LMSMoodleReconciler) lmsMoodleNetworkPolicy() {
 	// default network policy, isolating namespace
-	r.siteCtx.networkPolicy = &networkingv1.NetworkPolicy{
+	r.lmsMoodleCtx.networkPolicy = &networkingv1.NetworkPolicy{
 		Spec: networkingv1.NetworkPolicySpec{
 			PolicyTypes: []networkingv1.PolicyType{
 				networkingv1.PolicyTypeIngress,
@@ -998,7 +998,7 @@ func (r *SiteReconciler) siteNetworkPolicy() {
 						{
 							NamespaceSelector: &metav1.LabelSelector{
 								MatchLabels: map[string]string{
-									"kubernetes.io/metadata.name": r.siteCtx.namespaceName,
+									"kubernetes.io/metadata.name": r.lmsMoodleCtx.namespaceName,
 								},
 							},
 						},
@@ -1007,16 +1007,16 @@ func (r *SiteReconciler) siteNetworkPolicy() {
 			},
 		},
 	}
-	r.siteCtx.networkPolicy.SetNamespace(r.siteCtx.namespaceName)
-	r.siteCtx.networkPolicy.SetName(r.siteCtx.networkPolicyName)
+	r.lmsMoodleCtx.networkPolicy.SetNamespace(r.lmsMoodleCtx.namespaceName)
+	r.lmsMoodleCtx.networkPolicy.SetName(r.lmsMoodleCtx.networkPolicyName)
 }
 
 // isDependantSuspended whether dependant is suspended
-func (r *SiteReconciler) isDependantSuspended(ctx context.Context, obj *unstructured.Unstructured) (suspended bool) {
+func (r *LMSMoodleReconciler) isDependantSuspended(ctx context.Context, obj *unstructured.Unstructured) (suspended bool) {
 	log := log.FromContext(ctx)
 
 	objState, objStateFound, _ := unstructured.NestedString(obj.Object, "status", "state")
-	if objStateFound && objState == m4ev1alpha1.SuspendedState {
+	if objStateFound && objState == lmsv1alpha1.SuspendedState {
 		log.V(1).Info("Dependant resource has been suspended", "Dependant", obj.GetObjectKind())
 		return true
 	} else {

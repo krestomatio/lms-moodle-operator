@@ -4,14 +4,18 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.12.0
-  name: sites.m4e.krestomat.io
+  name: lmsmoodles.lms.krestomat.io
 spec:
-  group: m4e.krestomat.io
+  group: lms.krestomat.io
   names:
-    kind: Site
-    listKind: SiteList
-    plural: sites
-    singular: site
+    categories:
+    - moodle
+    kind: LMSMoodle
+    listKind: LMSMoodleList
+    plural: lmsmoodles
+    shortNames:
+    - lm
+    singular: lmsmoodle
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -19,7 +23,7 @@ spec:
       jsonPath: .metadata.creationTimestamp
       name: AGE
       type: date
-    - description: Site status such as Unknown/SettingUp/Ready/Failed/Terminating
+    - description: LMSMoodle status such as Unknown/SettingUp/Ready/Failed/Terminating
         etc
       jsonPath: .status.state
       name: STATUS
@@ -28,26 +32,26 @@ spec:
       jsonPath: .status.conditions[?(@.type=='Ready')].lastTransitionTime
       name: SINCE
       type: date
-    - description: Flavor name
-      jsonPath: .spec.flavor
-      name: FLAVOR
+    - description: LMSMoodleTemplate name
+      jsonPath: .spec.lmsMoodleTemplate
+      name: TEMPLATE
       type: string
-    - description: Site URL
+    - description: LMSMoodle URL
       jsonPath: .status.url
       name: URL
       type: string
-    - description: Site registered users
+    - description: LMSMoodle registered users
       jsonPath: .status.registeredUsers
       name: USERS
       type: integer
-    - description: Site storage usage in GB
+    - description: LMSMoodle storage usage in GB
       jsonPath: .status.storageGb
       name: GB
       type: string
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Site is the Schema for the sites API
+        description: LMSMoodle is the Schema for the lmsmoodles API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -62,19 +66,14 @@ spec:
           metadata:
             type: object
           spec:
-            description: SiteSpec defines the desired state of Site
+            description: LMSMoodleSpec defines the desired state of LMSMoodle
             properties:
               desiredState:
                 default: Ready
-                description: DesiredState defines the desired state to put a site
+                description: DesiredState defines the desired state to put a LMSMoodle
                 enum:
                 - Ready
                 - Suspended
-                type: string
-              flavor:
-                description: Flavor defines what Moodle flavor to use
-                maxLength: 255
-                minLength: 1
                 type: string
               keydbSpec:
                 description: KeydbSpec defines Keydb spec to deploy optionally
@@ -212,6 +211,12 @@ spec:
                       spec
                     type: string
                 type: object
+              lmsMoodleTemplateName:
+                description: LMSMoodleTemplateName defines what LMS Moodle template
+                  to use
+                maxLength: 255
+                minLength: 1
+                type: string
               moodleSpec:
                 description: MoodleSpec defines Moodle spec
                 properties:
@@ -1500,11 +1505,11 @@ spec:
                     type: string
                 type: object
             required:
-            - flavor
+            - lmsMoodleTemplateName
             - moodleSpec
             type: object
           status:
-            description: SiteStatus defines the observed state of Site
+            description: LMSMoodleStatus defines the observed state of LMSMoodle
             properties:
               conditions:
                 description: Conditions represent the latest available observations
@@ -1581,22 +1586,24 @@ spec:
                 x-kubernetes-list-type: map
               registeredUsers:
                 default: 0
-                description: Site number of current registered users for user capacity
+                description: RegisteredUsers defines LMSMoodle number of current registered
+                  users for user capacity
                 format: int64
                 type: integer
               release:
-                description: Site moodle version
+                description: Release defines LMSMoodle moodle version
                 type: string
               state:
                 default: Unknown
-                description: state describes the site state
+                description: state describes the LMSMoodle state
                 type: string
               storageGb:
                 default: "0"
-                description: Site number of current GB for storage capacity
+                description: StorageGb defines LMSMoodle number of current GB for
+                  storage capacity
                 type: string
               url:
-                description: Site url
+                description: Url defines LMSMoodle url
                 type: string
             type: object
         type: object

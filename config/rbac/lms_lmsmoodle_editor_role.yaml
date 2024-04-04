@@ -1,20 +1,20 @@
-# permissions for end users to edit flavors.
+# permissions for end users to edit lmsmoodles.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: clusterrole
-    app.kubernetes.io/instance: flavor-editor-role
+    app.kubernetes.io/instance: lmsmoodle-editor-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: kio-operator
-    app.kubernetes.io/part-of: kio-operator
+    app.kubernetes.io/created-by: lms-moodle-operator
+    app.kubernetes.io/part-of: lms-moodle-operator
     app.kubernetes.io/managed-by: kustomize
-  name: flavor-editor-role
+  name: lmsmoodle-editor-role
 rules:
 - apiGroups:
-  - m4e.krestomat.io
+  - lms.krestomat.io
   resources:
-  - flavors
+  - lmsmoodles
   verbs:
   - create
   - delete
@@ -24,8 +24,8 @@ rules:
   - update
   - watch
 - apiGroups:
-  - m4e.krestomat.io
+  - lms.krestomat.io
   resources:
-  - flavors/status
+  - lmsmoodles/status
   verbs:
   - get
