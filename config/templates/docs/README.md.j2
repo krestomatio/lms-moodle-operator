@@ -14,9 +14,9 @@ Kio operator is a meta operator to automate deployment and management of Moodle 
 ## Prerequisites
 
 * [Moodle Operator](https://github.com/krestomatio/moodle-operator): For automated provisioning and configuration of the web layer: php-fpm, nginx, cronjob, among other resources.
-* [Postgres Operator](https://github.com/krestomatio/moodle-operator) (Optional): For deployment and management of PostgreSQL database.
-* [NFS Operator](https://github.com/krestomatio/moodle-operator) (Optional): For deployment and management of shared storage using NFS Ganesha.
-* [Keydb Operator](https://github.com/krestomatio/moodle-operator) (Optional): For deployment and management of compatible Redis database: Keydb.
+* [Postgres Operator](https://github.com/krestomatio/postgres-operator) (Optional): For deployment and management of PostgreSQL database.
+* [NFS Operator](https://github.com/krestomatio/nfs-operator) (Optional): For deployment and management of shared storage using NFS Ganesha.
+* [Keydb Operator](https://github.com/krestomatio/keydb-operator) (Optional): For deployment and management of compatible Redis database: Keydb.
 
 ## Installation
 
