@@ -1,5 +1,0 @@
-# Install nfs operator
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-- github.com/krestomatio/nfs-operator/config/default?ref=v0.3.47
