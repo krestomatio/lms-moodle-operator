@@ -1,5 +1,7 @@
 ## Changes
 
-### Bug Fixes
+### New Features
 
-* convert storage total value to string (Job Céspedes Ortiz)
+* go-operator: generate operators kustomize files (Job Céspedes Ortiz)
+* gen docs (Job Céspedes Ortiz)
+* bump sdk operator to 1.33 (Job Céspedes Ortiz)

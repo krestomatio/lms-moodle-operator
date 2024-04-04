@@ -27,7 +27,7 @@ To install this this operator along **all** its required and optional prerequisi
 1. **Install Operator:**
 ```bash
 # All operators
-kubectl apply -k https://github.com/krestomatio/kio-operator/config/operators?ref=v0.3.44
+kubectl apply -k https://github.com/krestomatio/kio-operator/config/operators?ref=v0.3.45
 # Only Kio Operator
 # kubectl apply -k https://github.com/krestomatio/kio-operator/config/default?ref=v0.3.44
 ```
