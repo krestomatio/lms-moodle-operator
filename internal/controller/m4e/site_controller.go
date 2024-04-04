@@ -1,5 +1,5 @@
 /*
-Copyright 2021.
+Copyright 2024.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,9 +37,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	m4ev1alpha1 "github.com/krestomatio/kio-operator/apis/m4e/v1alpha1"
+	m4ev1alpha1 "github.com/krestomatio/kio-operator/api/m4e/v1alpha1"
 )
 
 const (
@@ -127,7 +126,7 @@ type SiteReconciler struct {
 // the user.
 //
 // For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.2/pkg/reconcile
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
 func (r *SiteReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 	log.Info("Starting reconcile")
@@ -516,7 +515,7 @@ func ignoreDeletionPredicate() predicate.Predicate {
 
 // sitesByFlavor select sites that are using a flavor
 // It returns a list of reconcile.Request
-func (r *SiteReconciler) sitesByFlavor(flavor client.Object) []reconcile.Request {
+func (r *SiteReconciler) sitesByFlavor(ctx context.Context, flavor client.Object) []reconcile.Request {
 	SiteList := &m4ev1alpha1.SiteList{}
 
 	// Filter the list of sites by the ones using the flavor name
@@ -563,6 +562,6 @@ func (r *SiteReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(newUnstructuredObject(r.NfsGVK)).
 		Owns(newUnstructuredObject(r.KeydbGVK)).
 		Owns(newUnstructuredObject(r.PostgresGVK)).
-		Watches(&source.Kind{Type: &m4ev1alpha1.Flavor{}}, handler.EnqueueRequestsFromMapFunc(r.sitesByFlavor)).
+		Watches(&m4ev1alpha1.Flavor{}, handler.EnqueueRequestsFromMapFunc(r.sitesByFlavor)).
 		Complete(r)
 }

@@ -65,12 +65,12 @@ spec:
           - name: shared
             mountPath: /shared
         steps:
-        - image: quay.io/krestomatio/go:1.18-toolset
+        - image: quay.io/krestomatio/go:1.21-toolset
           name: task
           resources:
             limits:
-              cpu: 750m
-              memory: 1024Mi
+              cpu: 2
+              memory: 2Gi
             requests:
               cpu: 0.1
               memory: 128Mi

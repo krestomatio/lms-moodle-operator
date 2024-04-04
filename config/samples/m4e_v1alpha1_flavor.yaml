@@ -2,6 +2,12 @@ apiVersion: m4e.krestomat.io/v1alpha1
 kind: Flavor
 metadata:
   name: flavor-sample
+  labels:
+    app.kubernetes.io/name: flavor
+    app.kubernetes.io/instance: flavor-sample
+    app.kubernetes.io/part-of: kio-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: kio-operator
 spec:
   moodleSpec:
     ## Moodle new instance
