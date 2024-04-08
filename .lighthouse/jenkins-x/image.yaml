@@ -2,7 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   creationTimestamp: null
-  name: k8s
+  name: image
 spec:
   workspaces:
   - name: shared-workspace
@@ -36,7 +36,7 @@ spec:
         workspace: shared-workspace
       taskRef:
         name: multiarch-builder-config
-    - name: k8s
+    - name: image
       resources: {}
       runAfter:
       - git-clone-pr
@@ -87,19 +87,6 @@ spec:
           name: image
           args:
           - multiarch-image
-          command:
-          - make
-          resources:
-            limits:
-              cpu: 750m
-              memory: 2048Mi
-            requests:
-              cpu: 0.1
-              memory: 128Mi
-        - image: quay.io/krestomatio/ansible-operator-ci
-          name: pr
-          args:
-          - pr
           command:
           - make
           resources:
