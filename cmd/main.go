@@ -32,8 +32,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	m4ev1alpha1 "github.com/krestomatio/kio-operator/api/m4e/v1alpha1"
-	m4econtroller "github.com/krestomatio/kio-operator/internal/controller/m4e"
+	lmsv1alpha1 "github.com/krestomatio/lms-moodle-operator/api/lms/v1alpha1"
+	lmscontroller "github.com/krestomatio/lms-moodle-operator/internal/controller/lms"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -67,7 +67,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(m4ev1alpha1.AddToScheme(scheme))
+	utilruntime.Must(lmsv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -112,7 +112,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&m4econtroller.SiteReconciler{
+	if err = (&lmscontroller.LMSMoodleReconciler{
 		Client:      mgr.GetClient(),
 		Scheme:      mgr.GetScheme(),
 		MoodleGVK:   moodleGvk,
@@ -120,14 +120,14 @@ func main() {
 		KeydbGVK:    keydbGvk,
 		PostgresGVK: postgresGvk,
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Site")
+		setupLog.Error(err, "unable to create controller", "controller", "LMSMoodle")
 		os.Exit(1)
 	}
-	if err = (&m4econtroller.FlavorReconciler{
+	if err = (&lmscontroller.LMSMoodleTemplateReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Flavor")
+		setupLog.Error(err, "unable to create controller", "controller", "LMSMoodleTemplate")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

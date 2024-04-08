@@ -9,23 +9,23 @@ multigroup: true
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
-projectName: kio-operator
-repo: github.com/krestomatio/kio-operator
+projectName: lms-moodle-operator
+repo: github.com/krestomatio/lms-moodle-operator
 resources:
 - api:
     crdVersion: v1
   controller: true
   domain: krestomat.io
-  group: m4e
-  kind: Site
-  path: github.com/krestomatio/kio-operator/api/m4e/v1alpha1
+  group: lms
+  kind: LMSMoodle
+  path: github.com/krestomatio/lms-moodle-operator/api/lms/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
   controller: true
   domain: krestomat.io
-  group: m4e
-  kind: Flavor
-  path: github.com/krestomatio/kio-operator/api/m4e/v1alpha1
+  group: lms
+  kind: LMSMoodleTemplate
+  path: github.com/krestomatio/lms-moodle-operator/api/lms/v1alpha1
   version: v1alpha1
 version: "3"

@@ -1,0 +1,89 @@
+apiVersion: lms.krestomat.io/v1alpha1
+kind: LMSMoodleTemplate
+metadata:
+  name: lmsmoodletemplate-sample
+  labels:
+    app.kubernetes.io/name: lmsmoodletemplate
+    app.kubernetes.io/instance: lmsmoodletemplate-sample
+    app.kubernetes.io/part-of: lms-moodle-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: lms-moodle-operator
+spec:
+  moodleSpec:
+    ## Moodle new instance
+    moodleNewInstanceAgreeLicense: true
+    moodleNewInstanceFullname: Demo LMS Moodle
+    moodleNewInstanceShortname: demo
+    moodleNewInstanceSummary: A demo LMS Moodle
+    ## Admin credentials. MUST CHANGED
+    moodleNewInstanceAdminmail: admin@otherexample.com
+    ### 'changeme' as admin password:
+    moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
+    ## Postgres as db for LMS Moodle
+    # moodlePostgresMetaName: postgres-sample
+    ## Nfs as shared storage for LMS Moodle
+    # moodleNfsMetaName: ganesha-sample
+    ## Keydb as cache for LMS Moodle
+    # moodleKeydbMetaName: keydb-sample
+    ## Redis
+    moodleConfigSessionRedisPrefix: 'sess_'
+    moodleConfigSessionRedisSerializerUseIgbinary: true
+    moodleConfigSessionRedisCompressor: gzip
+    moodleRedisMucStorePrefix: muc_
+    moodleRedisMucStoreSerializer: 2
+    moodleRedisMucStoreCompressor: 1
+
+  postgresSpec:
+    # postgresMode: one of 'standalone', 'readreplicas'
+    # by default 'standalone' is 1 one primary only, while 'readreplicas' is 1 primary and 1 replica
+    postgresMode: 'standalone'
+
+    # Assign 1Gi to each persistent volume: primary and replicas
+    postgresPvcDataSize: 1Gi
+
+    # Add extra pgbouncer config
+    # pgbouncerExtraConfig: |
+    #   listen_backlog = 256
+
+    ## Storage class name to be used by Postgres
+    postgresPvcDataStorageClassName: standard
+  nfsSpec:
+    # Ownership/permissions
+    ## Set export folder userid to 48
+    ganeshaExportUserid: 48
+    ## Set export folder groupid to 0
+    ganeshaExportGroupid: 0
+    ## Set export folder permissions to 775
+    ganeshaExportMode: "0755"
+
+    # Autoexpansion: if storage available is less than 20% or 'ganeshaPvcDataAutoexpansionIncrementGib', adjust PVC storage size according to 'ganeshaPvcDataAutoexpansionIncrementGib' and 'ganeshaPvcDataAutoexpansionCapGib':
+    # * Kubernetes cluster and PVC must support expansion of volumes
+    # * In older cluster versions, pods require restart when autoexpanding if Kubernetes feature gate
+    #   'ExpandInUsePersistentVolumes' is false. See:
+    #   https://kubernetes.io/docs/reference/command-line-tools-reference/feature-gates/
+    ## Enable autoexpansion
+    # ganeshaPvcDataAutoexpansion: true
+    ## Every time autoexpansion is required, increment 1 GiB
+    # ganeshaPvcDataAutoexpansionIncrementGib: 1
+    ## But no more than 5 GiB
+    # ganeshaPvcDataAutoexpansionCapGib: 5
+
+    ## Storage class name to be used by this (NFS) Ganesha
+    ganeshaPvcDataStorageClassName: standard
+  keydbSpec:
+    # keydbMode: one of 'standalone', 'multimaster', 'custom'
+    # By default 'standalone' is 1 replica and 'multimaster' 3
+    keydbMode: 'standalone'
+
+    # Enable and assign a limit of 1Gi memory
+    keydbResourceLimits: true
+    keydbResourceLimitsCpu: "1"
+    keydbResourceLimitsMemory: 1Gi
+
+    # Assign 1Gi for each replica persistent volume
+    keydbPvcDataSize: 1Gi
+
+    # Add extra keydb config
+    keydbExtraConfig: |
+      maxmemory 900mb
+      maxmemory-policy allkeys-lru

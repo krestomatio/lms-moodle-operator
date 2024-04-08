@@ -77,8 +77,10 @@ spec:
         - image: quay.io/krestomatio/go:1.21-toolset
           name: manifests
           args:
-          - kio-go-cache
+          - go-operator-cache
           - manifests
+          - generate
+          - fmt
           command:
           - make
         - image: quay.io/krestomatio/ansible-docker-ci

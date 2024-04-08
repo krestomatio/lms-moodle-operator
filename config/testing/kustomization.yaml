@@ -1,8 +1,8 @@
 # Install depandant operators
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: kio-test
-namePrefix: kio-
+namespace: lms-moodle-test
+namePrefix: lms-moodle-
 resources:
 - ../crd
 - ../rbac

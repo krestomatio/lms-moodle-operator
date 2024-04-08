@@ -1,97 +1,19 @@
 # API Reference
 
 ## Packages
-- [m4e.krestomat.io/v1alpha1](#m4ekrestomatiov1alpha1)
+- [lms.krestomat.io/v1alpha1](#lmskrestomatiov1alpha1)
 
 
-## m4e.krestomat.io/v1alpha1
+## lms.krestomat.io/v1alpha1
 
-Package v1alpha1 contains API Schema definitions for the m4e v1alpha1 API group
+Package v1alpha1 contains API Schema definitions for the lms v1alpha1 API group
 
 ### Resource Types
-- [Flavor](#flavor)
-- [FlavorList](#flavorlist)
-- [Site](#site)
-- [SiteList](#sitelist)
+- [LMSMoodle](#lmsmoodle)
+- [LMSMoodleList](#lmsmoodlelist)
+- [LMSMoodleTemplate](#lmsmoodletemplate)
+- [LMSMoodleTemplateList](#lmsmoodletemplatelist)
 
-
-
-#### Flavor
-
-
-
-Flavor is the Schema for the flavors API
-
-
-
-_Appears in:_
-- [FlavorList](#flavorlist)
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `m4e.krestomat.io/v1alpha1` | | |
-| `kind` _string_ | `Flavor` | | |
-| `kind` _string_ | Kind is a string value representing the REST resource this object represents.<br />Servers may infer this from the endpoint the client submits requests to.<br />Cannot be updated.<br />In CamelCase.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds |  |  |
-| `apiVersion` _string_ | APIVersion defines the versioned schema of this representation of an object.<br />Servers should convert recognized schemas to the latest internal value, and<br />may reject unrecognized values.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources |  |  |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `spec` _[FlavorSpec](#flavorspec)_ |  |  |  |
-| `status` _[FlavorStatus](#flavorstatus)_ |  |  |  |
-
-
-#### FlavorList
-
-
-
-FlavorList contains a list of Flavor
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `m4e.krestomat.io/v1alpha1` | | |
-| `kind` _string_ | `FlavorList` | | |
-| `kind` _string_ | Kind is a string value representing the REST resource this object represents.<br />Servers may infer this from the endpoint the client submits requests to.<br />Cannot be updated.<br />In CamelCase.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds |  |  |
-| `apiVersion` _string_ | APIVersion defines the versioned schema of this representation of an object.<br />Servers should convert recognized schemas to the latest internal value, and<br />may reject unrecognized values.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources |  |  |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Flavor](#flavor) array_ |  |  |  |
-
-
-#### FlavorSpec
-
-
-
-FlavorSpec defines the desired state of Flavor
-
-
-
-_Appears in:_
-- [Flavor](#flavor)
-- [SiteSpec](#sitespec)
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `moodleSpec` _[MoodleSpec](#moodlespec)_ | MoodleSpec defines Moodle spec |  |  |
-| `postgresSpec` _[PostgresSpec](#postgresspec)_ | PostgresSpec defines Postgres spec to deploy optionally |  |  |
-| `nfsSpec` _[NfsSpec](#nfsspec)_ | NfsSpec defines (NFS) Ganesha server spec to deploy optionally |  |  |
-| `keydbSpec` _[KeydbSpec](#keydbspec)_ | KeydbSpec defines Keydb spec to deploy optionally |  |  |
-
-
-#### FlavorStatus
-
-
-
-FlavorStatus defines the observed state of Flavor
-
-
-
-_Appears in:_
-- [Flavor](#flavor)
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `state` _string_ | state describes the site state | Unknown |  |
 
 
 #### KeydbMode
@@ -117,8 +39,8 @@ KeydbSpec defines the desired state of Keydb
 
 
 _Appears in:_
-- [FlavorSpec](#flavorspec)
-- [SiteSpec](#sitespec)
+- [LMSMoodleSpec](#lmsmoodlespec)
+- [LMSMoodleTemplateSpec](#lmsmoodletemplatespec)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -142,6 +64,168 @@ _Appears in:_
 | `keydbNodeSelector` _string_ | KeydbNodeSelector defines any node labels selectors for Keydb pods. |  |  |
 | `keydbAffinity` _string_ | KeydbAffinity defines any affinity rules for Keydb pods. |  |  |
 | `keydbVpaSpec` _string_ | KeydbVpaSpec set keydb horizontal pod autoscaler spec |  |  |
+
+
+#### LMSMoodle
+
+
+
+LMSMoodle is the Schema for the lmsmoodles API
+
+
+
+_Appears in:_
+- [LMSMoodleList](#lmsmoodlelist)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `lms.krestomat.io/v1alpha1` | | |
+| `kind` _string_ | `LMSMoodle` | | |
+| `kind` _string_ | Kind is a string value representing the REST resource this object represents.<br />Servers may infer this from the endpoint the client submits requests to.<br />Cannot be updated.<br />In CamelCase.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds |  |  |
+| `apiVersion` _string_ | APIVersion defines the versioned schema of this representation of an object.<br />Servers should convert recognized schemas to the latest internal value, and<br />may reject unrecognized values.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[LMSMoodleSpec](#lmsmoodlespec)_ |  |  |  |
+| `status` _[LMSMoodleStatus](#lmsmoodlestatus)_ |  |  |  |
+
+
+#### LMSMoodleList
+
+
+
+LMSMoodleList contains a list of LMSMoodle
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `lms.krestomat.io/v1alpha1` | | |
+| `kind` _string_ | `LMSMoodleList` | | |
+| `kind` _string_ | Kind is a string value representing the REST resource this object represents.<br />Servers may infer this from the endpoint the client submits requests to.<br />Cannot be updated.<br />In CamelCase.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds |  |  |
+| `apiVersion` _string_ | APIVersion defines the versioned schema of this representation of an object.<br />Servers should convert recognized schemas to the latest internal value, and<br />may reject unrecognized values.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `items` _[LMSMoodle](#lmsmoodle) array_ |  |  |  |
+
+
+#### LMSMoodleSpec
+
+
+
+LMSMoodleSpec defines the desired state of LMSMoodle
+
+
+
+_Appears in:_
+- [LMSMoodle](#lmsmoodle)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `lmsMoodleTemplateName` _string_ | LMSMoodleTemplateName defines what LMS Moodle template to use |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `desiredState` _string_ | DesiredState defines the desired state to put a LMSMoodle | Ready | Enum: [Ready Suspended] <br /> |
+| `moodleSpec` _[MoodleSpec](#moodlespec)_ | MoodleSpec defines Moodle spec |  |  |
+| `postgresSpec` _[PostgresSpec](#postgresspec)_ | PostgresSpec defines Postgres spec to deploy optionally |  |  |
+| `nfsSpec` _[NfsSpec](#nfsspec)_ | NfsSpec defines (NFS) Ganesha server spec to deploy optionally |  |  |
+| `keydbSpec` _[KeydbSpec](#keydbspec)_ | KeydbSpec defines Keydb spec to deploy optionally |  |  |
+
+
+#### LMSMoodleStatus
+
+
+
+LMSMoodleStatus defines the observed state of LMSMoodle
+
+
+
+_Appears in:_
+- [LMSMoodle](#lmsmoodle)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#condition-v1-meta) array_ | Conditions represent the latest available observations of the resource state |  |  |
+| `state` _string_ | state describes the LMSMoodle state | Unknown |  |
+| `url` _string_ | Url defines LMSMoodle url |  |  |
+| `storageGb` _string_ | StorageGb defines LMSMoodle number of current GB for storage capacity | 0 |  |
+| `registeredUsers` _integer_ | RegisteredUsers defines LMSMoodle number of current registered users for user capacity | 0 |  |
+| `release` _string_ | Release defines LMSMoodle moodle version |  |  |
+
+
+#### LMSMoodleTemplate
+
+
+
+LMSMoodleTemplate is the Schema for the lmsmoodletemplates API
+
+
+
+_Appears in:_
+- [LMSMoodleTemplateList](#lmsmoodletemplatelist)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `lms.krestomat.io/v1alpha1` | | |
+| `kind` _string_ | `LMSMoodleTemplate` | | |
+| `kind` _string_ | Kind is a string value representing the REST resource this object represents.<br />Servers may infer this from the endpoint the client submits requests to.<br />Cannot be updated.<br />In CamelCase.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds |  |  |
+| `apiVersion` _string_ | APIVersion defines the versioned schema of this representation of an object.<br />Servers should convert recognized schemas to the latest internal value, and<br />may reject unrecognized values.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources |  |  |
+| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `spec` _[LMSMoodleTemplateSpec](#lmsmoodletemplatespec)_ |  |  |  |
+| `status` _[LMSMoodleTemplateStatus](#lmsmoodletemplatestatus)_ |  |  |  |
+
+
+#### LMSMoodleTemplateList
+
+
+
+LMSMoodleTemplateList contains a list of Moodle Template
+
+
+
+
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `apiVersion` _string_ | `lms.krestomat.io/v1alpha1` | | |
+| `kind` _string_ | `LMSMoodleTemplateList` | | |
+| `kind` _string_ | Kind is a string value representing the REST resource this object represents.<br />Servers may infer this from the endpoint the client submits requests to.<br />Cannot be updated.<br />In CamelCase.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds |  |  |
+| `apiVersion` _string_ | APIVersion defines the versioned schema of this representation of an object.<br />Servers should convert recognized schemas to the latest internal value, and<br />may reject unrecognized values.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources |  |  |
+| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
+| `items` _[LMSMoodleTemplate](#lmsmoodletemplate) array_ |  |  |  |
+
+
+#### LMSMoodleTemplateSpec
+
+
+
+LMSMoodleTemplateSpec defines the desired state of LMSMoodleTemplate
+
+
+
+_Appears in:_
+- [LMSMoodleSpec](#lmsmoodlespec)
+- [LMSMoodleTemplate](#lmsmoodletemplate)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `moodleSpec` _[MoodleSpec](#moodlespec)_ | MoodleSpec defines Moodle spec |  |  |
+| `postgresSpec` _[PostgresSpec](#postgresspec)_ | PostgresSpec defines Postgres spec to deploy optionally |  |  |
+| `nfsSpec` _[NfsSpec](#nfsspec)_ | NfsSpec defines (NFS) Ganesha server spec to deploy optionally |  |  |
+| `keydbSpec` _[KeydbSpec](#keydbspec)_ | KeydbSpec defines Keydb spec to deploy optionally |  |  |
+
+
+#### LMSMoodleTemplateStatus
+
+
+
+LMSMoodleTemplateStatus defines the observed state of LMSMoodleTemplate
+
+
+
+_Appears in:_
+- [LMSMoodleTemplate](#lmsmoodletemplate)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `state` _string_ | state describes the LMSMoodleTemplate state | Unknown |  |
 
 
 #### MoodleConfigProperty
@@ -180,8 +264,8 @@ MoodleSpec defines the desired state of Moodle
 
 
 _Appears in:_
-- [FlavorSpec](#flavorspec)
-- [SiteSpec](#sitespec)
+- [LMSMoodleSpec](#lmsmoodlespec)
+- [LMSMoodleTemplateSpec](#lmsmoodletemplatespec)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -293,8 +377,8 @@ NfsSpec defines the desired state of Nfs
 
 
 _Appears in:_
-- [FlavorSpec](#flavorspec)
-- [SiteSpec](#sitespec)
+- [LMSMoodleSpec](#lmsmoodlespec)
+- [LMSMoodleTemplateSpec](#lmsmoodletemplatespec)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -345,8 +429,8 @@ PostgresSpec defines the desired state of Postgres
 
 
 _Appears in:_
-- [FlavorSpec](#flavorspec)
-- [SiteSpec](#sitespec)
+- [LMSMoodleSpec](#lmsmoodlespec)
+- [LMSMoodleTemplateSpec](#lmsmoodletemplatespec)
 
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
@@ -472,90 +556,6 @@ _Validation:_
 _Appears in:_
 - [MoodleSpec](#moodlespec)
 
-
-
-#### Site
-
-
-
-Site is the Schema for the sites API
-
-
-
-_Appears in:_
-- [SiteList](#sitelist)
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `m4e.krestomat.io/v1alpha1` | | |
-| `kind` _string_ | `Site` | | |
-| `kind` _string_ | Kind is a string value representing the REST resource this object represents.<br />Servers may infer this from the endpoint the client submits requests to.<br />Cannot be updated.<br />In CamelCase.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds |  |  |
-| `apiVersion` _string_ | APIVersion defines the versioned schema of this representation of an object.<br />Servers should convert recognized schemas to the latest internal value, and<br />may reject unrecognized values.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources |  |  |
-| `metadata` _[ObjectMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#objectmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `spec` _[SiteSpec](#sitespec)_ |  |  |  |
-| `status` _[SiteStatus](#sitestatus)_ |  |  |  |
-
-
-#### SiteList
-
-
-
-SiteList contains a list of Site
-
-
-
-
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `apiVersion` _string_ | `m4e.krestomat.io/v1alpha1` | | |
-| `kind` _string_ | `SiteList` | | |
-| `kind` _string_ | Kind is a string value representing the REST resource this object represents.<br />Servers may infer this from the endpoint the client submits requests to.<br />Cannot be updated.<br />In CamelCase.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds |  |  |
-| `apiVersion` _string_ | APIVersion defines the versioned schema of this representation of an object.<br />Servers should convert recognized schemas to the latest internal value, and<br />may reject unrecognized values.<br />More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources |  |  |
-| `metadata` _[ListMeta](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#listmeta-v1-meta)_ | Refer to Kubernetes API documentation for fields of `metadata`. |  |  |
-| `items` _[Site](#site) array_ |  |  |  |
-
-
-#### SiteSpec
-
-
-
-SiteSpec defines the desired state of Site
-
-
-
-_Appears in:_
-- [Site](#site)
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `flavor` _string_ | Flavor defines what Moodle flavor to use |  | MaxLength: 255 <br />MinLength: 1 <br /> |
-| `desiredState` _string_ | DesiredState defines the desired state to put a site | Ready | Enum: [Ready Suspended] <br /> |
-| `moodleSpec` _[MoodleSpec](#moodlespec)_ | MoodleSpec defines Moodle spec |  |  |
-| `postgresSpec` _[PostgresSpec](#postgresspec)_ | PostgresSpec defines Postgres spec to deploy optionally |  |  |
-| `nfsSpec` _[NfsSpec](#nfsspec)_ | NfsSpec defines (NFS) Ganesha server spec to deploy optionally |  |  |
-| `keydbSpec` _[KeydbSpec](#keydbspec)_ | KeydbSpec defines Keydb spec to deploy optionally |  |  |
-
-
-#### SiteStatus
-
-
-
-SiteStatus defines the observed state of Site
-
-
-
-_Appears in:_
-- [Site](#site)
-
-| Field | Description | Default | Validation |
-| --- | --- | --- | --- |
-| `conditions` _[Condition](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.26.6/#condition-v1-meta) array_ | Conditions represent the latest available observations of the resource state |  |  |
-| `state` _string_ | state describes the site state | Unknown |  |
-| `url` _string_ | Site url |  |  |
-| `storageGb` _string_ | Site number of current GB for storage capacity | 0 |  |
-| `registeredUsers` _integer_ | Site number of current registered users for user capacity | 0 |  |
-| `release` _string_ | Site moodle version |  |  |
 
 
 #### StorageAccessMode

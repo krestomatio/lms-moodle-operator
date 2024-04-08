@@ -1,4 +1,4 @@
-module github.com/krestomatio/kio-operator
+module github.com/krestomatio/lms-moodle-operator
 
 go 1.21
 

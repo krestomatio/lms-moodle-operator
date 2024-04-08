@@ -1,11 +1,11 @@
-# Kio Operator
+# LMS Moodle Operator
 
-Kio operator is a meta operator to automate deployment and management of Moodle instances in Kubernetes, refered as `Sites`. It handles the stack required to run them: postgres, keydb, nfs, and moodle. Those components have their own operators. In addition, a Flavor is like a template to reuse when creating Sites resources.
+LMS Moodle Operator is a meta operator to automate the deployment and management of Moodle instances in Kubernetes, refered as `LMSMoodle` resources. It handles the full stack required to run them: Postgres, Keydb, NFS-Ganesha, and Moodle. Those components have their own operators. In addition, a `LMSMoodleTemplate` custom resource is provided. It is like a template that can be reused when creating a `LMSMoodle` resource.
 
 **Key Technologies:**
 
 * Kubernetes
-* Ansible Operator SDK
+* Operator SDK
 * Moodle
 * Postgres
 * Keydb
@@ -20,81 +20,81 @@ Kio operator is a meta operator to automate deployment and management of Moodle 
 
 ## Installation
 
-> **Important Note:** This Kio Operator is currently in **Beta** stage. Proceed with caution in production deployments.
+> **Important Note:** This LMS Moodle Operator is currently in **Beta** stage. Proceed with caution in production deployments.
 
 To install this this operator along **all** its required and optional prerequisites, follow these steps:
 
 1. **Install Operator:**
 ```bash
 # All operators
-kubectl apply -k https://github.com/krestomatio/kio-operator/config/operators?ref=v0.3.46
-# Only Kio Operator
-# kubectl apply -k https://github.com/krestomatio/kio-operator/config/default?ref=v0.3.46
+kubectl apply -k https://github.com/krestomatio/lms-moodle-operator/config/operators?ref=v0.3.46
+# Only LMS Moodle Operator
+# kubectl apply -k https://github.com/krestomatio/lms-moodle-operator/config/default?ref=v0.3.46
 ```
 
-2. **Configure a Flavor:**
-- Download and modify [this Flavor sample](https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.46/config/samples/m4e_v1alpha1_flavor.yaml) file to define a Site flavor or template. A Flavor can be use by one or many Sites resources as spec template.
+2. **Configure a LMSMoodleTemplate:**
+- Download and modify [this `LMSMoodleTemplate` sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.3.46/config/samples/lms_v1alpha1_moodletemplate.yaml) file to define a lms moodle template. A ``LMSMoodleTemplate` can be use by one or many `LMSMoodle` resources as spec template.
 ```bash
-curl -sSL 'https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.46/config/samples/m4e_v1alpha1_flavor.yaml' -o m4e_v1alpha1_flavor.yaml
-# modify m4e_v1alpha1_flavor.yaml
+curl -sSL 'https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.3.46/config/samples/lms_v1alpha1_moodletemplate.yaml' -o lms_v1alpha1_moodletemplate.yaml
+# modify lms_v1alpha1_moodletemplate.yaml
 ```
 
-3. **Deploy the Flavor:**
-- Deploy Moodle Flavor using the modified configuration:
+3. **Deploy the LMSMoodleTemplate:**
+- Deploy Moodle `LMSMoodleTemplate` using the modified configuration:
 ```bash
-kubectl apply -f m4e_v1alpha1_flavor.yaml
+kubectl apply -f lms_v1alpha1_moodletemplate.yaml
 ```
 
-4. **Configure a Site:**
-> **Note:** Site resource specification has precedence over Flavor specification.
-- Download and modify [this sample](https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.46/config/samples/m4e_v1alpha1_site.yaml) file to reflect your specific Site stack configuration options. This file defines the desired state for your instance and all its layers handle by the operators. Note that it references a Flavor resource by its name. The Flavor resoure in the previous step.
+4. **Configure a LMSMoodle:**
+> **Note:** `LMSMoodle` resource specification has precedence over `LMSMoodleTemplate` specification.
+- Download and modify [this sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.3.46/config/samples/lms_v1alpha1_lmsmoodle.yaml) file to reflect your specific `LMSMoodle` stack configuration options. This file defines the desired state for your instance and all its layers handle by the operators. Note that it references a `LMSMoodleTemplate` resource by its name. The `LMSMoodleTemplate` resoure in the previous step.
 ```bash
-curl -sSL 'https://raw.githubusercontent.com/krestomatio/kio-operator/v0.3.46/config/samples/m4e_v1alpha1_site.yaml' -o m4e_v1alpha1_site.yaml
-# modify m4e_v1alpha1_site.yaml
+curl -sSL 'https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.3.46/config/samples/lms_v1alpha1_lmsmoodle.yaml' -o lms_v1alpha1_lmsmoodle.yaml
+# modify lms_v1alpha1_lmsmoodle.yaml
 ```
 
-5. **Deploy the Site:**
-- Deploy a Moodle Site using the modified configuration:
+5. **Deploy the LMSMoodle:**
+- Deploy a Moodle `LMSMoodle` using the modified configuration:
 ```bash
-kubectl apply -f m4e_v1alpha1_site.yaml
+kubectl apply -f lms_v1alpha1_lmsmoodle.yaml
 ```
 
 6. **Monitor Logs:**
-- Track the Kio Operator logs for insights into the deployment process:
+- Track the LMS Moodle Operator logs for insights into the deployment process:
 ```bash
-kubectl -n kio-operator-system logs -l control-plane=controller-manager -c manager -f
+kubectl -n lms-moodle-operator-system logs -l control-plane=controller-manager -c manager -f
 ```
 
-- Monitor the status of your deployed Site instance:
+- Monitor the status of your deployed `LMSMoodle` instance:
 ```bash
-kubectl get -f m4e_v1alpha1_site.yaml -w
+kubectl get -f lms_v1alpha1_lmsmoodle.yaml -w
 ```
 
 ## Uninstall
 
-1. **Delete Site:**
+1. **Delete LMSMoodle:**
 ```bash
 # Caution: This step leads to data loss. Proceed with caution.
-kubectl delete -f m4e_v1alpha1_flavor.yaml
+kubectl delete -f lms_v1alpha1_moodletemplate.yaml
 ```
 
-2. **Delete Flavor:**
+2. **Delete LMSMoodleTemplate:**
 ```bash
 # Caution: This step leads to data loss. Proceed with caution.
-kubectl delete -f m4e_v1alpha1_site.yaml
+kubectl delete -f lms_v1alpha1_lmsmoodle.yaml
 ```
 
 3. **Uninstall the Operator:**
 ```bash
 # All operators
-kubectl delete -k https://github.com/krestomatio/kio-operator/config/operators?ref=v0.3.46
-# Only Kio Operator
-# kubectl delete -k https://github.com/krestomatio/kio-operator/config/default?ref=v0.3.46
+kubectl delete -k https://github.com/krestomatio/lms-moodle-operator/config/operators?ref=v0.3.46
+# Only LMS Moodle Operator
+# kubectl delete -k https://github.com/krestomatio/lms-moodle-operator/config/default?ref=v0.3.46
 ```
 
 ## Configuration
 
-Flavor and Site custom resources (CRs) can be configure via their spec field: check [API Reference](api.md) for the respective documentation.
+LMSMoodleTemplate and `LMSMoodle` custom resources (CRs) can be configure via their spec field: check [API Reference](api.md) for the respective documentation.
 
 ## Contributing
 
