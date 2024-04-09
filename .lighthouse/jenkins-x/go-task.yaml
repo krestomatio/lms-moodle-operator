@@ -75,6 +75,7 @@ spec:
               cpu: 0.1
               memory: 128Mi
           args:
+          - go-operator-cache
           - $(JOB_NAME)
           command:
           - make

@@ -58,10 +58,10 @@ spec:
           env:
           - name: HOME
             value: /workspace
-          - name: DOCKER_CONTEXT
-            value: multiarch-builder-amd64
           - name: GOPATH
             value: /workspace/go
+          - name: DOCKER_CONTEXT
+            value: multiarch-builder-amd64
           resources:
             limits:
               cpu: 400m
@@ -74,15 +74,16 @@ spec:
           - name: shared
             mountPath: /shared
         steps:
-        - image: quay.io/krestomatio/go:1.21-toolset
+        - image: quay.io/krestomatio/ansible-operator-ci
           name: manifests
           args:
+          - go-operator-cache
           - manifests
           - generate
           - fmt
           command:
           - make
-        - image: quay.io/krestomatio/ansible-docker-ci
+        - image: quay.io/krestomatio/ansible-operator-ci
           name: image
           args:
           - multiarch-image
