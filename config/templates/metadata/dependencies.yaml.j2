@@ -1,0 +1,17 @@
+dependencies:
+  - type: olm.package
+    value:
+      packageName: moodle-operator
+      version: "{{ moodle_operator_version }}"
+  - type: olm.package
+    value:
+      packageName: postgres-operator-krestomatio
+      version: "{{ postgres_operator_version }}"
+  - type: olm.package
+    value:
+      packageName: nfs-operator
+      version: "{{ nfs_operator_version }}"
+  - type: olm.package
+    value:
+      packageName: keydb-operator
+      version: "{{ keydb_operator_version }}"
