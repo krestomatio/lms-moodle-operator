@@ -1,5 +1,9 @@
 ## Changes
 
-### Documentation
+### New Features
 
-* fix template (Job Céspedes Ortiz)
+* add bundle (Job Céspedes Ortiz)
+
+### Code Refactoring
+
+* rename CRs (Job Céspedes Ortiz)
