@@ -105,7 +105,7 @@ const (
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:resource:scope=Cluster,categories={moodle},shortName=lm
+//+kubebuilder:resource:scope=Cluster,categories={lms},shortName=lm
 //+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
 //+kubebuilder:printcolumn:name="STATUS",type="string",description="LMSMoodle status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
 //+kubebuilder:printcolumn:name="SINCE",type="date",JSONPath=".status.conditions[?(@.type=='Ready')].lastTransitionTime",description="Time of latest transition",priority=0
