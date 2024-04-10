@@ -9,7 +9,7 @@ spec:
   group: lms.krestomat.io
   names:
     categories:
-    - moodle
+    - lms
     kind: LMSMoodle
     listKind: LMSMoodleList
     plural: lmsmoodles
