@@ -1,6 +1,6 @@
 # LMS Moodle Operator
 
-LMS Moodle Operator is a meta operator to automate the deployment and management of Moodle instances in Kubernetes, refered as `LMSMoodle` resources. It handles the full stack required to run them: Postgres, Keydb, NFS-Ganesha, and Moodle. Those components have their own operators. In addition, a `LMSMoodleTemplate` custom resource is provided. It is like a template that can be reused when creating a `LMSMoodle` resource.
+LMS Moodle Operator is a [meta operator](https://github.com/cncf/tag-app-delivery/blob/main/operator-whitepaper/v1/Operator-WhitePaper_v1-0.md#operator-of-operators) to automate the deployment and management of Moodle instances in Kubernetes, refered as `LMSMoodle` resources. It handles the full stack required to run them: Postgres, Keydb, NFS-Ganesha, and Moodle. Those components have their own Operators. In addition, a `LMSMoodleTemplate` custom resource is provided. It is like a template that can be reused when creating a `LMSMoodle` resource.
 
 **Key Technologies:**
 
