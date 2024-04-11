@@ -1,5 +1,5 @@
 ## Changes
 
-### Code Refactoring
+### Documentation
 
-* change category (Job Céspedes Ortiz)
+* update readme (Job Céspedes Ortiz)
