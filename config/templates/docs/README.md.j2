@@ -33,7 +33,7 @@ kubectl apply -k https://github.com/krestomatio/lms-moodle-operator/config/opera
 ```
 
 2. **Configure a LMSMoodleTemplate:**
-- Download and modify [this `LMSMoodleTemplate` sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v{{ env['VERSION'] | default(operator_version) }}/config/samples/lms_v1alpha1_moodletemplate.yaml) file to define a lms moodle template. A ``LMSMoodleTemplate` can be use by one or many `LMSMoodle` resources as spec template.
+- Download and modify [this `LMSMoodleTemplate` sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v{{ env['VERSION'] | default(operator_version) }}/config/samples/lms_v1alpha1_moodletemplate.yaml) file to define a lms moodle template. A `LMSMoodleTemplate` can be use by one or many `LMSMoodle` resources as spec template.
 ```bash
 curl -sSL 'https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v{{ env['VERSION'] | default(operator_version) }}/config/samples/lms_v1alpha1_moodletemplate.yaml' -o lms_v1alpha1_moodletemplate.yaml
 # modify lms_v1alpha1_moodletemplate.yaml
