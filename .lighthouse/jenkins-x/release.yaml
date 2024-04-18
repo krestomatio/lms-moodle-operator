@@ -81,12 +81,6 @@ spec:
             apk add bash
             make changelog
         - image: quay.io/krestomatio/ansible-operator-ci
-          name: go-operator-cache
-          args:
-          - go-operator-cache
-          command:
-          - make
-        - image: quay.io/krestomatio/ansible-operator-ci
           name: release
           args:
           - release
