@@ -1,5 +1,5 @@
 ## Changes
 
-### Documentation
+### Chores
 
-* update readme (Job Céspedes Ortiz)
+* update manifests (Job Céspedes Ortiz)

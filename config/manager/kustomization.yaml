@@ -5,4 +5,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: quay.io/krestomatio/lms-moodle-operator
-  newTag: 0.4.4
+  newTag: 0.4.5
