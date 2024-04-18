@@ -77,12 +77,18 @@ spec:
         - image: quay.io/krestomatio/ansible-operator-ci
           name: manifests
           args:
-          - go-operator-cache
           - manifests
           - generate
           - fmt
           command:
           - make
+          resources:
+            limits:
+              cpu: 750m
+              memory: 2048Mi
+            requests:
+              cpu: 0.1
+              memory: 128Mi
         - image: quay.io/krestomatio/ansible-operator-ci
           name: image
           args:
