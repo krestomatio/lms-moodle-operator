@@ -65,7 +65,7 @@ spec:
           - name: shared
             mountPath: /shared
         steps:
-        - image: quay.io/krestomatio/go:1.21-toolset
+        - image: quay.io/krestomatio/ansible-operator-ci
           name: task
           resources:
             limits:
