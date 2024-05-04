@@ -26,23 +26,20 @@ To install this this operator along **all** its required and optional prerequisi
 
 1. **Install Operator:**
 ```bash
-# All operators
 kubectl apply -k https://github.com/krestomatio/lms-moodle-operator/config/operators?ref=v0.4.6
-# Only LMS Moodle Operator
-# kubectl apply -k https://github.com/krestomatio/lms-moodle-operator/config/default?ref=v0.4.6
 ```
 
 2. **Configure a LMSMoodleTemplate:**
-- Download and modify [this `LMSMoodleTemplate` sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.4.6/config/samples/lms_v1alpha1_moodletemplate.yaml) file to define a lms moodle template. A `LMSMoodleTemplate` can be use by one or many `LMSMoodle` resources as spec template.
+- Download and modify [this `LMSMoodleTemplate` sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.4.6/config/samples/lms_v1alpha1_lmsmoodletemplate.yaml) file to define a lms moodle template. A `LMSMoodleTemplate` can be use by one or many `LMSMoodle` resources as spec template.
 ```bash
-curl -sSL 'https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.4.6/config/samples/lms_v1alpha1_moodletemplate.yaml' -o lms_v1alpha1_moodletemplate.yaml
-# modify lms_v1alpha1_moodletemplate.yaml
+curl -sSL 'https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.4.6/config/samples/lms_v1alpha1_lmsmoodletemplate.yaml' -o lms_v1alpha1_lmsmoodletemplate.yaml
+# modify lms_v1alpha1_lmsmoodletemplate.yaml
 ```
 
 3. **Deploy the LMSMoodleTemplate:**
 - Deploy Moodle `LMSMoodleTemplate` using the modified configuration:
 ```bash
-kubectl apply -f lms_v1alpha1_moodletemplate.yaml
+kubectl apply -f lms_v1alpha1_lmsmoodletemplate.yaml
 ```
 
 4. **Configure a LMSMoodle:**
@@ -75,7 +72,7 @@ kubectl get -f lms_v1alpha1_lmsmoodle.yaml -w
 1. **Delete LMSMoodle:**
 ```bash
 # Caution: This step leads to data loss. Proceed with caution.
-kubectl delete -f lms_v1alpha1_moodletemplate.yaml
+kubectl delete -f lms_v1alpha1_lmsmoodletemplate.yaml
 ```
 
 2. **Delete LMSMoodleTemplate:**
@@ -86,10 +83,7 @@ kubectl delete -f lms_v1alpha1_lmsmoodle.yaml
 
 3. **Uninstall the Operator:**
 ```bash
-# All operators
 kubectl delete -k https://github.com/krestomatio/lms-moodle-operator/config/operators?ref=v0.4.6
-# Only LMS Moodle Operator
-# kubectl delete -k https://github.com/krestomatio/lms-moodle-operator/config/default?ref=v0.4.6
 ```
 
 ## Configuration
