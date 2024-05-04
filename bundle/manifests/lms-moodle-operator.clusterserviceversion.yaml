@@ -81,8 +81,8 @@ metadata:
       ]
     capabilities: Seamless Upgrades
     categories: Application Runtime
-    containerImage: quay.io/krestomatio/lms-moodle-operator:0.4.6
-    createdAt: "2024-04-19T06:32:25Z"
+    containerImage: quay.io/krestomatio/lms-moodle-operator:0.4.7
+    createdAt: "2024-05-04T02:06:02Z"
     description: Meta operator for the full stack of Moodle™ LMS on Kubernetes
     operators.operatorframework.io/builder: operator-sdk-v1.33.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -91,7 +91,7 @@ metadata:
     operatorframework.io/arch.amd64: supported
     operatorframework.io/arch.arm64: supported
     operatorframework.io/os.linux: supported
-  name: lms-moodle-operator.v0.4.6
+  name: lms-moodle-operator.v0.4.7
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -351,7 +351,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: quay.io/krestomatio/lms-moodle-operator:0.4.6
+                image: quay.io/krestomatio/lms-moodle-operator:0.4.7
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -451,4 +451,4 @@ spec:
   provider:
     name: Krestomatio
     url: https://krestomatio.com
-  version: 0.4.6
+  version: 0.4.7
