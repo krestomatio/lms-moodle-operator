@@ -981,10 +981,10 @@ func (r *LMSMoodleReconciler) moodleSpec() (err error) {
 	return err
 }
 
-// lmsMoodleNetworkPolicy define lms moodle network policy
-func (r *LMSMoodleReconciler) lmsMoodleNetworkPolicy() {
+// lmsMoodleNetworkPolicies define lms moodle network policies
+func (r *LMSMoodleReconciler) lmsMoodleNetworkPolicies() {
 	// default network policy, isolating namespace
-	r.lmsMoodleCtx.networkPolicy = &networkingv1.NetworkPolicy{
+	r.lmsMoodleCtx.defaultNetworkPolicyNamespace = &networkingv1.NetworkPolicy{
 		Spec: networkingv1.NetworkPolicySpec{
 			PolicyTypes: []networkingv1.PolicyType{
 				networkingv1.PolicyTypeIngress,
@@ -996,10 +996,8 @@ func (r *LMSMoodleReconciler) lmsMoodleNetworkPolicy() {
 				{
 					From: []networkingv1.NetworkPolicyPeer{
 						{
-							NamespaceSelector: &metav1.LabelSelector{
-								MatchLabels: map[string]string{
-									"kubernetes.io/metadata.name": r.lmsMoodleCtx.namespaceName,
-								},
+							PodSelector: &metav1.LabelSelector{
+								MatchLabels: make(map[string]string),
 							},
 						},
 					},
@@ -1007,8 +1005,29 @@ func (r *LMSMoodleReconciler) lmsMoodleNetworkPolicy() {
 			},
 		},
 	}
-	r.lmsMoodleCtx.networkPolicy.SetNamespace(r.lmsMoodleCtx.namespaceName)
-	r.lmsMoodleCtx.networkPolicy.SetName(r.lmsMoodleCtx.networkPolicyName)
+	r.lmsMoodleCtx.defaultNetworkPolicyNamespace.SetNamespace(r.lmsMoodleCtx.namespaceName)
+	r.lmsMoodleCtx.defaultNetworkPolicyNamespace.SetName(r.lmsMoodleCtx.networkPolicyBaseName + "-ns")
+
+	// default network policy allowing nginx traffic
+	r.lmsMoodleCtx.defaultNetworkPolicyNginx = &networkingv1.NetworkPolicy{
+		Spec: networkingv1.NetworkPolicySpec{
+			PolicyTypes: []networkingv1.PolicyType{
+				networkingv1.PolicyTypeIngress,
+			},
+			PodSelector: metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app.kubernetes.io/component": "nginx",
+				},
+			},
+			Ingress: []networkingv1.NetworkPolicyIngressRule{
+				{
+					From: []networkingv1.NetworkPolicyPeer{},
+				},
+			},
+		},
+	}
+	r.lmsMoodleCtx.defaultNetworkPolicyNginx.SetNamespace(r.lmsMoodleCtx.namespaceName)
+	r.lmsMoodleCtx.defaultNetworkPolicyNginx.SetName(r.lmsMoodleCtx.networkPolicyBaseName + "-nginx")
 }
 
 // isDependantSuspended whether dependant is suspended

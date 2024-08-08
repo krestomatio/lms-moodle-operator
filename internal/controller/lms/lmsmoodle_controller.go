@@ -64,7 +64,7 @@ type LMSMoodleReconcilerContext struct {
 	lmsMoodleTemplateName              string
 	desiredState                       string
 	namespaceName                      string
-	networkPolicyName                  string
+	networkPolicyBaseName              string
 	moodleName                         string
 	nfsName                            string
 	keydbName                          string
@@ -90,7 +90,8 @@ type LMSMoodleReconcilerContext struct {
 	combinedKeydbSpec                  map[string]interface{}
 	combinedPostgresSpec               map[string]interface{}
 	namespace                          *corev1.Namespace
-	networkPolicy                      *networkingv1.NetworkPolicy
+	defaultNetworkPolicyNamespace      *networkingv1.NetworkPolicy
+	defaultNetworkPolicyNginx          *networkingv1.NetworkPolicy
 }
 
 type LMSMoodleTemplateNotFoundError struct {
@@ -179,8 +180,8 @@ func (r *LMSMoodleReconciler) reconcilePrepare(ctx context.Context) error {
 	}
 	// set namespace name. It must start with an alphabetic character
 	r.lmsMoodleCtx.namespaceName = baseNamespace
-	// set network policy name. It must start with an alphabetic character
-	r.lmsMoodleCtx.networkPolicyName = baseName
+	// set network policy base name. It must start with an alphabetic character
+	r.lmsMoodleCtx.networkPolicyBaseName = baseName
 	// set Moodle name. It must start with an alphabetic character
 	r.lmsMoodleCtx.moodleName = baseName
 	// set Postgres name. It must start with an alphabetic character
@@ -193,7 +194,7 @@ func (r *LMSMoodleReconciler) reconcilePrepare(ctx context.Context) error {
 	r.lmsMoodleCtx.namespace = &corev1.Namespace{}
 	r.lmsMoodleCtx.namespace.SetName(r.lmsMoodleCtx.namespaceName)
 	// lmsMoodle network policy
-	r.lmsMoodleNetworkPolicy()
+	r.lmsMoodleNetworkPolicies()
 	// dependant components
 	r.lmsMoodleCtx.moodle = newUnstructuredObject(r.MoodleGVK)
 	r.lmsMoodleCtx.postgres = newUnstructuredObject(r.PostgresGVK)
@@ -414,8 +415,13 @@ func (r *LMSMoodleReconciler) reconcilePresent(ctx context.Context) (requeue boo
 		return false, err
 	}
 
-	// Create network policy
-	if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.networkPolicy); err != nil {
+	// Create default network policy for namespace
+	if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.defaultNetworkPolicyNamespace); err != nil {
+		return false, err
+	}
+
+	// Create default network policy for nginx traffic
+	if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.defaultNetworkPolicyNginx); err != nil {
 		return false, err
 	}
 
