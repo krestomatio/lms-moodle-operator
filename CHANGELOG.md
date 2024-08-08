@@ -1,5 +1,5 @@
 ## Changes
 
-### Documentation
+### New Features
 
-* fix links (Job Céspedes Ortiz)
+* moodle: add nginx network policy (Job Céspedes Ortiz)
