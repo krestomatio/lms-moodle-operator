@@ -988,6 +988,7 @@ func (r *LMSMoodleReconciler) lmsMoodleNetworkPolicies() {
 		Spec: networkingv1.NetworkPolicySpec{
 			PolicyTypes: []networkingv1.PolicyType{
 				networkingv1.PolicyTypeIngress,
+				networkingv1.PolicyTypeEgress,
 			},
 		},
 	}
