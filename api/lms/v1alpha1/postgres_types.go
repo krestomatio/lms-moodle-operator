@@ -110,6 +110,18 @@ type PostgresSpec struct {
 	// +optional
 	PostgresVpaSpec string `json:"postgresVpaSpec,omitempty"`
 
+	// PostgresNetpolOmit whether to omit default network policy for postgres. Default: true
+	// +optional
+	PostgresNetpolOmit bool `json:"postgresNetpolOmit,omitempty"`
+
+	// PostgresNetpolIngressIpblock defines ingress ip block for postgres default network policy
+	// +optional
+	PostgresNetpolIngressIpblock string `json:"postgresNetpolIngressIpblock,omitempty"`
+
+	// PostgresNetpolEgressIpblock defines egress ip block for postgres default network policy
+	// +optional
+	PostgresNetpolEgressIpblock string `json:"postgresNetpolEgressIpblock,omitempty"`
+
 	// PostgresReadreplicasSize defines postgres readreplicas number of replicas
 	// +optional
 	PostgresReadreplicasSize int32 `json:"postgresReadreplicasSize,omitempty"`
@@ -234,7 +246,19 @@ type PostgresSpec struct {
 	// +optional
 	PgbouncerVpaSpec string `json:"pgbouncerVpaSpec,omitempty"`
 
-	// PgbouncerReadonlyExtraConfig contains extra pgbouncerReadonly config
+	// PgbouncerNetpolOmit whether to omit default network policy for pgbouncer. Default: true
+	// +optional
+	PgbouncerNetpolOmit bool `json:"pgbouncerNetpolOmit,omitempty"`
+
+	// PgbouncerNetpolIngressIpblock defines ipblock for pgbouncer default network policy
+	// +optional
+	PgbouncerNetpolIngressIpblock string `json:"pgbouncerNetpolIngressIpblock,omitempty"`
+
+	// PgbouncerNetpolEgressIpblock defines egress ip block for pgbouncer default network policy
+	// +optional
+	PgbouncerNetpolEgressIpblock string `json:"pgbouncerNetpolEgressIpblock,omitempty"`
+
+	// PgbouncerReadonlyExtraConfig contains extra pgbouncer readonly config
 	// +optional
 	PgbouncerReadonlyExtraConfig string `json:"pgbouncerReadonlyExtraConfig,omitempty"`
 

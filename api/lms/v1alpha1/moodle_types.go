@@ -251,6 +251,18 @@ type MoodleSpec struct {
 	// +optional
 	MoodleUpdateMajor bool `json:"moodleUpdateMajor,omitempty"`
 
+	// MoodleNetpolOmit whether to omit default moodle network policy. Default: true
+	// +optional
+	MoodleNetpolOmit bool `json:"moodleNetpolOmit,omitempty"`
+
+	// MoodleNetpolIngressIpblock defines ingress ip block for moodle default network policy
+	// +optional
+	MoodleNetpolIngressIpblock string `json:"moodleNetpolIngressIpblock,omitempty"`
+
+	// MoodleNetpolEgressIpblock defines egress ip block for moodle default network policy
+	// +optional
+	MoodleNetpolEgressIpblock string `json:"moodleNetpolEgressIpblock,omitempty"`
+
 	// NginxSize defines nginx number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=255
@@ -315,6 +327,18 @@ type MoodleSpec struct {
 	// NginxVpaSpec set nginx vertical pod autoscaler spec
 	// +optional
 	NginxVpaSpec string `json:"nginxVpaSpec,omitempty"`
+
+	// NginxNetpolOmit whether to omit default network policy for nginx. Default: true
+	// +optional
+	NginxNetpolOmit bool `json:"nginxNetpolOmit,omitempty"`
+
+	// NginxNetpolIngressIpblock defines ingress ip block for nginx default network policy
+	// +optional
+	NginxNetpolIngressIpblock string `json:"nginxNetpolIngressIpblock,omitempty"`
+
+	// NginxNetpolEgressIpblock defines egress ip block for nginx default network policy
+	// +optional
+	NginxNetpolEgressIpblock string `json:"nginxNetpolEgressIpblock,omitempty"`
 
 	// PhpFpmSize defines php-fpm number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
@@ -386,6 +410,18 @@ type MoodleSpec struct {
 	// PhpFpmVpaSpec set php-fpm vertical pod autoscaler spec
 	// +optional
 	PhpFpmVpaSpec string `json:"phpFpmVpaSpec,omitempty"`
+
+	// PhpFpmNetpolOmit whether to omit default network policy for php-fpm. Default: true
+	// +optional
+	PhpFpmNetpolOmit bool `json:"phpFpmNetpolOmit,omitempty"`
+
+	// PhpFpmNetpolIngressIpblock defines ingress ip block for php-fpm default network policy
+	// +optional
+	PhpFpmNetpolIngressIpblock string `json:"phpFpmNetpolIngressIpblock,omitempty"`
+
+	// PhpFpmNetpolEgressIpblock defines egress ip block for php-fpm default network policy
+	// +optional
+	PhpFpmNetpolEgressIpblock string `json:"phpFpmNetpolEgressIpblock,omitempty"`
 
 	// MoodlePostgresMetaName defines Postgres CR name to use as database.
 	// +kubebuilder:validation:MaxLength=63
