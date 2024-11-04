@@ -989,45 +989,10 @@ func (r *LMSMoodleReconciler) lmsMoodleNetworkPolicies() {
 			PolicyTypes: []networkingv1.PolicyType{
 				networkingv1.PolicyTypeIngress,
 			},
-			PodSelector: metav1.LabelSelector{
-				MatchLabels: make(map[string]string),
-			},
-			Ingress: []networkingv1.NetworkPolicyIngressRule{
-				{
-					From: []networkingv1.NetworkPolicyPeer{
-						{
-							PodSelector: &metav1.LabelSelector{
-								MatchLabels: make(map[string]string),
-							},
-						},
-					},
-				},
-			},
 		},
 	}
 	r.lmsMoodleCtx.defaultNetworkPolicyNamespace.SetNamespace(r.lmsMoodleCtx.namespaceName)
 	r.lmsMoodleCtx.defaultNetworkPolicyNamespace.SetName(r.lmsMoodleCtx.networkPolicyBaseName + "-ns")
-
-	// default network policy allowing nginx traffic
-	r.lmsMoodleCtx.defaultNetworkPolicyNginx = &networkingv1.NetworkPolicy{
-		Spec: networkingv1.NetworkPolicySpec{
-			PolicyTypes: []networkingv1.PolicyType{
-				networkingv1.PolicyTypeIngress,
-			},
-			PodSelector: metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app.kubernetes.io/component": "nginx",
-				},
-			},
-			Ingress: []networkingv1.NetworkPolicyIngressRule{
-				{
-					From: []networkingv1.NetworkPolicyPeer{},
-				},
-			},
-		},
-	}
-	r.lmsMoodleCtx.defaultNetworkPolicyNginx.SetNamespace(r.lmsMoodleCtx.namespaceName)
-	r.lmsMoodleCtx.defaultNetworkPolicyNginx.SetName(r.lmsMoodleCtx.networkPolicyBaseName + "-nginx")
 }
 
 // isDependantSuspended whether dependant is suspended

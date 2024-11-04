@@ -91,7 +91,6 @@ type LMSMoodleReconcilerContext struct {
 	combinedPostgresSpec               map[string]interface{}
 	namespace                          *corev1.Namespace
 	defaultNetworkPolicyNamespace      *networkingv1.NetworkPolicy
-	defaultNetworkPolicyNginx          *networkingv1.NetworkPolicy
 }
 
 type LMSMoodleTemplateNotFoundError struct {
@@ -417,11 +416,6 @@ func (r *LMSMoodleReconciler) reconcilePresent(ctx context.Context) (requeue boo
 
 	// Create default network policy for namespace
 	if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.defaultNetworkPolicyNamespace); err != nil {
-		return false, err
-	}
-
-	// Create default network policy for nginx traffic
-	if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.defaultNetworkPolicyNginx); err != nil {
 		return false, err
 	}
 
