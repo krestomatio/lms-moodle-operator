@@ -64,6 +64,9 @@ _Appears in:_
 | `keydbNodeSelector` _string_ | KeydbNodeSelector defines any node labels selectors for Keydb pods. |  |  |
 | `keydbAffinity` _string_ | KeydbAffinity defines any affinity rules for Keydb pods. |  |  |
 | `keydbVpaSpec` _string_ | KeydbVpaSpec set keydb horizontal pod autoscaler spec |  |  |
+| `keydbNetpolOmit` _boolean_ | KeydbNetpolOmit whether to omit default keydb network policy. Default: true |  |  |
+| `keydbNetpolIngressIpblock` _string_ | GaneshaNetpolIngressIpblock defines ingress ip block for keydb default network policy |  |  |
+| `keydbNetpolEgressIpblock` _string_ | KeydbNetpolEgressIpblock defines egress ip block for keydb default network policy |  |  |
 
 
 #### LMSMoodle
@@ -122,6 +125,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `lmsMoodleTemplateName` _string_ | LMSMoodleTemplateName defines what LMS Moodle template to use |  | MaxLength: 255 <br />MinLength: 1 <br /> |
+| `lmsMoodleNetpolOmit` _boolean_ | LMSMoodleNetpolOmit whether to omit default network policy for the namespace. Default: false<br />It will deny all ingress and egress traffic to the namespace<br />Intended to be used with custom network policies already in place or<br />by not omitting default network policies of each dependant resource |  |  |
 | `desiredState` _string_ | DesiredState defines the desired state to put a LMSMoodle | Ready | Enum: [Ready Suspended] <br /> |
 | `moodleSpec` _[MoodleSpec](#moodlespec)_ | MoodleSpec defines Moodle spec |  |  |
 | `postgresSpec` _[PostgresSpec](#postgresspec)_ | PostgresSpec defines Postgres spec to deploy optionally |  |  |
@@ -319,6 +323,9 @@ _Appears in:_
 | `moodleConfigAdditionalBlock` _string_ | MoodleConfigAdditionalBlock defines moodle extra block in config.php |  |  |
 | `moodleUpdateMinor` _boolean_ | MoodleUpdateMinor whether minor updates are automatically applied. Default: true |  |  |
 | `moodleUpdateMajor` _boolean_ | MoodleUpdateMajor whether major updates are automatically applied. Default: false |  |  |
+| `moodleNetpolOmit` _boolean_ | MoodleNetpolOmit whether to omit default moodle network policy. Default: true |  |  |
+| `moodleNetpolIngressIpblock` _string_ | MoodleNetpolIngressIpblock defines ingress ip block for moodle default network policy |  |  |
+| `moodleNetpolEgressIpblock` _string_ | MoodleNetpolEgressIpblock defines egress ip block for moodle default network policy |  |  |
 | `nginxSize` _integer_ | NginxSize defines nginx number of replicas between 0 and 255 |  | Maximum: 255 <br />Minimum: 0 <br /> |
 | `nginxImage` _string_ | NginxImage defines image for nginx container |  | MaxLength: 255 <br /> |
 | `nginxIngressAnnotations` _string_ | NginxIngressAnnotations defines nginx annotations |  |  |
@@ -334,6 +341,9 @@ _Appears in:_
 | `nginxResourceLimitsMemory` _string_ | NginxResourceLimitsMemory set nginx resource limits memory |  | MaxLength: 20 <br /> |
 | `nginxHpaSpec` _string_ | NginxHpaSpec set nginx horizontal pod autoscaler spec |  |  |
 | `nginxVpaSpec` _string_ | NginxVpaSpec set nginx vertical pod autoscaler spec |  |  |
+| `nginxNetpolOmit` _boolean_ | NginxNetpolOmit whether to omit default network policy for nginx. Default: true |  |  |
+| `nginxNetpolIngressIpblock` _string_ | NginxNetpolIngressIpblock defines ingress ip block for nginx default network policy |  |  |
+| `nginxNetpolEgressIpblock` _string_ | NginxNetpolEgressIpblock defines egress ip block for nginx default network policy |  |  |
 | `phpFpmSize` _integer_ | PhpFpmSize defines php-fpm number of replicas between 0 and 255 |  | Maximum: 255 <br />Minimum: 0 <br /> |
 | `phpFpmImage` _string_ | PhpFpmImage defines image for php-fpm container |  | MaxLength: 255 <br /> |
 | `phpFpmIngressAnnotations` _string_ | PhpFpmIngressAnnotations defines php-fpm annotations |  |  |
@@ -350,6 +360,9 @@ _Appears in:_
 | `phpFpmResourceLimitsMemory` _string_ | PhpFpmResourceLimitsMemory set php-fpm resource limits memory |  | MaxLength: 20 <br /> |
 | `phpFpmHpaSpec` _string_ | PhpFpmHpaSpec set php-fpm horizontal pod autoscaler spec |  |  |
 | `phpFpmVpaSpec` _string_ | PhpFpmVpaSpec set php-fpm vertical pod autoscaler spec |  |  |
+| `phpFpmNetpolOmit` _boolean_ | PhpFpmNetpolOmit whether to omit default network policy for php-fpm. Default: true |  |  |
+| `phpFpmNetpolIngressIpblock` _string_ | PhpFpmNetpolIngressIpblock defines ingress ip block for php-fpm default network policy |  |  |
+| `phpFpmNetpolEgressIpblock` _string_ | PhpFpmNetpolEgressIpblock defines egress ip block for php-fpm default network policy |  |  |
 | `moodlePostgresMetaName` _string_ | MoodlePostgresMetaName defines Postgres CR name to use as database. |  | MaxLength: 63 <br /> |
 | `moodleNfsMetaName` _string_ | MoodleNfsMetaName defines (NFS) Ganesha server CR name to use as shared storage for moodledata. |  | MaxLength: 63 <br /> |
 | `moodleKeydbMetaName` _string_ | MoodleKeydbMetaName defines Keydb CR name to use as redis cache. |  | MaxLength: 63 <br /> |
@@ -404,6 +417,9 @@ _Appears in:_
 | `ganeshaExtraBlockConfig` _string_ | GaneshaExtraBlockConfig contains extra block in ganesha server ganesha config |  |  |
 | `ganeshaConfLogLevel` _string_ | GaneshaConfLogLevel defines nfs log level. Default: EVENT |  | Enum: [NULL FATAL MAJ CRIT WARN EVENT INFO DEBUG MID_DEBUG M_DBG FULL_DEBUG F_DBG] <br /> |
 | `ganeshaVpaSpec` _string_ | GaneshaVpaSpec set ganesha horizontal pod autoscaler spec |  |  |
+| `ganeshaNetpolOmit` _boolean_ | GaneshaNetpolOmit whether to omit default network policy for ganesha. Default: true |  |  |
+| `ganeshaNetpolIngressIpblock` _string_ | GaneshaNetpolIngressIpblock defines ingress ip block for ganesha default network policy |  |  |
+| `ganeshaNetpolEgressIpblock` _string_ | GaneshaNetpolEgressIpblock defines egress ip block for ganesha default network policy |  |  |
 
 
 #### PostgresMode
@@ -454,6 +470,9 @@ _Appears in:_
 | `postgresNodeSelector` _string_ | PostgresNodeSelector defines any node labels selectors for Postgres pods. |  |  |
 | `postgresAffinity` _string_ | PostgresAffinity defines any affinity rules for Postgres pods. |  |  |
 | `postgresVpaSpec` _string_ | PostgresVpaSpec set postgres horizontal pod autoscaler spec |  |  |
+| `postgresNetpolOmit` _boolean_ | PostgresNetpolOmit whether to omit default network policy for postgres. Default: true |  |  |
+| `postgresNetpolIngressIpblock` _string_ | PostgresNetpolIngressIpblock defines ingress ip block for postgres default network policy |  |  |
+| `postgresNetpolEgressIpblock` _string_ | PostgresNetpolEgressIpblock defines egress ip block for postgres default network policy |  |  |
 | `postgresReadreplicasSize` _integer_ | PostgresReadreplicasSize defines postgres readreplicas number of replicas |  |  |
 | `postgresReadreplicasPvcDataSize` _string_ | PostgresReadreplicasPvcDataSize defines postgres readreplicas storage size |  | MaxLength: 20 <br />MinLength: 2 <br /> |
 | `postgresReadreplicasPvcDataStorageAccessMode` _[StorageAccessMode](#storageaccessmode)_ | PostgresReadreplicasPvcDataStorageAccessMode defines postgres readreplicas storage access modes |  | Enum: [ReadWriteOnce ReadOnlyMany ReadWriteMany] <br /> |
@@ -482,7 +501,10 @@ _Appears in:_
 | `pgbouncerNodeSelector` _string_ | PgbouncerNodeSelector defines any node labels selectors for Pgbouncer pods. |  |  |
 | `pgbouncerAffinity` _string_ | PgbouncerAffinity defines any affinity rules for Pgbouncer pods. |  |  |
 | `pgbouncerVpaSpec` _string_ | PgbouncerVpaSpec set pgbouncer horizontal pod autoscaler spec |  |  |
-| `pgbouncerReadonlyExtraConfig` _string_ | PgbouncerReadonlyExtraConfig contains extra pgbouncerReadonly config |  |  |
+| `pgbouncerNetpolOmit` _boolean_ | PgbouncerNetpolOmit whether to omit default network policy for pgbouncer. Default: true |  |  |
+| `pgbouncerNetpolIngressIpblock` _string_ | PgbouncerNetpolIngressIpblock defines ipblock for pgbouncer default network policy |  |  |
+| `pgbouncerNetpolEgressIpblock` _string_ | PgbouncerNetpolEgressIpblock defines egress ip block for pgbouncer default network policy |  |  |
+| `pgbouncerReadonlyExtraConfig` _string_ | PgbouncerReadonlyExtraConfig contains extra pgbouncer readonly config |  |  |
 | `pgbouncerReadonlyResourceRequests` _boolean_ | PgbouncerReadonlyResourceRequests whether pgbouncer readonly resource requests are added. Default: true |  |  |
 | `pgbouncerReadonlyResourceRequestsCpu` _string_ | PgbouncerReadonlyResourceRequestsCpu set pgbouncer readonly resource requests cpu |  | MaxLength: 20 <br /> |
 | `pgbouncerReadonlyResourceRequestsMemory` _string_ | PgbouncerReadonlyResourceRequestsMemory set pgbouncer readonly resource requests memory |  | MaxLength: 20 <br /> |

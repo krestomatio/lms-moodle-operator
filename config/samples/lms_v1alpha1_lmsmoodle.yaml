@@ -10,6 +10,16 @@ metadata:
     app.kubernetes.io/created-by: lms-moodle-operator
 spec:
   lmsMoodleTemplateName: lmsmoodletemplate-sample
+
+  ## whether to omit default network policy for the namespace. Default: false
+  ## It will deny all ingress and egress traffic to the namespace
+	## Intended to be used with custom network policies already in place or
+	## by not omitting default network policies of each dependant resource
+  # lmsMoodleNetpolOmit: true
+
+  ## defines the desired state to put a LMSMoodle
+  # desiredState: Suspended
+
   ## Override lmsMoodleTemplate moodle spec, if any
   moodleSpec:
     moodleNewInstanceAgreeLicense: true
@@ -18,6 +28,8 @@ spec:
     moodleNewInstanceSummary: A demo LMS Moodle
     moodleNewInstanceAdminmail: admin@otherexample.com
     moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
+    # moodleNetpolOmit: false
   ## Override lmsMoodleTemplate nfs spec, if any
   # nfsSpec:
     # ganeshaPvcDataAutoexpansion: false
+    # ganeshaNetpolOmit: false
