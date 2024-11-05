@@ -33,6 +33,13 @@ type LMSMoodleSpec struct {
 	// +kubebuilder:validation:MaxLength=255
 	LMSMoodleTemplateName string `json:"lmsMoodleTemplateName"`
 
+	// LMSMoodleNetpolOmit whether to omit default network policy for the namespace. Default: false
+	// It will deny all ingress and egress traffic to the namespace
+	// Intended to be used with custom network policies already in place or
+	// by not omitting default network policies of each dependant resource
+	// +optional
+	LMSMoodleNetpolOmit bool `json:"lmsMoodleNetpolOmit,omitempty"`
+
 	// DesiredState defines the desired state to put a LMSMoodle
 	// +kubebuilder:validation:Enum=Ready;Suspended
 	// +kubebuilder:default:="Ready"

@@ -90,7 +90,8 @@ type LMSMoodleReconcilerContext struct {
 	combinedKeydbSpec                  map[string]interface{}
 	combinedPostgresSpec               map[string]interface{}
 	namespace                          *corev1.Namespace
-	defaultNetworkPolicyNamespace      *networkingv1.NetworkPolicy
+	lmsMoodleNetpolOmit                bool
+	lmsMoodleDefaultNetpol             *networkingv1.NetworkPolicy
 }
 
 type LMSMoodleTemplateNotFoundError struct {
@@ -192,8 +193,6 @@ func (r *LMSMoodleReconciler) reconcilePrepare(ctx context.Context) error {
 	// lmsMoodle namespace
 	r.lmsMoodleCtx.namespace = &corev1.Namespace{}
 	r.lmsMoodleCtx.namespace.SetName(r.lmsMoodleCtx.namespaceName)
-	// lmsMoodle network policy
-	r.lmsMoodleNetworkPolicies()
 	// dependant components
 	r.lmsMoodleCtx.moodle = newUnstructuredObject(r.MoodleGVK)
 	r.lmsMoodleCtx.postgres = newUnstructuredObject(r.PostgresGVK)
@@ -218,6 +217,7 @@ func (r *LMSMoodleReconciler) reconcilePrepare(ctx context.Context) error {
 	r.lmsMoodleCtx.nfsSpec, r.lmsMoodleCtx.nfsSpecFound, _ = unstructured.NestedMap(r.lmsMoodleCtx.spec, "nfsSpec")
 	r.lmsMoodleCtx.keydbSpec, r.lmsMoodleCtx.keydbSpecFound, _ = unstructured.NestedMap(r.lmsMoodleCtx.spec, "keydbSpec")
 	r.lmsMoodleCtx.lmsMoodleTemplateName, _, _ = unstructured.NestedString(r.lmsMoodleCtx.spec, "lmsMoodleTemplateName")
+	r.lmsMoodleCtx.lmsMoodleNetpolOmit, _, _ = unstructured.NestedBool(r.lmsMoodleCtx.spec, "lmsMoodleNetpolOmit")
 	r.lmsMoodleCtx.desiredState, _, _ = unstructured.NestedString(r.lmsMoodleCtx.spec, "desiredState")
 
 	// Fetch lmsMoodleTemplate spec
@@ -240,6 +240,9 @@ func (r *LMSMoodleReconciler) reconcilePrepare(ctx context.Context) error {
 	r.lmsMoodleCtx.nfs.SetLabels(r.lmsMoodleCtx.lmsMoodle.GetLabels())
 	r.lmsMoodleCtx.keydb.SetLabels(r.lmsMoodleCtx.lmsMoodle.GetLabels())
 	r.lmsMoodleCtx.moodle.SetLabels(r.lmsMoodleCtx.lmsMoodle.GetLabels())
+
+	// define default network policy
+	r.defineLMSMoodleDefaultNetpol()
 
 	// whether LMSMoodle has dependant components
 	if err := r.postgresSpec(); err != nil {
@@ -414,9 +417,15 @@ func (r *LMSMoodleReconciler) reconcilePresent(ctx context.Context) (requeue boo
 		return false, err
 	}
 
-	// Create default network policy for namespace
-	if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.defaultNetworkPolicyNamespace); err != nil {
-		return false, err
+	// Whether default network policy should be present
+	if r.lmsMoodleCtx.lmsMoodleNetpolOmit {
+		if err := r.ReconcileDeleteDependant(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.lmsMoodleDefaultNetpol); client.IgnoreNotFound(err) != nil {
+			return false, err
+		}
+	} else {
+		if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.lmsMoodleDefaultNetpol); err != nil {
+			return false, err
+		}
 	}
 
 	// Save Postgres spec
