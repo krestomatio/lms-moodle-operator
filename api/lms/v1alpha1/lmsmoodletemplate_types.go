@@ -55,11 +55,11 @@ type LMSMoodleTemplateStatus struct {
 	State string `json:"state,omitempty"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:resource:scope=Cluster,categories={lms},shortName=lmt
-//+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
-//+kubebuilder:printcolumn:name="STATUS",type="string",description="LMSMoodleTemplate status such as Unknown/Used/NotUsed/Terminating etc",JSONPath=".status.state",priority=0
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:resource:scope=Cluster,categories={lms},shortName=lmt
+// +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
+// +kubebuilder:printcolumn:name="STATUS",type="string",description="LMSMoodleTemplate status such as Unknown/Used/NotUsed/Terminating etc",JSONPath=".status.state",priority=0
 
 // LMSMoodleTemplate is the Schema for the lmsmoodletemplates API
 type LMSMoodleTemplate struct {
@@ -70,7 +70,7 @@ type LMSMoodleTemplate struct {
 	Status LMSMoodleTemplateStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // LMSMoodleTemplateList contains a list of Moodle Template
 type LMSMoodleTemplateList struct {

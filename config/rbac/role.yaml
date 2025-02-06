@@ -29,31 +29,6 @@ rules:
   - lms.krestomat.io
   resources:
   - lmsmoodles
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - lms.krestomat.io
-  resources:
-  - lmsmoodles/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - lms.krestomat.io
-  resources:
-  - lmsmoodles/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - lms.krestomat.io
-  resources:
   - lmsmoodletemplates
   verbs:
   - create
@@ -66,12 +41,14 @@ rules:
 - apiGroups:
   - lms.krestomat.io
   resources:
+  - lmsmoodles/finalizers
   - lmsmoodletemplates/finalizers
   verbs:
   - update
 - apiGroups:
   - lms.krestomat.io
   resources:
+  - lmsmoodles/status
   - lmsmoodletemplates/status
   verbs:
   - get

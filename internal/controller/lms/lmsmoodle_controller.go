@@ -110,15 +110,15 @@ type LMSMoodleReconciler struct {
 	lmsMoodleCtx                             LMSMoodleReconcilerContext
 }
 
-//+kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles/finalizers,verbs=update
-//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=moodles,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=nfs.krestomat.io,resources=ganeshas,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=keydb.krestomat.io,resources=keydbs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=postgres.krestomat.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch;create
-//+kubebuilder:rbac:groups=networking.k8s.io,resources=networkpolicies,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles/finalizers,verbs=update
+// +kubebuilder:rbac:groups=m4e.krestomat.io,resources=moodles,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=nfs.krestomat.io,resources=ganeshas,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=keydb.krestomat.io,resources=keydbs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=postgres.krestomat.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch;create
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=networkpolicies,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -128,7 +128,7 @@ type LMSMoodleReconciler struct {
 // the user.
 //
 // For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.0/pkg/reconcile
 func (r *LMSMoodleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 	log.Info("Starting reconcile")
