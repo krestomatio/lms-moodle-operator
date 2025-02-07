@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/imdario/mergo"
 	lmsv1alpha1 "github.com/krestomatio/lms-moodle-operator/api/lms/v1alpha1"
@@ -795,7 +796,15 @@ func (r *LMSMoodleReconciler) setDefaultKeydbNetpolOmit() (err error) {
 
 // commonLabels set common labels
 func (r *LMSMoodleReconciler) commonLabels(objSpec map[string]interface{}) (err error) {
-	siteLabelsBytes, _ := yaml.Marshal(r.lmsMoodleCtx.lmsMoodle.GetLabels())
+	commonLabels := make(map[string]string)
+	for key, value := range r.lmsMoodleCtx.lmsMoodle.GetLabels() {
+		if strings.HasPrefix(key, "app.kubernetes.io") || key == "app" {
+			continue
+		}
+		commonLabels[key] = value
+	}
+
+	siteLabelsBytes, _ := yaml.Marshal(commonLabels)
 	siteLabelsString := string(siteLabelsBytes)
 
 	objSpecCommonLabelsString, objSpecCommonLabelsFound, _ := unstructured.NestedString(objSpec, "commonLabels")
