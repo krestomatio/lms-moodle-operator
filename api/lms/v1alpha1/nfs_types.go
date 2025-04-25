@@ -119,4 +119,16 @@ type NfsSpec struct {
 	// GaneshaVpaSpec set ganesha horizontal pod autoscaler spec
 	// +optional
 	GaneshaVpaSpec string `json:"ganeshaVpaSpec,omitempty"`
+
+	// GaneshaNetpolOmit whether to omit default network policy for ganesha. Default: true
+	// +optional
+	GaneshaNetpolOmit bool `json:"ganeshaNetpolOmit,omitempty"`
+
+	// GaneshaNetpolIngressIpblock defines ingress ip block for ganesha default network policy
+	// +optional
+	GaneshaNetpolIngressIpblock string `json:"ganeshaNetpolIngressIpblock,omitempty"`
+
+	// GaneshaNetpolEgressIpblock defines egress ip block for ganesha default network policy
+	// +optional
+	GaneshaNetpolEgressIpblock string `json:"ganeshaNetpolEgressIpblock,omitempty"`
 }

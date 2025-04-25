@@ -90,8 +90,8 @@ type LMSMoodleReconcilerContext struct {
 	combinedKeydbSpec                  map[string]interface{}
 	combinedPostgresSpec               map[string]interface{}
 	namespace                          *corev1.Namespace
-	defaultNetworkPolicyNamespace      *networkingv1.NetworkPolicy
-	defaultNetworkPolicyNginx          *networkingv1.NetworkPolicy
+	lmsMoodleNetpolOmit                bool
+	lmsMoodleDefaultNetpol             *networkingv1.NetworkPolicy
 }
 
 type LMSMoodleTemplateNotFoundError struct {
@@ -110,15 +110,15 @@ type LMSMoodleReconciler struct {
 	lmsMoodleCtx                             LMSMoodleReconcilerContext
 }
 
-//+kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles/finalizers,verbs=update
-//+kubebuilder:rbac:groups=m4e.krestomat.io,resources=moodles,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=nfs.krestomat.io,resources=ganeshas,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=keydb.krestomat.io,resources=keydbs,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=postgres.krestomat.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch;create
-//+kubebuilder:rbac:groups=networking.k8s.io,resources=networkpolicies,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=lms.krestomat.io,resources=lmsmoodles/finalizers,verbs=update
+// +kubebuilder:rbac:groups=m4e.krestomat.io,resources=moodles,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=nfs.krestomat.io,resources=ganeshas,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=keydb.krestomat.io,resources=keydbs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=postgres.krestomat.io,resources=postgres,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=core,resources=namespaces,verbs=get;list;watch;create
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=networkpolicies,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -128,7 +128,7 @@ type LMSMoodleReconciler struct {
 // the user.
 //
 // For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
+// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.0/pkg/reconcile
 func (r *LMSMoodleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := log.FromContext(ctx)
 	log.Info("Starting reconcile")
@@ -193,8 +193,6 @@ func (r *LMSMoodleReconciler) reconcilePrepare(ctx context.Context) error {
 	// lmsMoodle namespace
 	r.lmsMoodleCtx.namespace = &corev1.Namespace{}
 	r.lmsMoodleCtx.namespace.SetName(r.lmsMoodleCtx.namespaceName)
-	// lmsMoodle network policy
-	r.lmsMoodleNetworkPolicies()
 	// dependant components
 	r.lmsMoodleCtx.moodle = newUnstructuredObject(r.MoodleGVK)
 	r.lmsMoodleCtx.postgres = newUnstructuredObject(r.PostgresGVK)
@@ -219,6 +217,7 @@ func (r *LMSMoodleReconciler) reconcilePrepare(ctx context.Context) error {
 	r.lmsMoodleCtx.nfsSpec, r.lmsMoodleCtx.nfsSpecFound, _ = unstructured.NestedMap(r.lmsMoodleCtx.spec, "nfsSpec")
 	r.lmsMoodleCtx.keydbSpec, r.lmsMoodleCtx.keydbSpecFound, _ = unstructured.NestedMap(r.lmsMoodleCtx.spec, "keydbSpec")
 	r.lmsMoodleCtx.lmsMoodleTemplateName, _, _ = unstructured.NestedString(r.lmsMoodleCtx.spec, "lmsMoodleTemplateName")
+	r.lmsMoodleCtx.lmsMoodleNetpolOmit, _, _ = unstructured.NestedBool(r.lmsMoodleCtx.spec, "lmsMoodleNetpolOmit")
 	r.lmsMoodleCtx.desiredState, _, _ = unstructured.NestedString(r.lmsMoodleCtx.spec, "desiredState")
 
 	// Fetch lmsMoodleTemplate spec
@@ -241,6 +240,9 @@ func (r *LMSMoodleReconciler) reconcilePrepare(ctx context.Context) error {
 	r.lmsMoodleCtx.nfs.SetLabels(r.lmsMoodleCtx.lmsMoodle.GetLabels())
 	r.lmsMoodleCtx.keydb.SetLabels(r.lmsMoodleCtx.lmsMoodle.GetLabels())
 	r.lmsMoodleCtx.moodle.SetLabels(r.lmsMoodleCtx.lmsMoodle.GetLabels())
+
+	// define default network policy
+	r.defineLMSMoodleDefaultNetpol()
 
 	// whether LMSMoodle has dependant components
 	if err := r.postgresSpec(); err != nil {
@@ -415,14 +417,15 @@ func (r *LMSMoodleReconciler) reconcilePresent(ctx context.Context) (requeue boo
 		return false, err
 	}
 
-	// Create default network policy for namespace
-	if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.defaultNetworkPolicyNamespace); err != nil {
-		return false, err
-	}
-
-	// Create default network policy for nginx traffic
-	if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.defaultNetworkPolicyNginx); err != nil {
-		return false, err
+	// Whether default network policy should be present
+	if r.lmsMoodleCtx.lmsMoodleNetpolOmit {
+		if err := r.ReconcileDeleteDependant(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.lmsMoodleDefaultNetpol); client.IgnoreNotFound(err) != nil {
+			return false, err
+		}
+	} else {
+		if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.lmsMoodleDefaultNetpol); err != nil {
+			return false, err
+		}
 	}
 
 	// Save Postgres spec

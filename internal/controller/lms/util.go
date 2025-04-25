@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/imdario/mergo"
 	lmsv1alpha1 "github.com/krestomatio/lms-moodle-operator/api/lms/v1alpha1"
@@ -730,9 +731,80 @@ func (r *LMSMoodleReconciler) setSiteLabels(ctx context.Context) error {
 	return nil
 }
 
+// setDefaultNetpolOmit set default netpol omit
+func (r *LMSMoodleReconciler) setDefaultNetpolOmit(objSpec map[string]interface{}, netpolOmitFieldName string) (err error) {
+	_, objSpecNetpolOmitFound, err := unstructured.NestedString(objSpec, netpolOmitFieldName)
+
+	if err != nil {
+		return err
+	}
+
+	if !objSpecNetpolOmitFound {
+		objSpec[netpolOmitFieldName] = r.lmsMoodleCtx.lmsMoodleNetpolOmit
+	}
+
+	return err
+}
+
+// setDefaultMoodleNetpolOmit set default moodle netpol omit
+func (r *LMSMoodleReconciler) setDefaultMoodleNetpolOmit() (err error) {
+	if err := r.setDefaultNetpolOmit(r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, "phpFpmNetpolOmit"); err != nil {
+		return err
+	}
+
+	if err := r.setDefaultNetpolOmit(r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, "nginxNetpolOmit"); err != nil {
+		return err
+	}
+
+	if err := r.setDefaultNetpolOmit(r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec, "moodleNetpolOmit"); err != nil {
+		return err
+	}
+
+	return err
+}
+
+// setDefaultPostgresNetpolOmit set default postgres netpol omit
+func (r *LMSMoodleReconciler) setDefaultPostgresNetpolOmit() (err error) {
+	if err := r.setDefaultNetpolOmit(r.lmsMoodleCtx.lmsMoodleTemplatePostgresSpec, "pgbouncerNetpolOmit"); err != nil {
+		return err
+	}
+
+	if err := r.setDefaultNetpolOmit(r.lmsMoodleCtx.lmsMoodleTemplatePostgresSpec, "postgresNetpolOmit"); err != nil {
+		return err
+	}
+
+	return err
+}
+
+// setDefaultNfsNetpolOmit set default nfs netpol omit
+func (r *LMSMoodleReconciler) setDefaultNfsNetpolOmit() (err error) {
+	if err := r.setDefaultNetpolOmit(r.lmsMoodleCtx.lmsMoodleTemplateNfsSpec, "ganeshaNetpolOmit"); err != nil {
+		return err
+	}
+
+	return err
+}
+
+// setDefaultKeydbNetpolOmit set default keydb netpol omit
+func (r *LMSMoodleReconciler) setDefaultKeydbNetpolOmit() (err error) {
+	if err := r.setDefaultNetpolOmit(r.lmsMoodleCtx.lmsMoodleTemplateKeydbSpec, "keydbNetpolOmit"); err != nil {
+		return err
+	}
+
+	return err
+}
+
 // commonLabels set common labels
 func (r *LMSMoodleReconciler) commonLabels(objSpec map[string]interface{}) (err error) {
-	siteLabelsBytes, _ := yaml.Marshal(r.lmsMoodleCtx.lmsMoodle.GetLabels())
+	commonLabels := make(map[string]string)
+	for key, value := range r.lmsMoodleCtx.lmsMoodle.GetLabels() {
+		if strings.HasPrefix(key, "app.kubernetes.io") || key == "app" {
+			continue
+		}
+		commonLabels[key] = value
+	}
+
+	siteLabelsBytes, _ := yaml.Marshal(commonLabels)
 	siteLabelsString := string(siteLabelsBytes)
 
 	objSpecCommonLabelsString, objSpecCommonLabelsFound, _ := unstructured.NestedString(objSpec, "commonLabels")
@@ -863,6 +935,10 @@ func (r *LMSMoodleReconciler) postgresSpec() (err error) {
 		if err := r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplatePostgresSpec, "postgresAffinity"); err != nil {
 			return err
 		}
+		// set default postgres netpol omit
+		if err := r.setDefaultPostgresNetpolOmit(); err != nil {
+			return err
+		}
 		// save postgres spec
 		r.lmsMoodleCtx.combinedPostgresSpec = make(map[string]interface{})
 		r.lmsMoodleCtx.combinedPostgresSpec = r.lmsMoodleCtx.lmsMoodleTemplatePostgresSpec
@@ -902,6 +978,10 @@ func (r *LMSMoodleReconciler) nfsSpec() (err error) {
 		}
 		// set default affinity
 		if err := r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplateNfsSpec, "ganeshaAffinity"); err != nil {
+			return err
+		}
+		// set default nfs netpol omit
+		if err := r.setDefaultNfsNetpolOmit(); err != nil {
 			return err
 		}
 		// save nfs spec
@@ -945,6 +1025,10 @@ func (r *LMSMoodleReconciler) keydbSpec() (err error) {
 		if err := r.defaultAffinityYaml(r.lmsMoodleCtx.lmsMoodleTemplateKeydbSpec, "keydbAffinity"); err != nil {
 			return err
 		}
+		// set default keydb netpol omit
+		if err := r.setDefaultKeydbNetpolOmit(); err != nil {
+			return err
+		}
 		// save keydb spec
 		r.lmsMoodleCtx.combinedKeydbSpec = make(map[string]interface{})
 		r.lmsMoodleCtx.combinedKeydbSpec = r.lmsMoodleCtx.lmsMoodleTemplateKeydbSpec
@@ -974,6 +1058,10 @@ func (r *LMSMoodleReconciler) moodleSpec() (err error) {
 	if err := r.moodleDefaultAffinityYaml(); err != nil {
 		return err
 	}
+	// set default moodle netpol omit
+	if err := r.setDefaultMoodleNetpolOmit(); err != nil {
+		return err
+	}
 	// save moodle spec
 	r.lmsMoodleCtx.combinedMoodleSpec = make(map[string]interface{})
 	r.lmsMoodleCtx.combinedMoodleSpec = r.lmsMoodleCtx.lmsMoodleTemplateMoodleSpec
@@ -981,53 +1069,19 @@ func (r *LMSMoodleReconciler) moodleSpec() (err error) {
 	return err
 }
 
-// lmsMoodleNetworkPolicies define lms moodle network policies
-func (r *LMSMoodleReconciler) lmsMoodleNetworkPolicies() {
+// defineLMSMoodleDefaultNetpol define lms moodle network policy
+func (r *LMSMoodleReconciler) defineLMSMoodleDefaultNetpol() {
 	// default network policy, isolating namespace
-	r.lmsMoodleCtx.defaultNetworkPolicyNamespace = &networkingv1.NetworkPolicy{
+	r.lmsMoodleCtx.lmsMoodleDefaultNetpol = &networkingv1.NetworkPolicy{
 		Spec: networkingv1.NetworkPolicySpec{
 			PolicyTypes: []networkingv1.PolicyType{
 				networkingv1.PolicyTypeIngress,
-			},
-			PodSelector: metav1.LabelSelector{
-				MatchLabels: make(map[string]string),
-			},
-			Ingress: []networkingv1.NetworkPolicyIngressRule{
-				{
-					From: []networkingv1.NetworkPolicyPeer{
-						{
-							PodSelector: &metav1.LabelSelector{
-								MatchLabels: make(map[string]string),
-							},
-						},
-					},
-				},
+				networkingv1.PolicyTypeEgress,
 			},
 		},
 	}
-	r.lmsMoodleCtx.defaultNetworkPolicyNamespace.SetNamespace(r.lmsMoodleCtx.namespaceName)
-	r.lmsMoodleCtx.defaultNetworkPolicyNamespace.SetName(r.lmsMoodleCtx.networkPolicyBaseName + "-ns")
-
-	// default network policy allowing nginx traffic
-	r.lmsMoodleCtx.defaultNetworkPolicyNginx = &networkingv1.NetworkPolicy{
-		Spec: networkingv1.NetworkPolicySpec{
-			PolicyTypes: []networkingv1.PolicyType{
-				networkingv1.PolicyTypeIngress,
-			},
-			PodSelector: metav1.LabelSelector{
-				MatchLabels: map[string]string{
-					"app.kubernetes.io/component": "nginx",
-				},
-			},
-			Ingress: []networkingv1.NetworkPolicyIngressRule{
-				{
-					From: []networkingv1.NetworkPolicyPeer{},
-				},
-			},
-		},
-	}
-	r.lmsMoodleCtx.defaultNetworkPolicyNginx.SetNamespace(r.lmsMoodleCtx.namespaceName)
-	r.lmsMoodleCtx.defaultNetworkPolicyNginx.SetName(r.lmsMoodleCtx.networkPolicyBaseName + "-nginx")
+	r.lmsMoodleCtx.lmsMoodleDefaultNetpol.SetNamespace(r.lmsMoodleCtx.namespaceName)
+	r.lmsMoodleCtx.lmsMoodleDefaultNetpol.SetName(r.lmsMoodleCtx.networkPolicyBaseName + "-netpol")
 }
 
 // isDependantSuspended whether dependant is suspended

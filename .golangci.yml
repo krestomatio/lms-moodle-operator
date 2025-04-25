@@ -1,24 +1,50 @@
 run:
   timeout: 5m
+  allow-parallel-runners: true
+
+issues:
+  # don't skip warning about doc comments
+  # don't exclude the default set of lint
+  exclude-use-default: false
+  # restore some of the defaults
+  # (fill in the rest as needed)
+  exclude-rules:
+    - path: "api/*"
+      linters:
+        - lll
+    - path: "internal/*"
+      linters:
+        - dupl
+        - lll
 linters:
+  disable-all: true
   enable:
-    - nakedret
-    - misspell
-    - ineffassign
+    - dupl
+    - errcheck
+    - exportloopref
     - ginkgolinter
     - goconst
-    - errcheck
-    - unparam
-    - staticcheck
-    - unused
-    - gosimple
-    - gosec
-    - dupl
-    - unconvert
     - gocyclo
-    # - goimports
-    # - revive
+    - gofmt
+    - goimports
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - prealloc
+    - revive
+    - staticcheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+
 linters-settings:
+  revive:
+    rules:
+      - name: comment-spacings
   dupl:
     # tokens count to trigger issue, 150 by default
     threshold: 300

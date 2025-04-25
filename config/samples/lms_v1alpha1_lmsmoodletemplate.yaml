@@ -3,11 +3,8 @@ kind: LMSMoodleTemplate
 metadata:
   name: lmsmoodletemplate-sample
   labels:
-    app.kubernetes.io/name: lmsmoodletemplate
-    app.kubernetes.io/instance: lmsmoodletemplate-sample
-    app.kubernetes.io/part-of: lms-moodle-operator
+    app.kubernetes.io/name: lms-moodle-operator
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: lms-moodle-operator
 spec:
   moodleSpec:
     ## Moodle new instance
@@ -17,7 +14,7 @@ spec:
     moodleNewInstanceSummary: A demo LMS Moodle
     ## Admin credentials. MUST CHANGED
     moodleNewInstanceAdminmail: admin@otherexample.com
-    ### 'changeme' as admin password:
+    ## Set a new admin password with a BCrypt compatible hash. Example for 'changeme' hash as password:
     moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
     ## Postgres as db for LMS Moodle
     # moodlePostgresMetaName: postgres-sample

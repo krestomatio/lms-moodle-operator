@@ -33,6 +33,13 @@ type LMSMoodleSpec struct {
 	// +kubebuilder:validation:MaxLength=255
 	LMSMoodleTemplateName string `json:"lmsMoodleTemplateName"`
 
+	// LMSMoodleNetpolOmit whether to omit default network policy for the namespace. Default: false
+	// It will deny all ingress and egress traffic to the namespace
+	// Intended to be used with custom network policies already in place or
+	// by not omitting default network policies of each dependant resource
+	// +optional
+	LMSMoodleNetpolOmit bool `json:"lmsMoodleNetpolOmit,omitempty"`
+
 	// DesiredState defines the desired state to put a LMSMoodle
 	// +kubebuilder:validation:Enum=Ready;Suspended
 	// +kubebuilder:default:="Ready"
@@ -103,16 +110,16 @@ const (
 	SuspendedState string = "Suspended"
 )
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
-//+kubebuilder:resource:scope=Cluster,categories={lms},shortName=lm
-//+kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
-//+kubebuilder:printcolumn:name="STATUS",type="string",description="LMSMoodle status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
-//+kubebuilder:printcolumn:name="SINCE",type="date",JSONPath=".status.conditions[?(@.type=='Ready')].lastTransitionTime",description="Time of latest transition",priority=0
-//+kubebuilder:printcolumn:name="TEMPLATE",type="string",description="LMSMoodleTemplate name",JSONPath=".spec.lmsMoodleTemplate",priority=0
-//+kubebuilder:printcolumn:name="URL",type="string",JSONPath=".status.url",description="LMSMoodle URL",priority=0
-//+kubebuilder:printcolumn:name="USERS",type="integer",JSONPath=".status.registeredUsers",description="LMSMoodle registered users",priority=0
-//+kubebuilder:printcolumn:name="GB",type="string",JSONPath=".status.storageGb",description="LMSMoodle storage usage in GB",priority=0
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:resource:scope=Cluster,categories={lms},shortName=lm
+// +kubebuilder:printcolumn:name="AGE",type="date",JSONPath=".metadata.creationTimestamp",description="Age of the resource",priority=0
+// +kubebuilder:printcolumn:name="STATUS",type="string",description="LMSMoodle status such as Unknown/SettingUp/Ready/Failed/Terminating etc",JSONPath=".status.state",priority=0
+// +kubebuilder:printcolumn:name="SINCE",type="date",JSONPath=".status.conditions[?(@.type=='Ready')].lastTransitionTime",description="Time of latest transition",priority=0
+// +kubebuilder:printcolumn:name="TEMPLATE",type="string",description="LMSMoodleTemplate name",JSONPath=".spec.lmsMoodleTemplate",priority=0
+// +kubebuilder:printcolumn:name="URL",type="string",JSONPath=".status.url",description="LMSMoodle URL",priority=0
+// +kubebuilder:printcolumn:name="USERS",type="integer",JSONPath=".status.registeredUsers",description="LMSMoodle registered users",priority=0
+// +kubebuilder:printcolumn:name="GB",type="string",JSONPath=".status.storageGb",description="LMSMoodle storage usage in GB",priority=0
 
 // LMSMoodle is the Schema for the lmsmoodles API
 type LMSMoodle struct {
@@ -123,7 +130,7 @@ type LMSMoodle struct {
 	Status LMSMoodleStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // LMSMoodleList contains a list of LMSMoodle
 type LMSMoodleList struct {

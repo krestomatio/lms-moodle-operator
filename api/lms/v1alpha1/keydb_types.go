@@ -109,6 +109,18 @@ type KeydbSpec struct {
 	// KeydbVpaSpec set keydb horizontal pod autoscaler spec
 	// +optional
 	KeydbVpaSpec string `json:"keydbVpaSpec,omitempty"`
+
+	// KeydbNetpolOmit whether to omit default keydb network policy. Default: true
+	// +optional
+	KeydbNetpolOmit bool `json:"keydbNetpolOmit,omitempty"`
+
+	// GaneshaNetpolIngressIpblock defines ingress ip block for keydb default network policy
+	// +optional
+	KeydbNetpolIngressIpblock string `json:"keydbNetpolIngressIpblock,omitempty"`
+
+	// KeydbNetpolEgressIpblock defines egress ip block for keydb default network policy
+	// +optional
+	KeydbNetpolEgressIpblock string `json:"keydbNetpolEgressIpblock,omitempty"`
 }
 
 // KeydbMode describes mode keydb runs

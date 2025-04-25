@@ -3,21 +3,32 @@ kind: LMSMoodle
 metadata:
   name: lmsmoodle-sample
   labels:
-    app.kubernetes.io/name: lmsmoodle
-    app.kubernetes.io/instance: lmsmoodle-sample
-    app.kubernetes.io/part-of: lms-moodle-operator
+    app.kubernetes.io/name: lms-moodle-operator
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: lms-moodle-operator
 spec:
   lmsMoodleTemplateName: lmsmoodletemplate-sample
+
+  ## whether to omit default network policy for the namespace. Default: false
+  ## It will deny all ingress and egress traffic to the namespace
+  ## Intended to be used with custom network policies already in place or
+  ## by not omitting default network policies of each dependant resource
+  # lmsMoodleNetpolOmit: true
+
+  ## defines the desired state to put a LMSMoodle
+  # desiredState: Suspended
+
   ## Override lmsMoodleTemplate moodle spec, if any
   moodleSpec:
     moodleNewInstanceAgreeLicense: true
     moodleNewInstanceFullname: Demo LMS Moodle
     moodleNewInstanceShortname: demo
     moodleNewInstanceSummary: A demo LMS Moodle
+    ## Admin credentials. MUST CHANGED
     moodleNewInstanceAdminmail: admin@otherexample.com
+    ## Set a new admin password with a BCrypt compatible hash. Example for 'changeme' hash as password:
     moodleNewAdminpassHash: $2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim
+    # moodleNetpolOmit: false
   ## Override lmsMoodleTemplate nfs spec, if any
   # nfsSpec:
     # ganeshaPvcDataAutoexpansion: false
+    # ganeshaNetpolOmit: false

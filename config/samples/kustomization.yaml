@@ -2,4 +2,4 @@
 resources:
 - lms_v1alpha1_lmsmoodle.yaml
 - lms_v1alpha1_lmsmoodletemplate.yaml
-#+kubebuilder:scaffold:manifestskustomizesamples
+# +kubebuilder:scaffold:manifestskustomizesamples

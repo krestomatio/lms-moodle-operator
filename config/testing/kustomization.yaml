@@ -7,13 +7,14 @@ resources:
 - ../crd
 - ../rbac
 - ../manager
-patchesStrategicMerge:
-- ../default/manager_auth_proxy_patch.yaml
-- manager_image.yaml
 images:
 - name: testing
   newName: testing-operator
 patches:
+- path: manager_image.yaml
+- path: ../default/manager_metrics_patch.yaml
+  target:
+    kind: Deployment
 - patch: |-
     - op: add
       path: /spec/template/spec/containers/0/args/-

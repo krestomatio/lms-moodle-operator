@@ -84,7 +84,7 @@ metadata:
     containerImage: quay.io/krestomatio/lms-moodle-operator:0.4.8
     createdAt: "2024-08-08T00:17:33Z"
     description: Meta operator for the full stack of Moodle™ LMS on Kubernetes
-    operators.operatorframework.io/builder: operator-sdk-v1.33.0
+    operators.operatorframework.io/builder: operator-sdk-v1.39.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/krestomatio/lms-moodle-operator
   labels:
