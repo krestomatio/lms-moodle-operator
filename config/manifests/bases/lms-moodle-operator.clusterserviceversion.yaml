@@ -16,7 +16,18 @@ metadata:
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
-  customresourcedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: LMSMoodle is the Schema for the lmsmoodles API
+      displayName: LMSMoodle
+      kind: LMSMoodle
+      name: lmsmoodles.lms.krestomat.io
+      version: v1alpha1
+    - description: LMSMoodleTemplate is the Schema for the lmsmoodletemplates API
+      displayName: LMSMoodle Template
+      kind: LMSMoodleTemplate
+      name: lmsmoodletemplates.lms.krestomat.io
+      version: v1alpha1
   description: Meta operator for the full stack of Moodle™ LMS on Kubernetes
   displayName: LMS Moodle Operator
   icon:

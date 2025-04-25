@@ -2,7 +2,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.14.0
+    controller-gen.kubebuilder.io/version: v0.16.1
   creationTimestamp: null
   name: lmsmoodles.lms.krestomat.io
 spec:
@@ -101,6 +101,18 @@ spec:
                     - multimaster
                     - custom
                     type: string
+                  keydbNetpolEgressIpblock:
+                    description: KeydbNetpolEgressIpblock defines egress ip block
+                      for keydb default network policy
+                    type: string
+                  keydbNetpolIngressIpblock:
+                    description: GaneshaNetpolIngressIpblock defines ingress ip block
+                      for keydb default network policy
+                    type: string
+                  keydbNetpolOmit:
+                    description: 'KeydbNetpolOmit whether to omit default keydb network
+                      policy. Default: true'
+                    type: boolean
                   keydbNodeSelector:
                     description: KeydbNodeSelector defines any node labels selectors
                       for Keydb pods.
@@ -214,6 +226,13 @@ spec:
                       spec
                     type: string
                 type: object
+              lmsMoodleNetpolOmit:
+                description: |-
+                  LMSMoodleNetpolOmit whether to omit default network policy for the namespace. Default: false
+                  It will deny all ingress and egress traffic to the namespace
+                  Intended to be used with custom network policies already in place or
+                  by not omitting default network policies of each dependant resource
+                type: boolean
               lmsMoodleTemplateName:
                 description: LMSMoodleTemplateName defines what LMS Moodle template
                   to use
@@ -349,6 +368,18 @@ spec:
                       as redis cache.
                     maxLength: 63
                     type: string
+                  moodleNetpolEgressIpblock:
+                    description: MoodleNetpolEgressIpblock defines egress ip block
+                      for moodle default network policy
+                    type: string
+                  moodleNetpolIngressIpblock:
+                    description: MoodleNetpolIngressIpblock defines ingress ip block
+                      for moodle default network policy
+                    type: string
+                  moodleNetpolOmit:
+                    description: 'MoodleNetpolOmit whether to omit default moodle
+                      network policy. Default: true'
+                    type: boolean
                   moodleNewAdminpassHash:
                     description: MoodleNewAdminPassHash is the bcrypt compatible admin
                       password to set in new instance. Required
@@ -651,6 +682,18 @@ spec:
                   nginxIngressAnnotations:
                     description: NginxIngressAnnotations defines nginx annotations
                     type: string
+                  nginxNetpolEgressIpblock:
+                    description: NginxNetpolEgressIpblock defines egress ip block
+                      for nginx default network policy
+                    type: string
+                  nginxNetpolIngressIpblock:
+                    description: NginxNetpolIngressIpblock defines ingress ip block
+                      for nginx default network policy
+                    type: string
+                  nginxNetpolOmit:
+                    description: 'NginxNetpolOmit whether to omit default network
+                      policy for nginx. Default: true'
+                    type: boolean
                   nginxNodeSelector:
                     description: NginxNodeSelector defines any node labels selectors
                       for Nginx pods.
@@ -749,6 +792,18 @@ spec:
                   phpFpmIngressAnnotations:
                     description: PhpFpmIngressAnnotations defines php-fpm annotations
                     type: string
+                  phpFpmNetpolEgressIpblock:
+                    description: PhpFpmNetpolEgressIpblock defines egress ip block
+                      for php-fpm default network policy
+                    type: string
+                  phpFpmNetpolIngressIpblock:
+                    description: PhpFpmNetpolIngressIpblock defines ingress ip block
+                      for php-fpm default network policy
+                    type: string
+                  phpFpmNetpolOmit:
+                    description: 'PhpFpmNetpolOmit whether to omit default network
+                      policy for php-fpm. Default: true'
+                    type: boolean
                   phpFpmNodeSelector:
                     description: PhpFpmNodeSelector defines any node labels selectors
                       for PhpFpm pods.
@@ -958,6 +1013,18 @@ spec:
                     description: GaneshaImage defines image for ganesha server container
                     maxLength: 255
                     type: string
+                  ganeshaNetpolEgressIpblock:
+                    description: GaneshaNetpolEgressIpblock defines egress ip block
+                      for ganesha default network policy
+                    type: string
+                  ganeshaNetpolIngressIpblock:
+                    description: GaneshaNetpolIngressIpblock defines ingress ip block
+                      for ganesha default network policy
+                    type: string
+                  ganeshaNetpolOmit:
+                    description: 'GaneshaNetpolOmit whether to omit default network
+                      policy for ganesha. Default: true'
+                    type: boolean
                   ganeshaNodeSelector:
                     description: GaneshaNodeSelector defines any node labels selectors
                       for Ganesha pods.
@@ -1078,6 +1145,18 @@ spec:
                   pgbouncerExtraConfig:
                     description: PgbouncerExtraConfig contains extra pgbouncer config
                     type: string
+                  pgbouncerNetpolEgressIpblock:
+                    description: PgbouncerNetpolEgressIpblock defines egress ip block
+                      for pgbouncer default network policy
+                    type: string
+                  pgbouncerNetpolIngressIpblock:
+                    description: PgbouncerNetpolIngressIpblock defines ipblock for
+                      pgbouncer default network policy
+                    type: string
+                  pgbouncerNetpolOmit:
+                    description: 'PgbouncerNetpolOmit whether to omit default network
+                      policy for pgbouncer. Default: true'
+                    type: boolean
                   pgbouncerNodeSelector:
                     description: PgbouncerNodeSelector defines any node labels selectors
                       for Pgbouncer pods.
@@ -1087,8 +1166,8 @@ spec:
                       for PgbouncerReadonly pods.
                     type: string
                   pgbouncerReadonlyExtraConfig:
-                    description: PgbouncerReadonlyExtraConfig contains extra pgbouncerReadonly
-                      config
+                    description: PgbouncerReadonlyExtraConfig contains extra pgbouncer
+                      readonly config
                     type: string
                   pgbouncerReadonlyNodeSelector:
                     description: PgbouncerReadonlyNodeSelector defines any node labels
@@ -1255,6 +1334,18 @@ spec:
                     - standalone
                     - readreplicas
                     type: string
+                  postgresNetpolEgressIpblock:
+                    description: PostgresNetpolEgressIpblock defines egress ip block
+                      for postgres default network policy
+                    type: string
+                  postgresNetpolIngressIpblock:
+                    description: PostgresNetpolIngressIpblock defines ingress ip block
+                      for postgres default network policy
+                    type: string
+                  postgresNetpolOmit:
+                    description: 'PostgresNetpolOmit whether to omit default network
+                      policy for postgres. Default: true'
+                    type: boolean
                   postgresNodeSelector:
                     description: PostgresNodeSelector defines any node labels selectors
                       for Postgres pods.
@@ -1498,16 +1589,8 @@ spec:
                 description: Conditions represent the latest available observations
                   of the resource state
                 items:
-                  description: "Condition contains details for one aspect of the current
-                    state of this API Resource.\n---\nThis struct is intended for
-                    direct use as an array at the field path .status.conditions.  For
-                    example,\n\n\n\ttype FooStatus struct{\n\t    // Represents the
-                    observations of a foo's current state.\n\t    // Known .status.conditions.type
-                    are: \"Available\", \"Progressing\", and \"Degraded\"\n\t    //
-                    +patchMergeKey=type\n\t    // +patchStrategy=merge\n\t    // +listType=map\n\t
-                    \   // +listMapKey=type\n\t    Conditions []metav1.Condition `json:\"conditions,omitempty\"
-                    patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`\n\n\n\t
-                    \   // other fields\n\t}"
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
                   properties:
                     lastTransitionTime:
                       description: |-
@@ -1548,12 +1631,7 @@ spec:
                       - Unknown
                       type: string
                     type:
-                      description: |-
-                        type of condition in CamelCase or in foo.example.com/CamelCase.
-                        ---
-                        Many .condition.type values are consistent across resources like Available, but because arbitrary conditions can be
-                        useful (see .node.status.conditions), the ability to deconflict is important.
-                        The regex it matches is (dns1123SubdomainFmt/)?(qualifiedNameFmt)
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
                       maxLength: 316
                       pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
                       type: string

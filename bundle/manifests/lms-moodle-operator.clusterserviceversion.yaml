@@ -9,11 +9,8 @@ metadata:
           "kind": "LMSMoodle",
           "metadata": {
             "labels": {
-              "app.kubernetes.io/created-by": "lms-moodle-operator",
-              "app.kubernetes.io/instance": "lmsmoodle-sample",
               "app.kubernetes.io/managed-by": "kustomize",
-              "app.kubernetes.io/name": "lmsmoodle",
-              "app.kubernetes.io/part-of": "lms-moodle-operator"
+              "app.kubernetes.io/name": "lms-moodle-operator"
             },
             "name": "lmsmoodle-sample"
           },
@@ -34,11 +31,8 @@ metadata:
           "kind": "LMSMoodleTemplate",
           "metadata": {
             "labels": {
-              "app.kubernetes.io/created-by": "lms-moodle-operator",
-              "app.kubernetes.io/instance": "lmsmoodletemplate-sample",
               "app.kubernetes.io/managed-by": "kustomize",
-              "app.kubernetes.io/name": "lmsmoodletemplate",
-              "app.kubernetes.io/part-of": "lms-moodle-operator"
+              "app.kubernetes.io/name": "lms-moodle-operator"
             },
             "name": "lmsmoodletemplate-sample"
           },
@@ -81,8 +75,8 @@ metadata:
       ]
     capabilities: Seamless Upgrades
     categories: Application Runtime
-    containerImage: quay.io/krestomatio/lms-moodle-operator:0.4.8
-    createdAt: "2024-08-08T00:17:33Z"
+    containerImage: quay.io/krestomatio/lms-moodle-operator:0.5.0
+    createdAt: "2025-04-25T04:41:11Z"
     description: Meta operator for the full stack of Moodle™ LMS on Kubernetes
     operators.operatorframework.io/builder: operator-sdk-v1.39.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -91,16 +85,20 @@ metadata:
     operatorframework.io/arch.amd64: supported
     operatorframework.io/arch.arm64: supported
     operatorframework.io/os.linux: supported
-  name: lms-moodle-operator.v0.4.8
+  name: lms-moodle-operator.v0.5.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - kind: LMSMoodle
+    - description: LMSMoodle is the Schema for the lmsmoodles API
+      displayName: LMSMoodle
+      kind: LMSMoodle
       name: lmsmoodles.lms.krestomat.io
       version: v1alpha1
-    - kind: LMSMoodleTemplate
+    - description: LMSMoodleTemplate is the Schema for the lmsmoodletemplates API
+      displayName: LMSMoodle Template
+      kind: LMSMoodleTemplate
       name: lmsmoodletemplates.lms.krestomat.io
       version: v1alpha1
   description: Meta operator for the full stack of Moodle™ LMS on Kubernetes
@@ -189,31 +187,6 @@ spec:
           - lms.krestomat.io
           resources:
           - lmsmoodles
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - lms.krestomat.io
-          resources:
-          - lmsmoodles/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - lms.krestomat.io
-          resources:
-          - lmsmoodles/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - lms.krestomat.io
-          resources:
           - lmsmoodletemplates
           verbs:
           - create
@@ -226,12 +199,14 @@ spec:
         - apiGroups:
           - lms.krestomat.io
           resources:
+          - lmsmoodles/finalizers
           - lmsmoodletemplates/finalizers
           verbs:
           - update
         - apiGroups:
           - lms.krestomat.io
           resources:
+          - lmsmoodles/status
           - lmsmoodletemplates/status
           verbs:
           - get
@@ -300,12 +275,8 @@ spec:
         serviceAccountName: lms-moodle-operator-controller-manager
       deployments:
       - label:
-          app.kubernetes.io/component: manager
-          app.kubernetes.io/created-by: lms-moodle-operator
-          app.kubernetes.io/instance: controller-manager
           app.kubernetes.io/managed-by: kustomize
-          app.kubernetes.io/name: deployment
-          app.kubernetes.io/part-of: lms-moodle-operator
+          app.kubernetes.io/name: lms-moodle-operator
           control-plane: controller-manager
         name: lms-moodle-operator-controller-manager
         spec:
@@ -323,35 +294,12 @@ spec:
             spec:
               containers:
               - args:
-                - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8080/
-                - --logtostderr=true
-                - --v=0
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.14.1
-                name: kube-rbac-proxy
-                ports:
-                - containerPort: 8443
-                  name: https
-                  protocol: TCP
-                resources:
-                  limits:
-                    cpu: 500m
-                    memory: 128Mi
-                  requests:
-                    cpu: 5m
-                    memory: 64Mi
-                securityContext:
-                  allowPrivilegeEscalation: false
-                  capabilities:
-                    drop:
-                    - ALL
-              - args:
-                - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:8080
+                - --metrics-bind-address=:8443
                 - --leader-elect
+                - --health-probe-bind-address=:8081
                 command:
                 - /manager
-                image: quay.io/krestomatio/lms-moodle-operator:0.4.8
+                image: quay.io/krestomatio/lms-moodle-operator:0.5.0
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -451,4 +399,4 @@ spec:
   provider:
     name: Krestomatio
     url: https://krestomatio.com
-  version: 0.4.8
+  version: 0.5.0
