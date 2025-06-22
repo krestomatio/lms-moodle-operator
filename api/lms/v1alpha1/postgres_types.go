@@ -38,6 +38,10 @@ type PostgresSpec struct {
 	// +optional
 	PostgresImage string `json:"postgresImage,omitempty"`
 
+	// PostgresUpgrade defines whether postgres upgrade is enabled
+	// +optional
+	PostgresUpgrade bool `json:"postgresUpgrade,omitempty"`
+
 	// PostgresPvcDataSize defines postgres storage size
 	// +kubebuilder:validation:MinLength=2
 	// +kubebuilder:validation:MaxLength=20
