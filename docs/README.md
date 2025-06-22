@@ -26,13 +26,13 @@ To install this this operator along **all** its required and optional prerequisi
 
 1. **Install Operator:**
 ```bash
-kubectl apply -k https://github.com/krestomatio/lms-moodle-operator/config/operators?ref=v0.5.2
+kubectl apply -k https://github.com/krestomatio/lms-moodle-operator/config/operators?ref=v0.6.0
 ```
 
 2. **Configure a LMSMoodleTemplate:**
-- Download and modify [this `LMSMoodleTemplate` sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.5.2/config/samples/lms_v1alpha1_lmsmoodletemplate.yaml) file to define a lms moodle template. A `LMSMoodleTemplate` can be use by one or many `LMSMoodle` resources as spec template.
+- Download and modify [this `LMSMoodleTemplate` sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.6.0/config/samples/lms_v1alpha1_lmsmoodletemplate.yaml) file to define a lms moodle template. A `LMSMoodleTemplate` can be use by one or many `LMSMoodle` resources as spec template.
 ```bash
-curl -sSL 'https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.5.2/config/samples/lms_v1alpha1_lmsmoodletemplate.yaml' -o lms_v1alpha1_lmsmoodletemplate.yaml
+curl -sSL 'https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.6.0/config/samples/lms_v1alpha1_lmsmoodletemplate.yaml' -o lms_v1alpha1_lmsmoodletemplate.yaml
 # modify lms_v1alpha1_lmsmoodletemplate.yaml
 ```
 
@@ -44,9 +44,9 @@ kubectl apply -f lms_v1alpha1_lmsmoodletemplate.yaml
 
 4. **Configure a LMSMoodle:**
 > **Note:** `LMSMoodle` resource specification has precedence over `LMSMoodleTemplate` specification.
-- Download and modify [this sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.5.2/config/samples/lms_v1alpha1_lmsmoodle.yaml) file to reflect your specific `LMSMoodle` stack configuration options. This file defines the desired state for your instance and all its layers handle by the operators. Note that it references a `LMSMoodleTemplate` resource by its name. The `LMSMoodleTemplate` resoure in the previous step.
+- Download and modify [this sample](https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.6.0/config/samples/lms_v1alpha1_lmsmoodle.yaml) file to reflect your specific `LMSMoodle` stack configuration options. This file defines the desired state for your instance and all its layers handle by the operators. Note that it references a `LMSMoodleTemplate` resource by its name. The `LMSMoodleTemplate` resoure in the previous step.
 ```bash
-curl -sSL 'https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.5.2/config/samples/lms_v1alpha1_lmsmoodle.yaml' -o lms_v1alpha1_lmsmoodle.yaml
+curl -sSL 'https://raw.githubusercontent.com/krestomatio/lms-moodle-operator/v0.6.0/config/samples/lms_v1alpha1_lmsmoodle.yaml' -o lms_v1alpha1_lmsmoodle.yaml
 # modify lms_v1alpha1_lmsmoodle.yaml
 ```
 
@@ -83,7 +83,7 @@ kubectl delete -f lms_v1alpha1_lmsmoodle.yaml
 
 3. **Uninstall the Operator:**
 ```bash
-kubectl delete -k https://github.com/krestomatio/lms-moodle-operator/config/operators?ref=v0.5.2
+kubectl delete -k https://github.com/krestomatio/lms-moodle-operator/config/operators?ref=v0.6.0
 ```
 
 ## Configuration
