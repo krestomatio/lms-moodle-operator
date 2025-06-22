@@ -2,16 +2,16 @@ dependencies:
   - type: olm.package
     value:
       packageName: moodle-operator
-      version: "0.6.27"
+      version: "0.6.28"
   - type: olm.package
     value:
       packageName: postgres-operator-krestomatio
-      version: "0.3.21"
+      version: "0.3.25"
   - type: olm.package
     value:
       packageName: nfs-operator
-      version: "0.4.20"
+      version: "0.4.25"
   - type: olm.package
     value:
       packageName: keydb-operator
-      version: "0.3.21"
+      version: "0.3.27"

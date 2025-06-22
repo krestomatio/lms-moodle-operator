@@ -454,6 +454,7 @@ _Appears in:_
 | `postgresExtraConfig` _string_ | PostgresExtraConfig contains extra postgres config |  |  |
 | `postgresSize` _integer_ | PostgresSize defines postgres number of replicas |  |  |
 | `postgresImage` _string_ | PostgresImage defines image for postgres container |  | MaxLength: 255 <br /> |
+| `postgresUpgrade` _boolean_ | PostgresUpgrade defines whether postgres upgrade is enabled |  |  |
 | `postgresPvcDataSize` _string_ | PostgresPvcDataSize defines postgres storage size |  | MaxLength: 20 <br />MinLength: 2 <br /> |
 | `postgresPvcDataStorageAccessMode` _[StorageAccessMode](#storageaccessmode)_ | PostgresPvcDataStorageAccessMode defines postgres storage access modes |  | Enum: [ReadWriteOnce ReadOnlyMany ReadWriteMany] <br /> |
 | `postgresPvcDataStorageClassName` _string_ | PostgresPvcDataStorageClassName defines postgres storage class |  | MaxLength: 63 <br />MinLength: 2 <br /> |

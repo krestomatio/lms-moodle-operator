@@ -1533,6 +1533,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  postgresUpgrade:
+                    description: PostgresUpgrade defines whether postgres upgrade
+                      is enabled
+                    type: boolean
                   postgresVpaSpec:
                     description: PostgresVpaSpec set postgres horizontal pod autoscaler
                       spec
