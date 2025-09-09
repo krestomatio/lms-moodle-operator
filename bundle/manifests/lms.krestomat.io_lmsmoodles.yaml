@@ -101,10 +101,52 @@ spec:
                     - multimaster
                     - custom
                     type: string
+                  keydbNetpolEgressExtraPorts:
+                    description: KeydbNetpolEgressExtraPorts defines extra egress
+                      ports for keydb default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   keydbNetpolEgressIpblock:
                     description: KeydbNetpolEgressIpblock defines egress ip block
                       for keydb default network policy
                     type: string
+                  keydbNetpolIngressExtraPorts:
+                    description: KeydbNetpolIngressExtraPorts defines extra ingress
+                      ports for keydb default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   keydbNetpolIngressIpblock:
                     description: GaneshaNetpolIngressIpblock defines ingress ip block
                       for keydb default network policy
@@ -251,6 +293,10 @@ spec:
                       properties in config.php
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
+                  moodleConfigDeveloper:
+                    description: 'MoodleConfigDeveloper whether moodle developer mode
+                      is enabled for debugging. Default: false'
+                    type: boolean
                   moodleConfigSessionRedisCompressor:
                     description: MoodleConfigSessionRedisCompressor defines redis
                       session compresor
@@ -368,10 +414,52 @@ spec:
                       as redis cache.
                     maxLength: 63
                     type: string
+                  moodleNetpolEgressExtraPorts:
+                    description: MoodleNetpolEgressExtraPorts defines extra egress
+                      ports for moodle default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   moodleNetpolEgressIpblock:
                     description: MoodleNetpolEgressIpblock defines egress ip block
                       for moodle default network policy
                     type: string
+                  moodleNetpolIngressExtraPorts:
+                    description: MoodleNetpolIngressExtraPorts defines extra ingress
+                      ports for moodle default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   moodleNetpolIngressIpblock:
                     description: MoodleNetpolIngressIpblock defines ingress ip block
                       for moodle default network policy
@@ -682,10 +770,52 @@ spec:
                   nginxIngressAnnotations:
                     description: NginxIngressAnnotations defines nginx annotations
                     type: string
+                  nginxNetpolEgressExtraPorts:
+                    description: NginxNetpolEgressExtraPorts defines extra egress
+                      ports for nginx default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   nginxNetpolEgressIpblock:
                     description: NginxNetpolEgressIpblock defines egress ip block
                       for nginx default network policy
                     type: string
+                  nginxNetpolIngressExtraPorts:
+                    description: NginxNetpolIngressExtraPorts defines extra ingress
+                      ports for nginx default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   nginxNetpolIngressIpblock:
                     description: NginxNetpolIngressIpblock defines ingress ip block
                       for nginx default network policy
@@ -792,10 +922,52 @@ spec:
                   phpFpmIngressAnnotations:
                     description: PhpFpmIngressAnnotations defines php-fpm annotations
                     type: string
+                  phpFpmNetpolEgressExtraPorts:
+                    description: PhpFpmNetpolEgressExtraPorts defines extra egress
+                      ports for php-fpm default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   phpFpmNetpolEgressIpblock:
                     description: PhpFpmNetpolEgressIpblock defines egress ip block
                       for php-fpm default network policy
                     type: string
+                  phpFpmNetpolIngressExtraPorts:
+                    description: PhpFpmNetpolIngressExtraPorts defines extra ingress
+                      ports for php-fpm default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   phpFpmNetpolIngressIpblock:
                     description: PhpFpmNetpolIngressIpblock defines ingress ip block
                       for php-fpm default network policy
@@ -1013,10 +1185,52 @@ spec:
                     description: GaneshaImage defines image for ganesha server container
                     maxLength: 255
                     type: string
+                  ganeshaNetpolEgressExtraPorts:
+                    description: GaneshaNetpolEgressExtraPorts defines extra egress
+                      ports for ganesha default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   ganeshaNetpolEgressIpblock:
                     description: GaneshaNetpolEgressIpblock defines egress ip block
                       for ganesha default network policy
                     type: string
+                  ganeshaNetpolIngressExtraPorts:
+                    description: GaneshaNetpolIngressExtraPorts defines extra ingress
+                      ports for ganesha default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   ganeshaNetpolIngressIpblock:
                     description: GaneshaNetpolIngressIpblock defines ingress ip block
                       for ganesha default network policy
@@ -1145,10 +1359,52 @@ spec:
                   pgbouncerExtraConfig:
                     description: PgbouncerExtraConfig contains extra pgbouncer config
                     type: string
+                  pgbouncerNetpolEgressExtraPorts:
+                    description: PgbouncerNetpolEgressExtraPorts defines extra egress
+                      ports for pgbouncer default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   pgbouncerNetpolEgressIpblock:
                     description: PgbouncerNetpolEgressIpblock defines egress ip block
                       for pgbouncer default network policy
                     type: string
+                  pgbouncerNetpolIngressExtraPorts:
+                    description: PgbouncerNetpolIngressExtraPorts defines extra ingress
+                      ports for pgbouncer default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   pgbouncerNetpolIngressIpblock:
                     description: PgbouncerNetpolIngressIpblock defines ipblock for
                       pgbouncer default network policy
@@ -1334,10 +1590,52 @@ spec:
                     - standalone
                     - readreplicas
                     type: string
+                  postgresNetpolEgressExtraPorts:
+                    description: PostgresNetpolEgressExtraPorts defines extra egress
+                      ports for postgres default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   postgresNetpolEgressIpblock:
                     description: PostgresNetpolEgressIpblock defines egress ip block
                       for postgres default network policy
                     type: string
+                  postgresNetpolIngressExtraPorts:
+                    description: PostgresNetpolIngressExtraPorts defines extra ingress
+                      ports for postgres default network policy
+                    items:
+                      properties:
+                        port:
+                          description: Port number
+                          format: int32
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        protocol:
+                          description: Protocol TCP or UDP
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      required:
+                      - port
+                      type: object
+                    type: array
                   postgresNetpolIngressIpblock:
                     description: PostgresNetpolIngressIpblock defines ingress ip block
                       for postgres default network policy

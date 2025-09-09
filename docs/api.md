@@ -67,6 +67,8 @@ _Appears in:_
 | `keydbNetpolOmit` _boolean_ | KeydbNetpolOmit whether to omit default keydb network policy. Default: true |  |  |
 | `keydbNetpolIngressIpblock` _string_ | GaneshaNetpolIngressIpblock defines ingress ip block for keydb default network policy |  |  |
 | `keydbNetpolEgressIpblock` _string_ | KeydbNetpolEgressIpblock defines egress ip block for keydb default network policy |  |  |
+| `keydbNetpolIngressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | KeydbNetpolIngressExtraPorts defines extra ingress ports for keydb default network policy |  |  |
+| `keydbNetpolEgressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | KeydbNetpolEgressExtraPorts defines extra egress ports for keydb default network policy |  |  |
 
 
 #### LMSMoodle
@@ -319,6 +321,7 @@ _Appears in:_
 | `moodleNewInstanceJobResourceLimits` _boolean_ | MoodleNewInstanceJobResourceLimits whether moodle new instance job resource limits are added. Default: false |  |  |
 | `moodleNewInstanceJobResourceLimitsCpu` _string_ | MoodleNewInstanceJobResourceLimitsCpu set moodle new instance job resource limits cpu |  | MaxLength: 20 <br /> |
 | `moodleNewInstanceJobResourceLimitsMemory` _string_ | MoodleNewInstanceJobResourceLimitsMemory set moodle new instance job resource limits memory |  | MaxLength: 20 <br /> |
+| `moodleConfigDeveloper` _boolean_ | MoodleConfigDeveloper whether moodle developer mode is enabled for debugging. Default: false |  |  |
 | `moodleConfigAdditionalCfg` _[MoodleConfigProperty](#moodleconfigproperty)_ | MoodleConfigAdditionalCfg defines moodle extra config properties in config.php |  |  |
 | `moodleConfigAdditionalBlock` _string_ | MoodleConfigAdditionalBlock defines moodle extra block in config.php |  |  |
 | `moodleUpdateMinor` _boolean_ | MoodleUpdateMinor whether minor updates are automatically applied. Default: true |  |  |
@@ -326,6 +329,8 @@ _Appears in:_
 | `moodleNetpolOmit` _boolean_ | MoodleNetpolOmit whether to omit default moodle network policy. Default: true |  |  |
 | `moodleNetpolIngressIpblock` _string_ | MoodleNetpolIngressIpblock defines ingress ip block for moodle default network policy |  |  |
 | `moodleNetpolEgressIpblock` _string_ | MoodleNetpolEgressIpblock defines egress ip block for moodle default network policy |  |  |
+| `moodleNetpolIngressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | MoodleNetpolIngressExtraPorts defines extra ingress ports for moodle default network policy |  |  |
+| `moodleNetpolEgressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | MoodleNetpolEgressExtraPorts defines extra egress ports for moodle default network policy |  |  |
 | `nginxSize` _integer_ | NginxSize defines nginx number of replicas between 0 and 255 |  | Maximum: 255 <br />Minimum: 0 <br /> |
 | `nginxImage` _string_ | NginxImage defines image for nginx container |  | MaxLength: 255 <br /> |
 | `nginxIngressAnnotations` _string_ | NginxIngressAnnotations defines nginx annotations |  |  |
@@ -344,6 +349,8 @@ _Appears in:_
 | `nginxNetpolOmit` _boolean_ | NginxNetpolOmit whether to omit default network policy for nginx. Default: true |  |  |
 | `nginxNetpolIngressIpblock` _string_ | NginxNetpolIngressIpblock defines ingress ip block for nginx default network policy |  |  |
 | `nginxNetpolEgressIpblock` _string_ | NginxNetpolEgressIpblock defines egress ip block for nginx default network policy |  |  |
+| `nginxNetpolIngressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | NginxNetpolIngressExtraPorts defines extra ingress ports for nginx default network policy |  |  |
+| `nginxNetpolEgressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | NginxNetpolEgressExtraPorts defines extra egress ports for nginx default network policy |  |  |
 | `phpFpmSize` _integer_ | PhpFpmSize defines php-fpm number of replicas between 0 and 255 |  | Maximum: 255 <br />Minimum: 0 <br /> |
 | `phpFpmImage` _string_ | PhpFpmImage defines image for php-fpm container |  | MaxLength: 255 <br /> |
 | `phpFpmIngressAnnotations` _string_ | PhpFpmIngressAnnotations defines php-fpm annotations |  |  |
@@ -363,6 +370,8 @@ _Appears in:_
 | `phpFpmNetpolOmit` _boolean_ | PhpFpmNetpolOmit whether to omit default network policy for php-fpm. Default: true |  |  |
 | `phpFpmNetpolIngressIpblock` _string_ | PhpFpmNetpolIngressIpblock defines ingress ip block for php-fpm default network policy |  |  |
 | `phpFpmNetpolEgressIpblock` _string_ | PhpFpmNetpolEgressIpblock defines egress ip block for php-fpm default network policy |  |  |
+| `phpFpmNetpolIngressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | PhpFpmNetpolIngressExtraPorts defines extra ingress ports for php-fpm default network policy |  |  |
+| `phpFpmNetpolEgressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | PhpFpmNetpolEgressExtraPorts defines extra egress ports for php-fpm default network policy |  |  |
 | `moodlePostgresMetaName` _string_ | MoodlePostgresMetaName defines Postgres CR name to use as database. |  | MaxLength: 63 <br /> |
 | `moodleNfsMetaName` _string_ | MoodleNfsMetaName defines (NFS) Ganesha server CR name to use as shared storage for moodledata. |  | MaxLength: 63 <br /> |
 | `moodleKeydbMetaName` _string_ | MoodleKeydbMetaName defines Keydb CR name to use as redis cache. |  | MaxLength: 63 <br /> |
@@ -379,6 +388,26 @@ _Appears in:_
 | `moodleRedisMucStoreCompressor` _integer_ | MoodleRedisMucStoreCompressor defines compressor for redis MUC store. Default: 0 |  | Maximum: 1 <br />Minimum: 0 <br /> |
 | `routineStatusCrNotify` _[RoutineStatusCrNotify](#routinestatuscrnotify)_ | RoutineStatusCrNotify specification using ansible URI module |  |  |
 | `routineStatusCrNotifyTermination` _[RoutineStatusCrNotify](#routinestatuscrnotify)_ | RoutineStatusCrNotifyTermination specification using ansible URI module |  |  |
+
+
+#### NetworkPolicyExtraPort
+
+
+
+
+
+
+
+_Appears in:_
+- [KeydbSpec](#keydbspec)
+- [MoodleSpec](#moodlespec)
+- [NfsSpec](#nfsspec)
+- [PostgresSpec](#postgresspec)
+
+| Field | Description | Default | Validation |
+| --- | --- | --- | --- |
+| `port` _integer_ | Port number |  | Maximum: 65535 <br />Minimum: 1 <br /> |
+| `protocol` _string_ | Protocol TCP or UDP |  | Enum: [TCP UDP] <br /> |
 
 
 #### NfsSpec
@@ -420,6 +449,8 @@ _Appears in:_
 | `ganeshaNetpolOmit` _boolean_ | GaneshaNetpolOmit whether to omit default network policy for ganesha. Default: true |  |  |
 | `ganeshaNetpolIngressIpblock` _string_ | GaneshaNetpolIngressIpblock defines ingress ip block for ganesha default network policy |  |  |
 | `ganeshaNetpolEgressIpblock` _string_ | GaneshaNetpolEgressIpblock defines egress ip block for ganesha default network policy |  |  |
+| `ganeshaNetpolIngressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | GaneshaNetpolIngressExtraPorts defines extra ingress ports for ganesha default network policy |  |  |
+| `ganeshaNetpolEgressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | GaneshaNetpolEgressExtraPorts defines extra egress ports for ganesha default network policy |  |  |
 
 
 #### PostgresMode
@@ -474,6 +505,8 @@ _Appears in:_
 | `postgresNetpolOmit` _boolean_ | PostgresNetpolOmit whether to omit default network policy for postgres. Default: true |  |  |
 | `postgresNetpolIngressIpblock` _string_ | PostgresNetpolIngressIpblock defines ingress ip block for postgres default network policy |  |  |
 | `postgresNetpolEgressIpblock` _string_ | PostgresNetpolEgressIpblock defines egress ip block for postgres default network policy |  |  |
+| `postgresNetpolIngressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | PostgresNetpolIngressExtraPorts defines extra ingress ports for postgres default network policy |  |  |
+| `postgresNetpolEgressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | PostgresNetpolEgressExtraPorts defines extra egress ports for postgres default network policy |  |  |
 | `postgresReadreplicasSize` _integer_ | PostgresReadreplicasSize defines postgres readreplicas number of replicas |  |  |
 | `postgresReadreplicasPvcDataSize` _string_ | PostgresReadreplicasPvcDataSize defines postgres readreplicas storage size |  | MaxLength: 20 <br />MinLength: 2 <br /> |
 | `postgresReadreplicasPvcDataStorageAccessMode` _[StorageAccessMode](#storageaccessmode)_ | PostgresReadreplicasPvcDataStorageAccessMode defines postgres readreplicas storage access modes |  | Enum: [ReadWriteOnce ReadOnlyMany ReadWriteMany] <br /> |
@@ -505,6 +538,8 @@ _Appears in:_
 | `pgbouncerNetpolOmit` _boolean_ | PgbouncerNetpolOmit whether to omit default network policy for pgbouncer. Default: true |  |  |
 | `pgbouncerNetpolIngressIpblock` _string_ | PgbouncerNetpolIngressIpblock defines ipblock for pgbouncer default network policy |  |  |
 | `pgbouncerNetpolEgressIpblock` _string_ | PgbouncerNetpolEgressIpblock defines egress ip block for pgbouncer default network policy |  |  |
+| `pgbouncerNetpolIngressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | PgbouncerNetpolIngressExtraPorts defines extra ingress ports for pgbouncer default network policy |  |  |
+| `pgbouncerNetpolEgressExtraPorts` _[NetworkPolicyExtraPort](#networkpolicyextraport) array_ | PgbouncerNetpolEgressExtraPorts defines extra egress ports for pgbouncer default network policy |  |  |
 | `pgbouncerReadonlyExtraConfig` _string_ | PgbouncerReadonlyExtraConfig contains extra pgbouncer readonly config |  |  |
 | `pgbouncerReadonlyResourceRequests` _boolean_ | PgbouncerReadonlyResourceRequests whether pgbouncer readonly resource requests are added. Default: true |  |  |
 | `pgbouncerReadonlyResourceRequestsCpu` _string_ | PgbouncerReadonlyResourceRequestsCpu set pgbouncer readonly resource requests cpu |  | MaxLength: 20 <br /> |
