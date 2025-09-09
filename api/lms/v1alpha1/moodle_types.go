@@ -512,14 +512,14 @@ type MoodleSpec struct {
 	MoodleRedisMucStorePrefix string `json:"moodleRedisMucStorePrefix,omitempty"`
 
 	// MoodleRedisMucStoreSerializer defines serializer for redis MUC store. Default: 1
-	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=2
 	// +optional
 	MoodleRedisMucStoreSerializer int8 `json:"moodleRedisMucStoreSerializer,omitempty"`
 
 	// MoodleRedisMucStoreCompressor defines compressor for redis MUC store. Default: 0
 	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:validation:Maximum=1
+	// +kubebuilder:validation:Maximum=2
 	// +optional
 	MoodleRedisMucStoreCompressor int8 `json:"moodleRedisMucStoreCompressor,omitempty"`
 
