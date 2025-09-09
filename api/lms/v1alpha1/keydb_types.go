@@ -121,6 +121,14 @@ type KeydbSpec struct {
 	// KeydbNetpolEgressIpblock defines egress ip block for keydb default network policy
 	// +optional
 	KeydbNetpolEgressIpblock string `json:"keydbNetpolEgressIpblock,omitempty"`
+
+	// KeydbNetpolIngressExtraPorts defines extra ingress ports for keydb default network policy
+	// +optional
+	KeydbNetpolIngressExtraPorts []NetworkPolicyExtraPort `json:"keydbNetpolIngressExtraPorts,omitempty"`
+
+	// KeydbNetpolEgressExtraPorts defines extra egress ports for keydb default network policy
+	// +optional
+	KeydbNetpolEgressExtraPorts []NetworkPolicyExtraPort `json:"keydbNetpolEgressExtraPorts,omitempty"`
 }
 
 // KeydbMode describes mode keydb runs

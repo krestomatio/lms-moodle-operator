@@ -263,6 +263,14 @@ type MoodleSpec struct {
 	// +optional
 	MoodleNetpolEgressIpblock string `json:"moodleNetpolEgressIpblock,omitempty"`
 
+	// MoodleNetpolIngressExtraPorts defines extra ingress ports for moodle default network policy
+	// +optional
+	MoodleNetpolIngressExtraPorts []NetworkPolicyExtraPort `json:"moodleNetpolIngressExtraPorts,omitempty"`
+
+	// MoodleNetpolEgressExtraPorts defines extra egress ports for moodle default network policy
+	// +optional
+	MoodleNetpolEgressExtraPorts []NetworkPolicyExtraPort `json:"moodleNetpolEgressExtraPorts,omitempty"`
+
 	// NginxSize defines nginx number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=255
@@ -339,6 +347,14 @@ type MoodleSpec struct {
 	// NginxNetpolEgressIpblock defines egress ip block for nginx default network policy
 	// +optional
 	NginxNetpolEgressIpblock string `json:"nginxNetpolEgressIpblock,omitempty"`
+
+	// NginxNetpolIngressExtraPorts defines extra ingress ports for nginx default network policy
+	// +optional
+	NginxNetpolIngressExtraPorts []NetworkPolicyExtraPort `json:"nginxNetpolIngressExtraPorts,omitempty"`
+
+	// NginxNetpolEgressExtraPorts defines extra egress ports for nginx default network policy
+	// +optional
+	NginxNetpolEgressExtraPorts []NetworkPolicyExtraPort `json:"nginxNetpolEgressExtraPorts,omitempty"`
 
 	// PhpFpmSize defines php-fpm number of replicas between 0 and 255
 	// +kubebuilder:validation:Minimum=0
@@ -422,6 +438,14 @@ type MoodleSpec struct {
 	// PhpFpmNetpolEgressIpblock defines egress ip block for php-fpm default network policy
 	// +optional
 	PhpFpmNetpolEgressIpblock string `json:"phpFpmNetpolEgressIpblock,omitempty"`
+
+	// PhpFpmNetpolIngressExtraPorts defines extra ingress ports for php-fpm default network policy
+	// +optional
+	PhpFpmNetpolIngressExtraPorts []NetworkPolicyExtraPort `json:"phpFpmNetpolIngressExtraPorts,omitempty"`
+
+	// PhpFpmNetpolEgressExtraPorts defines extra egress ports for php-fpm default network policy
+	// +optional
+	PhpFpmNetpolEgressExtraPorts []NetworkPolicyExtraPort `json:"phpFpmNetpolEgressExtraPorts,omitempty"`
 
 	// MoodlePostgresMetaName defines Postgres CR name to use as database.
 	// +kubebuilder:validation:MaxLength=63
@@ -556,4 +580,15 @@ type RoutineStatusCrNotify struct {
 	// JwtSecretEnvName environment variable name that holds secret to generate jwt tokens
 	// +optional
 	JwtSecretEnvName string `json:"jwtSecretEnvName,omitempty"`
+}
+
+type NetworkPolicyExtraPort struct {
+	// Port number
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=65535
+	Port int32 `json:"port"`
+	// Protocol TCP or UDP
+	// +kubebuilder:validation:Enum=TCP;UDP
+	// +optional
+	Protocol string `json:"protocol,omitempty"`
 }
