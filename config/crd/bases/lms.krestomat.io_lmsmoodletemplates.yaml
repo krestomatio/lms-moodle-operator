@@ -253,6 +253,10 @@ spec:
                       properties in config.php
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
+                  moodleConfigDeveloper:
+                    description: 'MoodleConfigDeveloper whether moodle developer mode
+                      is enabled for debugging. Default: false'
+                    type: boolean
                   moodleConfigSessionRedisCompressor:
                     description: MoodleConfigSessionRedisCompressor defines redis
                       session compresor

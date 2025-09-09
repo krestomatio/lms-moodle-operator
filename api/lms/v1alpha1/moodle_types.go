@@ -234,6 +234,10 @@ type MoodleSpec struct {
 	// +optional
 	MoodleNewInstanceJobResourceLimitsMemory string `json:"moodleNewInstanceJobResourceLimitsMemory,omitempty"`
 
+	// MoodleConfigDeveloper whether moodle developer mode is enabled for debugging. Default: false
+	// +optional
+	MoodleConfigDeveloper bool `json:"moodleConfigDeveloper,omitempty"`
+
 	// MoodleConfigAdditionalCfg defines moodle extra config properties in config.php
 	// +kubebuilder:pruning:PreserveUnknownFields
 	// +optional
