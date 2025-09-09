@@ -2,7 +2,7 @@ dependencies:
   - type: olm.package
     value:
       packageName: moodle-operator
-      version: "0.6.33"
+      version: "0.6.35"
   - type: olm.package
     value:
       packageName: postgres-operator-krestomatio
