@@ -247,6 +247,10 @@ type MoodleSpec struct {
 	// +optional
 	MoodleConfigAdditionalBlock string `json:"moodleConfigAdditionalBlock,omitempty"`
 
+	// MoodleConfigLastBlock defines moodle extra block at the end of config.php
+	// +optional
+	MoodleConfigLastBlock string `json:"moodleConfigLastBlock,omitempty"`
+
 	// MoodleUpdateMinor whether minor updates are automatically applied. Default: true
 	// +optional
 	MoodleUpdateMinor bool `json:"moodleUpdateMinor,omitempty"`
