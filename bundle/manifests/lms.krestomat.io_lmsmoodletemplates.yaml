@@ -599,7 +599,7 @@ spec:
                   moodleRedisMucStoreCompressor:
                     description: 'MoodleRedisMucStoreCompressor defines compressor
                       for redis MUC store. Default: 0'
-                    maximum: 1
+                    maximum: 2
                     minimum: 0
                     type: integer
                   moodleRedisMucStorePrefix:
@@ -611,7 +611,7 @@ spec:
                     description: 'MoodleRedisMucStoreSerializer defines serializer
                       for redis MUC store. Default: 1'
                     maximum: 2
-                    minimum: 1
+                    minimum: 0
                     type: integer
                   moodleRedisSecret:
                     description: 'MoodleRedisSecret defines redis auth secret name.

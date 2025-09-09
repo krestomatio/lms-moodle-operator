@@ -385,8 +385,8 @@ _Appears in:_
 | `moodleConfigSessionRedisSerializerUseIgbinary` _boolean_ | MoodleConfigSessionRedisSerializerUseIgbinary whether igbinary is used for redis session. Default: false |  |  |
 | `moodleConfigSessionRedisCompressor` _[SessionRedisCompressor](#sessionrediscompressor)_ | MoodleConfigSessionRedisCompressor defines redis session compresor |  | Enum: [none gzip zstd] <br /> |
 | `moodleRedisMucStorePrefix` _string_ | MoodleRedisMucStorePrefix defines prefix for redis MUC store. Default: '' |  | MaxLength: 100 <br /> |
-| `moodleRedisMucStoreSerializer` _integer_ | MoodleRedisMucStoreSerializer defines serializer for redis MUC store. Default: 1 |  | Maximum: 2 <br />Minimum: 1 <br /> |
-| `moodleRedisMucStoreCompressor` _integer_ | MoodleRedisMucStoreCompressor defines compressor for redis MUC store. Default: 0 |  | Maximum: 1 <br />Minimum: 0 <br /> |
+| `moodleRedisMucStoreSerializer` _integer_ | MoodleRedisMucStoreSerializer defines serializer for redis MUC store. Default: 1 |  | Maximum: 2 <br />Minimum: 0 <br /> |
+| `moodleRedisMucStoreCompressor` _integer_ | MoodleRedisMucStoreCompressor defines compressor for redis MUC store. Default: 0 |  | Maximum: 2 <br />Minimum: 0 <br /> |
 | `routineStatusCrNotify` _[RoutineStatusCrNotify](#routinestatuscrnotify)_ | RoutineStatusCrNotify specification using ansible URI module |  |  |
 | `routineStatusCrNotifyTermination` _[RoutineStatusCrNotify](#routinestatuscrnotify)_ | RoutineStatusCrNotifyTermination specification using ansible URI module |  |  |
 
