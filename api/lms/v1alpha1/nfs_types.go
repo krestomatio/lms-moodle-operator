@@ -131,4 +131,12 @@ type NfsSpec struct {
 	// GaneshaNetpolEgressIpblock defines egress ip block for ganesha default network policy
 	// +optional
 	GaneshaNetpolEgressIpblock string `json:"ganeshaNetpolEgressIpblock,omitempty"`
+
+	// GaneshaNetpolIngressExtraPorts defines extra ingress ports for ganesha default network policy
+	// +optional
+	GaneshaNetpolIngressExtraPorts []NetworkPolicyExtraPort `json:"ganeshaNetpolIngressExtraPorts,omitempty"`
+
+	// GaneshaNetpolEgressExtraPorts defines extra egress ports for ganesha default network policy
+	// +optional
+	GaneshaNetpolEgressExtraPorts []NetworkPolicyExtraPort `json:"ganeshaNetpolEgressExtraPorts,omitempty"`
 }
