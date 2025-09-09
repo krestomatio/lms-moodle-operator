@@ -297,6 +297,10 @@ spec:
                     description: 'MoodleConfigDeveloper whether moodle developer mode
                       is enabled for debugging. Default: false'
                     type: boolean
+                  moodleConfigLastBlock:
+                    description: MoodleConfigLastBlock defines moodle extra block
+                      at the end of config.php
+                    type: string
                   moodleConfigSessionRedisCompressor:
                     description: MoodleConfigSessionRedisCompressor defines redis
                       session compresor

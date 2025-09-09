@@ -324,6 +324,7 @@ _Appears in:_
 | `moodleConfigDeveloper` _boolean_ | MoodleConfigDeveloper whether moodle developer mode is enabled for debugging. Default: false |  |  |
 | `moodleConfigAdditionalCfg` _[MoodleConfigProperty](#moodleconfigproperty)_ | MoodleConfigAdditionalCfg defines moodle extra config properties in config.php |  |  |
 | `moodleConfigAdditionalBlock` _string_ | MoodleConfigAdditionalBlock defines moodle extra block in config.php |  |  |
+| `moodleConfigLastBlock` _string_ | MoodleConfigLastBlock defines moodle extra block at the end of config.php |  |  |
 | `moodleUpdateMinor` _boolean_ | MoodleUpdateMinor whether minor updates are automatically applied. Default: true |  |  |
 | `moodleUpdateMajor` _boolean_ | MoodleUpdateMajor whether major updates are automatically applied. Default: false |  |  |
 | `moodleNetpolOmit` _boolean_ | MoodleNetpolOmit whether to omit default moodle network policy. Default: true |  |  |
