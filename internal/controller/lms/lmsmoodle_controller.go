@@ -92,6 +92,7 @@ type LMSMoodleReconcilerContext struct {
 	namespace                          *corev1.Namespace
 	lmsMoodleNetpolOmit                bool
 	lmsMoodleDefaultNetpol             *networkingv1.NetworkPolicy
+	lmsMoodleHttp01SolverNetpol        *networkingv1.NetworkPolicy
 }
 
 type LMSMoodleTemplateNotFoundError struct {
@@ -243,6 +244,8 @@ func (r *LMSMoodleReconciler) reconcilePrepare(ctx context.Context) error {
 
 	// define default network policy
 	r.defineLMSMoodleDefaultNetpol()
+	// define http01 solver network policy
+	r.defineLMSMoodleHttp01SolverNetpol()
 
 	// whether LMSMoodle has dependant components
 	if err := r.postgresSpec(); err != nil {
@@ -424,6 +427,17 @@ func (r *LMSMoodleReconciler) reconcilePresent(ctx context.Context) (requeue boo
 		}
 	} else {
 		if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.lmsMoodleDefaultNetpol); err != nil {
+			return false, err
+		}
+	}
+
+	// Whether http01 solver network policy should be present
+	if r.lmsMoodleCtx.lmsMoodleNetpolOmit {
+		if err := r.ReconcileDeleteDependant(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.lmsMoodleHttp01SolverNetpol); client.IgnoreNotFound(err) != nil {
+			return false, err
+		}
+	} else {
+		if err := r.ReconcileCreate(ctx, r.lmsMoodleCtx.lmsMoodle, r.lmsMoodleCtx.lmsMoodleHttp01SolverNetpol); err != nil {
 			return false, err
 		}
 	}

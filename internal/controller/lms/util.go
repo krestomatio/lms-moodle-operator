@@ -15,6 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -1082,6 +1083,36 @@ func (r *LMSMoodleReconciler) defineLMSMoodleDefaultNetpol() {
 	}
 	r.lmsMoodleCtx.lmsMoodleDefaultNetpol.SetNamespace(r.lmsMoodleCtx.namespaceName)
 	r.lmsMoodleCtx.lmsMoodleDefaultNetpol.SetName(r.lmsMoodleCtx.networkPolicyBaseName + "-netpol")
+}
+
+// defineLMSMoodleHttp01SolverNetpol define network policy allowing ingress to cert-manager HTTP01 solver pods
+func (r *LMSMoodleReconciler) defineLMSMoodleHttp01SolverNetpol() {
+	protocol := corev1.ProtocolTCP
+	port := intstr.FromInt(8089)
+	r.lmsMoodleCtx.lmsMoodleHttp01SolverNetpol = &networkingv1.NetworkPolicy{
+		Spec: networkingv1.NetworkPolicySpec{
+			PodSelector: metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"acme.cert-manager.io/http01-solver": "true",
+				},
+			},
+			PolicyTypes: []networkingv1.PolicyType{
+				networkingv1.PolicyTypeIngress,
+			},
+			Ingress: []networkingv1.NetworkPolicyIngressRule{
+				{
+					Ports: []networkingv1.NetworkPolicyPort{
+						{
+							Protocol: &protocol,
+							Port:     &port,
+						},
+					},
+				},
+			},
+		},
+	}
+	r.lmsMoodleCtx.lmsMoodleHttp01SolverNetpol.SetNamespace(r.lmsMoodleCtx.namespaceName)
+	r.lmsMoodleCtx.lmsMoodleHttp01SolverNetpol.SetName(r.lmsMoodleCtx.networkPolicyBaseName + "-http01-solver-netpol")
 }
 
 // isDependantSuspended whether dependant is suspended
