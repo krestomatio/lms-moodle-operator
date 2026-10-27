@@ -51,19 +51,23 @@ var _ = Describe("LMSMoodleTemplate Controller", func() {
 						Name:      resourceName,
 						Namespace: "default",
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: lmsv1alpha1.LMSMoodleTemplateSpec{
+						MoodleSpec: newTestMoodleSpec(),
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}
 		})
 
 		AfterEach(func() {
-			// TODO(user): Cleanup logic after each test, like removing the resource instance.
 			resource := &lmsv1alpha1.LMSMoodleTemplate{}
 			err := k8sClient.Get(ctx, typeNamespacedName, resource)
 			Expect(err).NotTo(HaveOccurred())
 
 			By("Cleanup the specific resource instance LMSMoodleTemplate")
+			// No manager runs the finalizer in this suite, so remove it to let the delete finish.
+			resource.SetFinalizers(nil)
+			Expect(k8sClient.Update(ctx, resource)).To(Succeed())
 			Expect(k8sClient.Delete(ctx, resource)).To(Succeed())
 		})
 		It("should successfully reconcile the resource", func() {
@@ -77,8 +81,11 @@ var _ = Describe("LMSMoodleTemplate Controller", func() {
 				NamespacedName: typeNamespacedName,
 			})
 			Expect(err).NotTo(HaveOccurred())
-			// TODO(user): Add more specific assertions depending on your controller's reconciliation logic.
-			// Example: If you expect a certain status condition after reconciliation, verify it here.
+
+			By("Checking the finalizer and the Ready state")
+			Expect(k8sClient.Get(ctx, typeNamespacedName, lmsmoodletemplate)).To(Succeed())
+			Expect(lmsmoodletemplate.GetFinalizers()).To(ContainElement(LMSMoodleTemplateFinalizer))
+			Expect(lmsmoodletemplate.Status.State).To(Equal(lmsv1alpha1.ReadyState))
 		})
 	})
 })

@@ -59,7 +59,10 @@ var _ = BeforeSuite(func() {
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "..", "config", "crd", "bases")},
+		CRDDirectoryPaths: []string{
+			filepath.Join("..", "..", "..", "config", "crd", "bases"),
+			filepath.Join("testdata", "crd"),
+		},
 		ErrorIfCRDPathMissing: true,
 
 		// The BinaryAssetsDirectory is only required if you want to run the tests directly
@@ -94,3 +97,13 @@ var _ = AfterSuite(func() {
 	err := testEnv.Stop()
 	Expect(err).NotTo(HaveOccurred())
 })
+
+// newTestMoodleSpec returns a MoodleSpec with the fields that CRD validation requires.
+func newTestMoodleSpec() lmsv1alpha1.MoodleSpec {
+	return lmsv1alpha1.MoodleSpec{
+		MoodleNewInstanceLang:      "en",
+		MoodleNewInstanceAdminmail: "admin@example.com",
+		// Sample hash from config/samples
+		MoodleNewAdminpassHash: "$2b$10$zbRuwPil1wNWQUkvlkchwe3/rOljJvoheydndKH1X0bdIIigy0xim",
+	}
+}
