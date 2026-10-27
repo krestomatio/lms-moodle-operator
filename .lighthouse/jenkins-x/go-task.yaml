@@ -70,7 +70,8 @@ spec:
           resources:
             limits:
               cpu: 2
-              memory: 2Gi
+              # golangci-lint peaks at about 2.5 GB with a cold cache.
+              memory: 4Gi
             requests:
               cpu: 0.1
               memory: 128Mi
